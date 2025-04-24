@@ -1,36 +1,50 @@
-# Projeto Green Line - Versão Desktop
+<h1 align="center">🖥️ Green Line - E-commerce Sustentável (Versão Desktop)</h1> <p align="center"> <strong>Projeto final do curso de Análise e Desenvolvimento de Sistemas - SENAC</strong> </p> <p align="center"> <a href="#"><img src="https://img.shields.io/badge/Status-Em%20Desenvolvimento-FFA500?style=flat-square" alt="Status: Em Desenvolvimento"></a> </p>
+📖 Sobre o Projeto
+A Green Line é uma empresa fictícia criada como parte do Projeto Integrador do curso. Esta versão desktop simula um e-commerce voltado à venda de produtos sustentáveis, promovendo o consumo consciente através da tecnologia.
 
-Green Line é uma empresa fictícia criada como trabalho final do curso **Análise e Desenvolvimento de Sistemas - SENAC**.
+Desenvolvido com Java no NetBeans, o sistema permite a execução local em ambientes desktop com funcionalidades essenciais de uma loja virtual.
 
-## Sobre o Projeto
-Este repositório contém a versão desktop do projeto, que tem como objetivo desenvolver um e-commerce focado em **produtos sustentáveis**.
+💻 Tecnologias Utilizadas
+<p align="center"> <img src="https://img.shields.io/badge/Java-007396?style=flat-square&logo=java&logoColor=white" alt="Java"> <img src="https://img.shields.io/badge/NetBeans-1B6AC6?style=flat-square&logo=apache-netbeans-ide&logoColor=white" alt="NetBeans"> </p>
+Java: Linguagem de programação principal
 
-## Tecnologias Utilizadas
-- **Java** com NetBeans.
+NetBeans IDE: Ambiente de desenvolvimento
 
-## Estrutura do Repositório
-- `src/`: Código-fonte principal.
-- `dist/`: Executáveis gerados.
-- `imagens/`: Recursos gráficos (imagens).
-- `nbproject/`: Configuração do NetBeans.
-- `.gitignore`: Arquivo de controle de exclusões.
+📁 Estrutura do Projeto
+bash
+Copiar
+Editar
+📦 GreenLine-Desktop/
+├── src/              # Código-fonte principal
+├── dist/             # Executáveis .jar gerados
+├── imagens/          # Recursos gráficos
+├── nbproject/        # Configuração do NetBeans
+└── .gitignore        # Arquivo de exclusões do Git
+🛠️ Como Compilar e Executar
+Abra o projeto no NetBeans.
 
-## Como Compilar
-1. Abra o projeto no NetBeans.
-2. Navegue para "Run > Clean and Build Project".
-3. O arquivo `.jar` será gerado na pasta `dist/`.
+Vá em Run > Clean and Build Project.
 
-## Licença
-[MIT]
+O executável .jar será gerado automaticamente na pasta dist/.
 
-## Equipe
+Execute o arquivo .jar com um duplo clique ou via terminal.
 
-Este projeto foi desenvolvido por:
+👥 Equipe
+Desenvolvido por:
 
-- [Kauã Nunes](https://github.com/KauaNca)
-- [Gabriel](https://github.com/gabriel-reiss)
-- [Edenilson](https://github.com/Edenilson-Nascimento)
-- [Fabrício](https://github.com/fabricioribdev)
-- [Guilherme](https://github.com/soaresCP)
+Kauã Nunes
 
-Agradecemos a todos os envolvidos pela dedicação e trabalho colaborativo!
+Fabrício
+
+Gabriel
+
+Edenilson
+
+Guilherme
+
+📧 Contato
+Dúvidas ou sugestões?
+
+📩 Email: greenline.ecologic@gmail.com
+
+<h2 align="center">🌱 Tecnologia a favor da sustentabilidade. Faça parte dessa ideia! 🌎</h2>
