@@ -1,4 +1,3 @@
-
 import com.jtattoo.plaf.mcwin.McWinLookAndFeel;
 import java.awt.*;
 import java.awt.event.*;
@@ -8,34 +7,38 @@ import javax.swing.border.EmptyBorder;
 
 public class TelaInicial extends JFrame {
 
-    JMenuBar menuSuperior = new JMenuBar();
-    JMenu Cadastro = new JMenu("Cadastro");
-    JMenu Usuario = new JMenu("Usuário");
-    JMenu Produtos = new JMenu("Produtos");
-    JMenu Vendas = new JMenu("Vendas");
-    JMenu Notificacoes = new JMenu("Notificações");
-    JMenu Configuracoes = new JMenu("Configurações");
-    JMenu SuaConta = new JMenu("Sua conta");
-    JMenuItem ItemVendas = new JMenuItem("Nova venda");
-    JMenuItem cadastroUsuario = new JMenuItem("Usuário");
-    JMenuItem cadastroProdutos = new JMenuItem("Produtos");
-    JMenuItem pesquisarUsuario = new JMenuItem("Pesquisar");
-    JMenuItem editarUsuario = new JMenuItem("Editar");
-    JMenuItem cadastroCategorias = new JMenuItem("Categorias");
-    JMenuItem pesquisarProduto = new JMenuItem("Pesquisar");
-    JMenuItem editarProduto = new JMenuItem("Editar");
-    JMenuItem editarCategorias = new JMenuItem("Categorias");
-    JMenuItem sair = new JMenuItem("Sair");
-    JMenuItem seusDados = new JMenuItem("Seus dados");
-    JDesktopPane painelPrincipal = new JDesktopPane();
-    Font fontePadrao = new Font("Arial", Font.PLAIN, 28);
-    Font fonteItem = new Font("Arial", Font.PLAIN, 25);
-    JPanel linhaDeBaixo = new JPanel();
-    Color corVerde = new Color(29, 68, 53);
-    Color corDeFundo = new Color(255, 242, 207);
-    EmptyBorder bordaItemMenu = new EmptyBorder(0, 20, 0, 20);
-    public String codigo;
-    public String tipo_usuario;
+    // Componentes da interface
+    private final JMenuBar menuSuperior = new JMenuBar();
+    private final JMenu Cadastro = new JMenu("Cadastro");
+    private final JMenu Usuario = new JMenu("Usuário");
+    private final JMenu Produtos = new JMenu("Produtos");
+    private final JMenu Vendas = new JMenu("Vendas");
+    private final JMenu Notificacoes = new JMenu("Notificações");
+    private final JMenu Configuracoes = new JMenu("Configurações");
+    private final JMenu SuaConta = new JMenu("Sua conta");
+    private final JMenuItem ItemVendas = new JMenuItem("Nova venda");
+    private final JMenuItem cadastroUsuario = new JMenuItem("Usuário");
+    private final JMenuItem cadastroProdutos = new JMenuItem("Produtos");
+    private final JMenuItem pesquisarUsuario = new JMenuItem("Pesquisar");
+    private final JMenuItem editarUsuario = new JMenuItem("Editar");
+    private final JMenuItem cadastroCategorias = new JMenuItem("Categorias");
+    private final JMenuItem pesquisarProduto = new JMenuItem("Pesquisar");
+    private final JMenuItem editarProduto = new JMenuItem("Editar");
+    private final JMenuItem editarCategorias = new JMenuItem("Categorias");
+    private final JMenuItem sair = new JMenuItem("Sair");
+    private final JMenuItem seusDados = new JMenuItem("Seus dados");
+    private final JDesktopPane painelPrincipal = new JDesktopPane();
+    
+    // Estilos
+    private final Font fontePadrao = new Font("Arial", Font.PLAIN, 28);
+    private final Font fonteItem = new Font("Arial", Font.PLAIN, 25);
+    private final JPanel linhaDeBaixo = new JPanel();
+    private final Color corVerde = new Color(29, 68, 53);
+    private final Color corDeFundo = new Color(255, 242, 207);
+    private final EmptyBorder bordaItemMenu = new EmptyBorder(0, 20, 0, 20);
+
+    private String codigo;
+    private String tipo_usuario;
 
     public String getCodigo() {
         return codigo;
@@ -44,38 +47,39 @@ public class TelaInicial extends JFrame {
     public String getTipo_usuario() {
         return tipo_usuario;
     }
-    public TelaInicial(){
-        
-    }
+
+    public TelaInicial() {}
+
     public TelaInicial(String codigo, String tipo_usuario) {
-        mensagemBoaVindas();
-        configurarUIManager();
-        inicializarComponentes();
         this.codigo = codigo;
         this.tipo_usuario = tipo_usuario;
-        
-        if(codigo.isBlank() && tipo_usuario.isBlank()){
+
+        mensagemBoasVindas();
+        configurarUIManager();
+        inicializarComponentes();
+
+        // Verifica se usuário não forneceu dados válidos
+        if (codigo.isBlank() && tipo_usuario.isBlank()) {
             dispose();
         }
-        if(tipo_usuario.equals("2")){
-            
+
+        // Restringe acesso ao menu de vendas para usuários do tipo "2"
+        if ("2".equals(tipo_usuario)) {
             Vendas.setEnabled(false);
-            
         }
-        
     }
 
+    // Configura aparência do UI utilizando JTattoo
     private void configurarUIManager() {
         try {
-            // Configurar propriedades personalizadas do JTattoo
             Properties props = new Properties();
-            props.put("logoString", ""); // Remove o texto "JTattoo" (ou substitua por algo personalizado)
+            props.put("logoString", ""); // Remove o texto padrão "JTattoo"
             McWinLookAndFeel.setCurrentTheme(props);
-            // Configurando o tema do JTattoo
             UIManager.setLookAndFeel("com.jtattoo.plaf.mcwin.McWinLookAndFeel");
         } catch (Exception e) {
             e.printStackTrace();
         }
+
         UIManager.put("MenuBar.background", corVerde);
         UIManager.put("MenuBar.foreground", Color.WHITE);
     }
@@ -86,32 +90,21 @@ public class TelaInicial extends JFrame {
         configurarEventos();
     }
 
-    private void mensagemBoaVindas() {
+    private void mensagemBoasVindas() {
         JOptionPane.showMessageDialog(
                 null,
                 "<html><h2>Bem-vindo!</h2></html>",
                 "Mensagem",
-                JOptionPane.OK_OPTION, new ImageIcon("imagens/notificacao.png")
+                JOptionPane.OK_OPTION,
+                new ImageIcon("imagens/notificacao.png")
         );
-
     }
 
     private void configurarMenu() {
-        // Sobrescrevendo o JMenuBar para aplicar a cor de fundo
-        menuSuperior = new JMenuBar() {
-            @Override
-            protected void paintComponent(Graphics g) {
-                super.paintComponent(g);
-                Graphics2D g2d = (Graphics2D) g;
-                g2d.setColor(corVerde); // Define a cor desejada
-                g2d.fillRect(0, 0, getWidth(), getHeight());
-            }
-        };
-
         menuSuperior.setPreferredSize(new Dimension(1300, 90));
         menuSuperior.setBorderPainted(false);
 
-        // Personalizando os menus e itens
+        // Personalizando menus e itens
         personalizacaoJMenu(Cadastro);
         personalizacaoJMenu(Usuario);
         personalizacaoJMenu(Produtos);
@@ -169,7 +162,6 @@ public class TelaInicial extends JFrame {
     }
 
     private void configurarFrame() {
-        // Configuração do JFrame
         setSize(1300, 770);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
@@ -187,7 +179,7 @@ public class TelaInicial extends JFrame {
     }
 
     private void configurarEventos() {
-        // Eventos para mouse nos menus
+        // Eventos para mudança de cor ao passar o mouse nos menus
         adicionarEventoMouse(Cadastro);
         adicionarEventoMouse(Usuario);
         adicionarEventoMouse(Produtos);
@@ -202,48 +194,19 @@ public class TelaInicial extends JFrame {
             dispose();
         });
 
-        cadastroProdutos.addActionListener(e -> {
-            CadastroProdutos produtos = new CadastroProdutos();
-            centralizarTela(produtos);
-        });
-
-        cadastroCategorias.addActionListener(e -> {
-            CadastroCategoria categorias = new CadastroCategoria();
-            centralizarTela(categorias);
-        });
-
-        ItemVendas.addActionListener(e -> {
-            TelaVendas novaTelaVendas = new TelaVendas();
-            centralizarTela(novaTelaVendas);
-        });
-
-        editarProduto.addActionListener(e -> {
-            EditarProdutos editar = new EditarProdutos();
-            centralizarTela(editar);
-        });
-        pesquisarProduto.addActionListener(e ->{
-            PesquisarProdutos pesquisar = new PesquisarProdutos();
-            centralizarTela(pesquisar);
-        });
-        seusDados.addActionListener(e->{
-            SeusDados conta = new SeusDados(codigo);
-            centralizarTela(conta);
-        });
-        pesquisarUsuario.addActionListener(e->{
-            PesquisarUsuario pesquisar = new PesquisarUsuario();
-            centralizarTela(pesquisar);
-        });
+        cadastroProdutos.addActionListener(e -> centralizarTela(new CadastroProdutos()));
+        cadastroCategorias.addActionListener(e -> centralizarTela(new CadastroCategoria()));
+        ItemVendas.addActionListener(e -> centralizarTela(new TelaVendas()));
+        editarProduto.addActionListener(e -> centralizarTela(new EditarProdutos()));
+        pesquisarProduto.addActionListener(e -> centralizarTela(new PesquisarProdutos()));
+        seusDados.addActionListener(e -> centralizarTela(new SeusDados(codigo)));
+        pesquisarUsuario.addActionListener(e -> centralizarTela(new PesquisarUsuario()));
     }
 
     private void adicionarEventoMouse(JMenu menu) {
         menu.addMouseListener(new MouseAdapter() {
-            public void mouseEntered(MouseEvent e) {
-                menu.setForeground(Color.BLACK);
-            }
-
-            public void mouseExited(MouseEvent e) {
-                menu.setForeground(Color.WHITE);
-            }
+            public void mouseEntered(MouseEvent e) { menu.setForeground(Color.BLACK); }
+            public void mouseExited(MouseEvent e) { menu.setForeground(Color.WHITE); }
         });
     }
 
