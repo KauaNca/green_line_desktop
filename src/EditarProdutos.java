@@ -31,146 +31,194 @@ import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import java.util.logging.Logger;
 
 /**
+ * JInternalFrame para edição de produtos no sistema. Permite modificar detalhes do produto,
+ * incluindo nome, preço, descrição, imagens e categorias, com validação de entrada e slideshow.
  *
  * @author Kaua33500476
  */
 public class EditarProdutos extends javax.swing.JInternalFrame {
 
-    int contagem = 0;
-    int repeticao = 0;
-    int numeroLinhas = 0;
-    int numeroImagens = 0;
-    int numeroImagensBanco = 0;
-    JButton confirmar = new JButton("Confirmar");
-    File arquivo;
-    String enderecoImagemBanco1;
-    String enderecoImagemBanco2;
-    String enderecoNovo1;
-    String enderecoNovo2;
-    String[] enderecosImagens = new String[2];
-    String Subcategorias;
-    EscolhaDeSubcategoria janelaSubcategorias;
-    EscolhaDeCategoria janelaCategoria;
-    String id_produto;
-    String Produto;
-    String Preco;
-    String Descricao;
-    String Marca;
-    String Estoque;
-    String Categoria;
-    String Subcategoria;
-    private JPopupMenu sugestoesProdutos = new JPopupMenu();
-    List<String> produtos;
-    Font fonteItem = new Font("Arial", Font.PLAIN, 15);
-         private boolean atualizandoMascara = false;
+    // Logger para rastreamento de eventos e erros
+    private static final Logger LOGGER = Logger.getLogger(EditarProdutos.class.getName());
 
+    // Constantes para queries SQL, caminhos de imagens e mensagens
+    private static final String SELECT_PRODUCT_NAMES = "SELECT nome_produto FROM produto";
+    private static final String SELECT_SUBCATEGORY_ID = "SELECT id_subcat FROM subcategorias WHERE subcategoria = ?";
+    private static final String DEFAULT_IMAGE_PATH = "imagens/sem_imagem.jpg";
+    private static final String PRODUCT_IMAGE_PATH = "imagens/produtos/";
+    private static final String RIGHT_ARROW_PATH = "imagens/seta-direita.png";
+    private static final String SEARCH_ICON_PATH = "imagens/lupa.png";
+    private static final String ERROR_IMAGE_NOT_FOUND = "Imagem não encontrada";
+    private static final String ERROR_DB_ACCESS = "Erro ao carregar dados: ";
+    private static final String ERROR_GENERIC = "Erro: ";
 
+    // Variáveis de estado
+    private int contagem = 0;
+    private int repeticao = 0;
+    private int numeroLinhas = 0;
+    private int numeroImagens = 0;
+    private int numeroImagensBanco = 0;
+    private final JButton confirmar = new JButton("Confirmar");
+    private File arquivo;
+    private String enderecoImagemBanco1;
+    private String enderecoImagemBanco2;
+    private String enderecoNovo1;
+    private String enderecoNovo2;
+    private String[] enderecosImagens = new String[2];
+    private String Subcategorias;
+    private EscolhaDeSubcategoria janelaSubcategorias;
+    private EscolhaDeCategoria janelaCategoria;
+    private String id_produto;
+    private String Produto;
+    private String Preco;
+    private String Descricao;
+    private String Marca;
+    private String Estoque;
+    private String Categoria;
+    private String Subcategoria;
+    private final JPopupMenu sugestoesProdutos = new JPopupMenu();
+    private List<String> produtos;
+    private final Font fonteItem = new Font("Arial", Font.PLAIN, 15);
+    private boolean atualizandoMascara = false;
+
+    // Timer para slideshow de imagens
+    private final Timer slide = new Timer(1000, new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            LOGGER.info("Alternando imagem no slideshow. Contagem: " + contagem);
+            enderecosImagens[0] = enderecoNovo1;
+            enderecosImagens[1] = enderecoNovo2;
+
+            // Lógica para alternar as imagens
+            contagem = (contagem + 1) % enderecosImagens.length;
+            ImageIcon proximaImagem = new ImageIcon(PRODUCT_IMAGE_PATH + enderecosImagens[contagem]);
+
+            if (proximaImagem.getIconWidth() == -1) {
+                LOGGER.warning(ERROR_IMAGE_NOT_FOUND + ": " + enderecosImagens[contagem]);
+                slide.stop();
+            } else {
+                sem_imagem.setIcon(redimensionamentoDeImagem(proximaImagem, 250, 216));
+                slide.stop();
+            }
+        }
+    });
+
+    /**
+     * Construtor padrão. Inicializa a interface, configura ícones e carrega nomes de produtos.
+     */
     public EditarProdutos() {
         initComponents();
         Inicio();
         nomesProdutos();
 
+        // Configura o listener para clique na seta do slideshow
         seta.addMouseListener(new MouseAdapter() {
+            @Override
             public void mouseClicked(MouseEvent e) {
+                LOGGER.info("Iniciando slideshow de imagens.");
                 slide.start();
             }
-
         });
+
+        // Listener para alterações no campo imagem1
         imagem1.getDocument().addDocumentListener(new DocumentListener() {
             @Override
             public void insertUpdate(DocumentEvent e) {
-                // Usar lógica encapsulada para validar e atualizar enderecoImagem1
                 atualizarEnderecoImagem1();
                 enderecoNovo1 = imagem1.getText();
             }
 
             @Override
             public void removeUpdate(DocumentEvent e) {
-                // Se imagem1 for apagada, atualizar enderecoImagem1 e numeroImagens
                 if (imagem1.getText().isBlank()) {
                     numeroImagens = imagem2.getText().isBlank() ? 0 : 1;
-                    System.out.println("Imagem1 removida. Número de imagens: " + numeroImagens);
+                    LOGGER.info("Imagem1 removida. Número de imagens: " + numeroImagens);
                 }
             }
 
             @Override
             public void changedUpdate(DocumentEvent e) {
-                // Não utilizado, pois esse evento é voltado para atributos de estilo
+                // Não utilizado
             }
 
-            // Método anterior ajustado para validar e atualizar enderecoImagem1
             private void atualizarEnderecoImagem1() {
-                File arquivoImagem = new File("imagens/produtos/" + imagem1.getText());
+                File arquivoImagem = new File(PRODUCT_IMAGE_PATH + imagem1.getText());
                 if (arquivoImagem.exists() && !arquivoImagem.isDirectory()) {
                     enderecoNovo1 = imagem1.getText();
-                    System.out.println("imagem1 em enderecoImagem1: " + enderecoNovo1);
-                    numeroImagens = imagem2.getText().isBlank() ? 1 : 2; // Atualiza o número de imagens
-                    System.out.println("Número de imagens atualizado: " + numeroImagens);
+                    LOGGER.info("Imagem1 em enderecoImagem1: " + enderecoNovo1);
+                    numeroImagens = imagem2.getText().isBlank() ? 1 : 2;
+                    LOGGER.info("Número de imagens atualizado: " + numeroImagens);
                 } else {
-                    new CadastroProdutos().Avisos("imagens/sinal-de-aviso.png", "Imagem não encontrada");
+                    LOGGER.warning(ERROR_IMAGE_NOT_FOUND);
+                    new CadastroProdutos().Avisos("imagens/sinal-de-aviso.png", ERROR_IMAGE_NOT_FOUND);
                 }
             }
         });
 
+        // Listener para alterações no campo imagem2
         imagem2.getDocument().addDocumentListener(new DocumentListener() {
             @Override
             public void insertUpdate(DocumentEvent e) {
-                // Usar lógica encapsulada para validar e atualizar enderecoImagem2
                 atualizarEnderecoImagem2();
                 enderecoNovo2 = imagem2.getText();
             }
 
             @Override
             public void removeUpdate(DocumentEvent e) {
-                // Se imagem2 for apagada, atualizar enderecoImagem2 e numeroImagens
                 if (imagem2.getText().isBlank()) {
-                    enderecoNovo2 = ""; // Substitui null por ""
+                    enderecoNovo2 = "";
                     numeroImagens = imagem1.getText().isBlank() ? 0 : 1;
-                    System.out.println("Imagem2 removida. Número de imagens: " + numeroImagens);
+                    LOGGER.info("Imagem2 removida. Número de imagens: " + numeroImagens);
                 }
             }
 
             @Override
             public void changedUpdate(DocumentEvent e) {
-                // Não utilizado, pois esse evento é voltado para atributos de estilo
+                // Não utilizado
             }
 
-            // Método anterior ajustado para validar e atualizar enderecoImagem2
             private void atualizarEnderecoImagem2() {
-                File arquivoImagem = new File("imagens/produtos/" + imagem2.getText());
+                File arquivoImagem = new File(PRODUCT_IMAGE_PATH + imagem2.getText());
                 if (arquivoImagem.exists() && !arquivoImagem.isDirectory()) {
                     enderecoNovo2 = imagem2.getText();
-                    System.out.println("imagem2 em enderecoImagem2: " + enderecoNovo2);
-                    numeroImagens = imagem1.getText().isBlank() ? 1 : 2; // Atualiza o número de imagens
-                    System.out.println("Número de imagens atualizado: " + numeroImagens);
+                    LOGGER.info("Imagem2 em enderecoImagem2: " + enderecoNovo2);
+                    numeroImagens = imagem1.getText().isBlank() ? 1 : 2;
+                    LOGGER.info("Número de imagens atualizado: " + numeroImagens);
                 } else {
-                    new CadastroProdutos().Avisos("imagens/sinal-de-aviso.png", "Imagem não encontrada");
+                    LOGGER.warning(ERROR_IMAGE_NOT_FOUND);
+                    new CadastroProdutos().Avisos("imagens/sinal-de-aviso.png", ERROR_IMAGE_NOT_FOUND);
                 }
             }
         });
-
     }
 
+    /**
+     * Carrega os nomes dos produtos do banco de dados.
+     */
     public void nomesProdutos() {
-        try (Connection con = Conexao.conexaoBanco()) {
-            PreparedStatement stmt = con.prepareStatement("SELECT nome_produto FROM produto");
-            ResultSet rs = stmt.executeQuery();
+        LOGGER.info("Carregando nomes de produtos.");
+        try (Connection con = Conexao.conexaoBanco();
+             PreparedStatement stmt = con.prepareStatement(SELECT_PRODUCT_NAMES);
+             ResultSet rs = stmt.executeQuery()) {
             produtos = new ArrayList<>();
             while (rs.next()) {
                 produtos.add(rs.getString("nome_produto"));
             }
-            rs.close();
-            stmt.close();
-            con.close();
-
+            LOGGER.info("Nomes de produtos carregados: " + produtos.size());
         } catch (SQLException ex) {
-            System.out.println("Sem acesso aos nomes dos produtos");
+            LOGGER.severe("Erro ao acessar nomes dos produtos: " + ex.getMessage());
         }
     }
 
+    /**
+     * Inicializa a interface, desabilitando campos, configurando ícones padrão
+     * e aplicando máscaras de entrada.
+     */
     public void Inicio() {
+        LOGGER.info("Inicializando interface de edição de produtos.");
         nomeProduto.setEnabled(false);
         preco.setEnabled(false);
         descricao.setEnabled(false);
@@ -185,11 +233,11 @@ public class EditarProdutos extends javax.swing.JInternalFrame {
         deletar2.setVisible(false);
         btConfirmar.setVisible(false);
         sem_imagem.setIcon(sem_imagem());
-        seta.setIcon(new ImageIcon("imagens/seta-direita.png"));
+        seta.setIcon(new ImageIcon(RIGHT_ARROW_PATH));
         applyTextAndNumberFilter(preco);
         applyNumberOnlyMask(estoque);
         applyMoneyMask(preco);
-        pesquisa.setIcon(new ImageIcon("imagens/lupa.png"));
+        pesquisa.setIcon(new ImageIcon(SEARCH_ICON_PATH));
         btSelecionarImagens.setEnabled(false);
         btTrocarSubcategoria.setVisible(false);
         btTrocarCategoria.setVisible(false);
@@ -197,84 +245,92 @@ public class EditarProdutos extends javax.swing.JInternalFrame {
         seta.setVisible(false);
     }
 
-    Timer slide = new Timer(1000, new ActionListener() {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            // Atribuindo valores aos endereços de imagens
-            System.out.println(enderecoNovo1 + enderecoNovo2);
-            enderecosImagens[0] = enderecoNovo1;
-            enderecosImagens[1] = enderecoNovo2;
-
-            // Lógica para alternar as imagens
-            contagem = (contagem + 1) % enderecosImagens.length;
-            ImageIcon proximaImagem = new ImageIcon("imagens/produtos/" + enderecosImagens[contagem]);
-
-            if (proximaImagem.getIconWidth() == -1) {
-                System.out.println("Imagem não encontrada");
-                slide.stop();
-            } else {
-                sem_imagem.setIcon(redimensionamentoDeImagem(proximaImagem, 250, 216));
-                slide.stop();
-            }
-
-        }
-    });
-
+    /**
+     * Construtor com subcategoria. Inicializa a subcategoria com o valor fornecido.
+     *
+     * @param Subcategoria Nome da subcategoria.
+     */
     public EditarProdutos(String Subcategoria) {
         this.Subcategorias = janelaSubcategorias.getSubcategoria();
-        System.out.println(Subcategoria);
+        LOGGER.info("Subcategoria recebida: " + Subcategoria);
     }
 
+    /**
+     * Busca o ID da subcategoria com base no nome fornecido.
+     *
+     * @param subcategoria Nome da subcategoria.
+     * @return ID da subcategoria.
+     */
     public String puxarSubcategoria(String subcategoria) {
-        try {
-            Connection con = Conexao.conexaoBanco();
-            String sql = "SELECT id_subcat FROM subcategorias WHERE subcategoria = ?;";
-            PreparedStatement stmt = con.prepareStatement(sql);
+        LOGGER.info("Buscando ID da subcategoria: " + subcategoria);
+        try (Connection con = Conexao.conexaoBanco();
+             PreparedStatement stmt = con.prepareStatement(SELECT_SUBCATEGORY_ID)) {
             stmt.setString(1, subcategoria);
-            ResultSet rs = stmt.executeQuery();
-
-            while (rs.next()) {
-                Subcategorias = rs.getString("id_subcat");
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    Subcategorias = rs.getString("id_subcat");
+                    LOGGER.info("ID da subcategoria encontrado: " + Subcategorias);
+                }
             }
-
-            stmt.close();
-            rs.close();
-            con.close();
         } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(null, "Erro ao carregar categorias: " + ex.getMessage());
-            ex.printStackTrace();
+            LOGGER.severe(ERROR_DB_ACCESS + ex.getMessage());
+            JOptionPane.showMessageDialog(null, ERROR_DB_ACCESS + ex.getMessage());
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "Erro: " + e.getMessage());
-            e.printStackTrace();
+            LOGGER.severe(ERROR_GENERIC + e.getMessage());
+            JOptionPane.showMessageDialog(null, ERROR_GENERIC + e.getMessage());
         }
         return Subcategorias;
     }
 
+    /**
+     * Retorna o ícone padrão para quando não há imagem disponível.
+     *
+     * @return Ícone redimensionado da imagem padrão.
+     */
     public ImageIcon sem_imagem() {
-        ImageIcon imagem = new ImageIcon("imagens/sem_imagem.jpg");
+        LOGGER.info("Carregando imagem padrão: " + DEFAULT_IMAGE_PATH);
+        ImageIcon imagem = new ImageIcon(DEFAULT_IMAGE_PATH);
         Image redimensionar = imagem.getImage();
         Image redimensionar2 = redimensionar.getScaledInstance(250, 216, Image.SCALE_SMOOTH);
-        ImageIcon imagemRedimensionada = new ImageIcon(redimensionar2);
-        return imagemRedimensionada;
+        return new ImageIcon(redimensionar2);
     }
 
+    /**
+     * Redimensiona uma imagem a partir de um arquivo para as dimensões especificadas.
+     *
+     * @param arquivo Arquivo da imagem.
+     * @return Ícone da imagem redimensionada.
+     */
     public ImageIcon redimensionamentoDeImagem(File arquivo) {
+        LOGGER.info("Redimensionando imagem do arquivo: " + arquivo.getPath());
         ImageIcon imagem = new ImageIcon(arquivo.getPath());
         Image pegarImagem = imagem.getImage();
         Image redimensionando = pegarImagem.getScaledInstance(250, 216, Image.SCALE_SMOOTH);
-        ImageIcon imagemRedimensionada = new ImageIcon(redimensionando);
-        return imagemRedimensionada;
+        return new ImageIcon(redimensionando);
     }
 
+    /**
+     * Redimensiona uma imagem para as dimensões especificadas.
+     *
+     * @param imagem   Ícone da imagem original.
+     * @param largura  Largura desejada.
+     * @param altura   Altura desejada.
+     * @return Ícone da imagem redimensionada.
+     */
     public ImageIcon redimensionamentoDeImagem(ImageIcon imagem, int largura, int altura) {
+        LOGGER.info("Redimensionando imagem para " + largura + "x" + altura);
         Image pegarImagem = imagem.getImage();
         Image redimensionando = pegarImagem.getScaledInstance(largura, altura, Image.SCALE_SMOOTH);
-        ImageIcon imagemRedimensionada = new ImageIcon(redimensionando);
-        return imagemRedimensionada;
+        return new ImageIcon(redimensionando);
     }
 
+    /**
+     * Aplica um filtro de entrada para permitir apenas letras, números e espaços.
+     *
+     * @param textField Campo de texto a ser filtrado.
+     */
     public void applyTextAndNumberFilter(JTextField textField) {
-        // Define a formatter to validate text and number input
+        LOGGER.info("Aplicando filtro de letras e números ao campo: " + textField.getName());
         AbstractDocument doc = (AbstractDocument) textField.getDocument();
         doc.setDocumentFilter(new DocumentFilter() {
             @Override
@@ -293,7 +349,13 @@ public class EditarProdutos extends javax.swing.JInternalFrame {
         });
     }
 
+    /**
+     * Aplica um filtro de entrada para permitir apenas números.
+     *
+     * @param textField Campo de texto a ser filtrado.
+     */
     public void applyNumberOnlyMask(JTextField textField) {
+        LOGGER.info("Aplicando filtro de números ao campo: " + textField.getName());
         AbstractDocument doc = (AbstractDocument) textField.getDocument();
         doc.setDocumentFilter(new DocumentFilter() {
             @Override
@@ -317,10 +379,14 @@ public class EditarProdutos extends javax.swing.JInternalFrame {
         });
     }
 
+    /**
+     * Aplica uma máscara de entrada para formatar valores monetários.
+     *
+     * @param textField Campo de texto a ser formatado.
+     */
     public void applyMoneyMask(JTextField textField) {
+        LOGGER.info("Aplicando máscara de valor monetário ao campo: " + textField.getName());
         NumberFormat currencyFormat = NumberFormat.getCurrencyInstance();
-
-        // Define a formatter to format currency input
         AbstractDocument doc = (AbstractDocument) textField.getDocument();
         doc.setDocumentFilter(new DocumentFilter() {
             @Override
@@ -338,7 +404,7 @@ public class EditarProdutos extends javax.swing.JInternalFrame {
             }
         });
 
-        // Add a key listener to update the text field format as the user types
+        // Listener para formatar o texto como moeda enquanto o usuário digita
         preco.addKeyListener(new KeyAdapter() {
             @Override
             public void keyReleased(KeyEvent e) {
@@ -348,20 +414,26 @@ public class EditarProdutos extends javax.swing.JInternalFrame {
                         textField.setText(currencyFormat.format(Double.parseDouble(text.replaceAll("[^0-9]", ""))));
                     }
                 } catch (NumberFormatException ex) {
-                    ex.printStackTrace();
+                    LOGGER.warning("Erro ao formatar valor monetário: " + ex.getMessage());
                 }
             }
         });
     }
+
+    /**
+     * Aplica uma máscara ao campo de nome do produto, permitindo apenas caracteres
+     * alfanuméricos e acentuados. Evita loops de atualização.
+     */
     private void atualizarMascara() {
-    if (atualizandoMascara) return; // Evita loops
-    atualizandoMascara = true;
-    SwingUtilities.invokeLater(() -> {
-        String texto = nomeProduto.getText();
-        nomeProduto.setText(texto.replaceAll("[^a-zA-Z0-9áéíóúâêîôûãõçÁÉÍÓÚÂÊÎÔÛÃÕÇñÑ~\\s]", ""));
-        atualizandoMascara = false;
-    });
-}
+        if (atualizandoMascara) return; // Evita loops
+        atualizandoMascara = true;
+        SwingUtilities.invokeLater(() -> {
+            String texto = nomeProduto.getText();
+            nomeProduto.setText(texto.replaceAll("[^a-zA-Z0-9áéíóúâêîôûãõçÁÉÍÓÚÂÊÎÔÛÃÕÇñÑ~\\s]", ""));
+            atualizandoMascara = false;
+            LOGGER.info("Máscara aplicada ao nome do produto: " + nomeProduto.getText());
+        });
+    }
 
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents

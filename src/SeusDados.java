@@ -7,6 +7,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Objects;
+import java.util.logging.Logger;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
@@ -14,28 +15,49 @@ import javax.swing.JTextField;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 /**
+ * JInternalFrame para gerenciar dados pessoais do usuário, incluindo
+ * informações de perfil e imagem. Exibe e atualiza os dados do usuário
+ * armazenados no banco de dados.
  *
  * @author kauan
  */
 public class SeusDados extends javax.swing.JInternalFrame {
 
-    TelaInicial tela;
-    private String codigoUsuario;
-    private int contagem = 0;
+    private static final Logger LOGGER = Logger.getLogger(SeusDados.class.getName());
+
+    // Constantes para queries SQL
+    private static final String SELECT_USER_DATA = "SELECT * FROM dados_pessoais WHERE id_pessoa = ?";
+    private static final String SELECT_PERSON_ID = "SELECT id_pessoa FROM pessoa WHERE cpf_cnpj = ?";
+    private static final String UPDATE_PERSON = "UPDATE pessoa SET nome = ?, email = ?, telefone = ?, cpf_cnpj = ?, rg = ?, idade = ? WHERE id_pessoa = ?";
+    private static final String UPDATE_ADDRESS = "UPDATE enderecos SET uf = ?, cep = ?, cidade = ?, bairro = ?, endereco = ?, complemento = ? WHERE id_pessoa = ?";
+    private static final String UPDATE_IMAGE = "UPDATE ImagensUsuarios SET caminho_imagem = ? WHERE id_usuario = ?";
+
+    private final TelaInicial tela;
+    private final String codigoUsuario;
+    private int imageSelectionCount = 0;
     private String caminhoImagem;
     private String[] dadosBanco;
     private String[] novosDados;
     private String arquivoEscolhido;
 
+    /**
+     * Construtor da classe SeusDados.
+     *
+     * @param codigo ID do usuário para buscar e exibir os dados.
+     */
     public SeusDados(String codigo) {
-        initComponents();
+        this.tela = null; // Considere inicializar adequadamente se for usado
         this.codigoUsuario = codigo;
-        initUI();
-        recuperarConta(codigo);
+        initComponents();
+        inicializarInterface();
+        carregarDadosUsuario(codigo);
     }
 
-    private void initUI() {
-        // Itera sobre os componentes do painel e desabilita os campos de texto
+    /**
+     * Inicializa a interface desabilitando campos de texto e ocultando botões
+     * de ação.
+     */
+    private void inicializarInterface() {
         for (Component component : getContentPane().getComponents()) {
             if (component instanceof JTextField) {
                 ((JTextField) component).setEnabled(false);
@@ -44,130 +66,133 @@ public class SeusDados extends javax.swing.JInternalFrame {
         btSelecionar.setVisible(false);
         btSalvar.setVisible(false);
         btCancelar.setVisible(false);
-
     }
 
-    public void recuperarConta(String bancoCodigo) {
-        System.out.println("COMECOU");
-        try (Connection con = Conexao.conexaoBanco()) {
-            System.out.println("Conexao estabelecida");
-            PreparedStatement stmt = con.prepareStatement("SELECT * FROM dados_pessoais WHERE id_pessoa = ?");
-            stmt.setString(1, bancoCodigo);
-            System.out.println("PreparedStatement configurado");
-            ResultSet rs = stmt.executeQuery();
-            System.out.println("Query executada");
+    /**
+     * Carrega os dados do usuário do banco de dados com base no código
+     * fornecido.
+     *
+     * @param codigo ID do usuário.
+     */
+    private void carregarDadosUsuario(String codigo) {
+        LOGGER.info("Iniciando recuperação de dados do usuário.");
+        try (Connection con = Conexao.conexaoBanco(); PreparedStatement stmt = con.prepareStatement(SELECT_USER_DATA)) {
+            stmt.setString(1, codigo);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    LOGGER.info("Dados do usuário encontrados.");
+                    dadosBanco = new String[]{
+                        rs.getString("nome"),
+                        rs.getString("email"),
+                        rs.getString("telefone"),
+                        rs.getString("cpf_cnpj"),
+                        rs.getString("rg"),
+                        rs.getString("idade"),
+                        rs.getString("cep"),
+                        rs.getString("uf"),
+                        rs.getString("cidade"),
+                        rs.getString("bairro"),
+                        rs.getString("endereco"),
+                        rs.getString("complemento")
+                    };
 
-            if (rs.next()) {
-                System.out.println("Dados encontrados");
-                dadosBanco = new String[]{
-                    rs.getString("nome"),
-                    rs.getString("email"),
-                    rs.getString("telefone"),
-                    rs.getString("cpf_cnpj"),
-                    rs.getString("rg"),
-                    rs.getString("idade"),
-                    rs.getString("cep"),
-                    rs.getString("uf"),
-                    rs.getString("cidade"),
-                    rs.getString("bairro"),
-                    rs.getString("endereco"),
-                    rs.getString("complemento")};
+                    // Preenche os campos da interface
+                    usuario.setText(Objects.toString(rs.getString("nome"), ""));
+                    //codigo.setText(Objects.toString(rs.getString("id_usuario"), "")); AQUI FICOU VERMELHO
+                    email.setText(Objects.toString(rs.getString("email"), ""));
+                    telefone.setText(Objects.toString(rs.getString("telefone"), ""));
+                    cpf.setText(Objects.toString(rs.getString("cpf_cnpj"), ""));
+                    rg.setText(Objects.toString(rs.getString("rg"), ""));
+                    idade.setText(Objects.toString(rs.getString("idade"), ""));
+                    cep.setText(Objects.toString(rs.getString("cep"), ""));
 
-                usuario.setText(Objects.toString(rs.getString("nome"), ""));
-                System.out.println("Nome preenchido");
-                codigo.setText(Objects.toString(rs.getString("id_usuario"), ""));
-                email.setText(Objects.toString(rs.getString("email"), ""));
-                System.out.println("Email preenchido");
-                telefone.setText(Objects.toString(rs.getString("telefone"), ""));
-                System.out.println("Telefone preenchido");
-                cpf.setText(Objects.toString(rs.getString("cpf_cnpj"), ""));
-                System.out.println("CPF preenchido");
-                rg.setText(Objects.toString(rs.getString("rg"), ""));
-                System.out.println("RG preenchido");
-                idade.setText(Objects.toString(rs.getString("idade"), ""));
-                System.out.println("Idade preenchida");
-                cep.setText(Objects.toString(rs.getString("cep"), ""));
-
-                for (int x = 0; x < uf.getItemCount(); x++) {
-                    if (uf.getItemAt(x).equals(rs.getString("uf"))) {
-                        uf.setSelectedIndex(x);
-                        System.out.println("UF selecionado");
-                        break;
+                    // Seleciona a UF correspondente
+                    for (int i = 0; i < uf.getItemCount(); i++) {
+                        if (uf.getItemAt(i).equals(rs.getString("uf"))) {
+                            uf.setSelectedIndex(i);
+                            break;
+                        }
                     }
-                }
 
-                cidade.setText(Objects.toString(rs.getString("cidade"), ""));
-                System.out.println("Cidade preenchida");
-                bairro.setText(Objects.toString(rs.getString("bairro"), ""));
-                System.out.println("Bairro preenchido");
-                endereco.setText(Objects.toString(rs.getString("endereco"), ""));
-                System.out.println("Endereço preenchido");
-                complemento.setText(Objects.toString(rs.getString("complemento"), ""));
-                System.out.println("Complemento preenchido");
-                senha.setText(Objects.toString(rs.getString("senha"), ""));
-                System.out.println("Senha preenchida");
+                    cidade.setText(Objects.toString(rs.getString("cidade"), ""));
+                    bairro.setText(Objects.toString(rs.getString("bairro"), ""));
+                    endereco.setText(Objects.toString(rs.getString("endereco"), ""));
+                    complemento.setText(Objects.toString(rs.getString("complemento"), ""));
+                    senha.setText(Objects.toString(rs.getString("senha"), ""));
 
-                caminhoImagem = rs.getString("caminho_imagem");
-                if (caminhoImagem != null) {
-                    System.out.println("Imagem: " + caminhoImagem);
-                    ImageIcon imagemUsuario = new ImageIcon("imagens/usuarios/" + caminhoImagem);
-                    if (imagemUsuario.getIconWidth() == -1) {
-                        System.out.println("Imagem não encontrada");
+                    // Carrega a imagem do usuário, se existir
+                    caminhoImagem = rs.getString("caminho_imagem");
+                    if (caminhoImagem != null && !caminhoImagem.isEmpty()) {
+                        ImageIcon imagemUsuario = new ImageIcon("imagens/usuarios/" + caminhoImagem);
+                        if (imagemUsuario.getIconWidth() == -1) {
+                            LOGGER.warning("Imagem não encontrada: " + caminhoImagem);
+                        } else {
+                            imagem.setIcon(redimensionarImagem(imagemUsuario, 204, 227));
+                        }
                     } else {
-                        imagem.setIcon(redimensionamentoDeImagem(imagemUsuario, 204, 227));
+                        LOGGER.info("Nenhuma imagem associada ao usuário.");
                     }
                 } else {
-                    System.out.println("caminho_imagem é nulo ou não existe.");
+                    LOGGER.warning("Nenhum dado encontrado para o código: " + codigo);
                 }
-
-            } else {
-                System.out.println("Nenhum dado encontrado para o código fornecido");
             }
         } catch (SQLException ex) {
-            ex.printStackTrace(); // Registre o erro para depuração
+            LOGGER.severe("Erro ao carregar dados do usuário: " + ex.getMessage());
+            JOptionPane.showMessageDialog(this, "Erro ao carregar dados do usuário.", "Erro", JOptionPane.ERROR_MESSAGE);
         }
     }
 
-    public ImageIcon redimensionamentoDeImagem(ImageIcon imagem, int largura, int altura) {
-        Image pegarImagem = imagem.getImage();
-        Image redimensionando = pegarImagem.getScaledInstance(largura, altura, Image.SCALE_SMOOTH);
-        ImageIcon imagemRedimensionada = new ImageIcon(redimensionando);
-        return imagemRedimensionada;
+    /**
+     * Redimensiona uma imagem para as dimensões especificadas.
+     *
+     * @param imagem Ícone da imagem original.
+     * @param largura Largura desejada.
+     * @param altura Altura desejada.
+     * @return Ícone da imagem redimensionada.
+     */
+    private ImageIcon redimensionarImagem(ImageIcon imagem, int largura, int altura) {
+        Image imagemOriginal = imagem.getImage();
+        Image imagemRedimensionada = imagemOriginal.getScaledInstance(largura, altura, Image.SCALE_SMOOTH);
+        return new ImageIcon(imagemRedimensionada);
     }
 
-    public void SelecionarImagens() {
-        File arquivo;
-
-        if (contagem == 0) {
-            new CadastroProdutos().Avisos("imagens/sinal-de-aviso.png", "Escolha imagens que possuam largura acima de 250px e altura de 216px");
-            contagem++;
+    /**
+     * Abre um diálogo para selecionar uma imagem do usuário.
+     */
+    public void selecionarImagens() {
+        if (imageSelectionCount == 0) {
+            new CadastroProdutos().Avisos("imagens/sinal-de-aviso.png",
+                    "Escolha imagens com largura acima de 250px e altura de 216px");
+            imageSelectionCount++;
         }
 
         JFileChooser selecionar = new JFileChooser();
-        // Caminho completo para o diretório na Área de Trabalho
-        selecionar.setCurrentDirectory(new File("imagens"));//Define o diretório inicial que será exibido quando o diálogo for aberto.
+        selecionar.setCurrentDirectory(new File("imagens"));
+        selecionar.setDialogTitle("Escolha a imagem do usuário");
+        selecionar.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        selecionar.setMultiSelectionEnabled(false);
+        selecionar.setApproveButtonText("Selecionar");
+        selecionar.setAcceptAllFileFilterUsed(false);
+        selecionar.setDialogType(JFileChooser.OPEN_DIALOG);
 
-        selecionar.setDialogTitle("Escolha a imagem do produto"); //Define o título da caixa de diálogo.
-        selecionar.setFileSelectionMode(JFileChooser.FILES_ONLY); //Define se o usuário pode selecionar arquivos, diretórios ou ambos.
-        selecionar.setMultiSelectionEnabled(false); // Permite selecionar vários arquivos
-        selecionar.setApproveButtonText("Selecionar"); //Define o texto do botão OPEN. Mais usado quando o DialogType é CUSTOM_DIALOG
-        selecionar.setAcceptAllFileFilterUsed(false); //Define se terá a opção de Aceitar Todos Os Arquivos.
-        selecionar.setDialogType(JFileChooser.OPEN_DIALOG); //Define o tipo de processo que será: normal,salvar ou customizado.
-
-        FileNameExtensionFilter filtro = new FileNameExtensionFilter("Imagens", "jpg", "png", "jpge"); //Permite definir filtros para limitar os tipos de arquivos que podem ser selecionados.
-        selecionar.setFileFilter(filtro); //Apenas passar o filtro.
+        FileNameExtensionFilter filtro = new FileNameExtensionFilter("Imagens", "jpg", "png", "jpeg");
+        selecionar.setFileFilter(filtro);
 
         int retorno = selecionar.showOpenDialog(this);
-
         if (retorno == JFileChooser.APPROVE_OPTION) {
-            arquivo = selecionar.getSelectedFile(); //Pega o endereço do arquivo, é possível manipular.
+            File arquivo = selecionar.getSelectedFile();
             arquivoEscolhido = arquivo.getName();
-
-            imagem.setIcon(redimensionamentoDeImagem(new ImageIcon("imagens/usuarios/" + arquivoEscolhido), 202, 227));
+            imagem.setIcon(redimensionarImagem(new ImageIcon("imagens/usuarios/" + arquivoEscolhido), 202, 227));
+            LOGGER.info("Imagem selecionada: " + arquivoEscolhido);
         }
     }
 
-    private boolean novosDados() {
+    /**
+     * Verifica se houve alterações nos dados do usuário.
+     *
+     * @return true se os dados foram alterados, false caso contrário.
+     */
+    private boolean verificarAlteracoesDados() {
         novosDados = new String[]{
             usuario.getText(),
             email.getText(),
@@ -182,112 +207,85 @@ public class SeusDados extends javax.swing.JInternalFrame {
             endereco.getText(),
             complemento.getText()
         };
-        for (int x = 0; x < novosDados.length; x++) {
-            System.out.println(novosDados[x] + " ");
-        }
 
-        for (int x = 0; x < novosDados.length; x++) {
-            if (!Objects.equals(dadosBanco[x], novosDados[x])) {
-                System.out.println("Houve mudanças");
+        for (int i = 0; i < novosDados.length; i++) {
+            if (!Objects.equals(dadosBanco[i], novosDados[i])) {
+                LOGGER.info("Alterações detectadas nos dados do usuário.");
                 return true;
             }
         }
-        System.out.println("Nenhuma mudança foi detectada");
+        LOGGER.info("Nenhuma alteração detectada nos dados do usuário.");
         return false;
     }
 
+    /**
+     * Atualiza os dados do usuário no banco de dados.
+     *
+     * @throws SQLException Se ocorrer um erro durante a atualização.
+     */
     private void atualizarDados() throws SQLException {
-        Connection con = null;
+        try (Connection con = Conexao.conexaoBanco()) {
+            con.setAutoCommit(false);
+            LOGGER.info("Iniciando transação para atualização de dados.");
 
-        try {
-            System.out.println("[DEBUG] Iniciando conexão com o banco de dados...");
-            con = Conexao.conexaoBanco(); // Obtém a conexão
-            con.setAutoCommit(false); // Inicia uma transação
-            System.out.println("[DEBUG] Conexão estabelecida e transação iniciada.");
-
-            // Primeiro SELECT para buscar o ID da pessoa
-            String idPessoa = "";
-            String sql = "SELECT id_pessoa FROM pessoa WHERE cpf_cnpj = ?";
-            PreparedStatement stmt1 = con.prepareStatement(sql);
-            stmt1.setString(1, cpf.getText());
-            System.out.println("[DEBUG] Executando consulta para buscar id_pessoa...");
-            ResultSet rs = stmt1.executeQuery();
-
-            if (rs.next()) {
-                idPessoa = rs.getString("id_pessoa");
-                System.out.println("[DEBUG] ID da pessoa encontrada: " + idPessoa);
-            } else {
-                System.out.println("[DEBUG] Pessoa não encontrada. Realizando rollback...");
-                con.rollback(); // Reverte a transação
-                return; // Sai do método
+            // Busca o ID da pessoa
+            String idPessoa;
+            try (PreparedStatement stmt = con.prepareStatement(SELECT_PERSON_ID)) {
+                stmt.setString(1, cpf.getText());
+                try (ResultSet rs = stmt.executeQuery()) {
+                    if (rs.next()) {
+                        idPessoa = rs.getString("id_pessoa");
+                        LOGGER.info("ID da pessoa encontrado: " + idPessoa);
+                    } else {
+                        LOGGER.warning("Pessoa não encontrada para o CPF: " + cpf.getText());
+                        con.rollback();
+                        JOptionPane.showMessageDialog(this, "Pessoa não encontrada.", "Erro", JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
+                }
             }
 
-            // Atualiza dados na tabela "pessoa"
-            System.out.println("[DEBUG] Atualizando dados na tabela 'pessoa'...");
-            String SQL = "UPDATE pessoa SET nome = ?, email = ?, telefone = ?, cpf_cnpj = ?, rg = ?, idade = ? WHERE id_pessoa = ?";
-            PreparedStatement stmt2 = con.prepareStatement(SQL);
-            stmt2.setString(1, usuario.getText());
-            stmt2.setString(2, email.getText());
-            stmt2.setString(3, telefone.getText());
-            stmt2.setString(4, cpf.getText());
-            stmt2.setString(5, rg.getText());
-            stmt2.setString(6, idade.getText());
-            stmt2.setString(7, idPessoa);
-            stmt2.execute();
-            System.out.println("[DEBUG] Atualização na tabela 'pessoa' concluída.");
+            // Atualiza tabela "pessoa"
+            try (PreparedStatement stmt = con.prepareStatement(UPDATE_PERSON)) {
+                stmt.setString(1, usuario.getText());
+                stmt.setString(2, email.getText());
+                stmt.setString(3, telefone.getText());
+                stmt.setString(4, cpf.getText());
+                stmt.setString(5, rg.getText());
+                stmt.setString(6, idade.getText());
+                stmt.setString(7, idPessoa);
+                stmt.executeUpdate();
+                LOGGER.info("Tabela 'pessoa' atualizada com sucesso.");
+            }
 
-            // Atualiza dados na tabela "endereco"
-            System.out.println("[DEBUG] Atualizando dados na tabela 'endereco'...");
-            String SQL2 = "UPDATE enderecos SET uf = ?, cep = ?, cidade = ?, bairro = ?, endereco = ?, complemento = ? WHERE id_pessoa = ?";
-            PreparedStatement stmt3 = con.prepareStatement(SQL2);
-            stmt3.setString(1, uf.getSelectedItem().toString());
-            stmt3.setString(2, cep.getText());
-            stmt3.setString(3, cidade.getText());
-            stmt3.setString(4, bairro.getText());
-            stmt3.setString(5, endereco.getText());
-            stmt3.setString(6, complemento.getText());
-            stmt3.setString(7, idPessoa);
-            stmt3.execute();
-            System.out.println("[DEBUG] Atualização na tabela 'endereco' concluída.");
+            // Atualiza tabela "enderecos"
+            try (PreparedStatement stmt = con.prepareStatement(UPDATE_ADDRESS)) {
+                stmt.setString(1, uf.getSelectedItem().toString());
+                stmt.setString(2, cep.getText());
+                stmt.setString(3, cidade.getText());
+                stmt.setString(4, bairro.getText());
+                stmt.setString(5, endereco.getText());
+                stmt.setString(6, complemento.getText());
+                stmt.setString(7, idPessoa);
+                stmt.executeUpdate();
+                LOGGER.info("Tabela 'enderecos' atualizada com sucesso.");
+            }
 
-            try {
+            // Atualiza tabela "ImagensUsuarios"
+            try (PreparedStatement stmt = con.prepareStatement(UPDATE_IMAGE)) {
                 String caminhoAtualizar = (arquivoEscolhido == null) ? caminhoImagem : arquivoEscolhido;
-
-                System.out.println("[DEBUG] Atualizando dados na tabela 'imagensUsuarios'...");
-                String SQL3 = "UPDATE ImagensUsuarios SET caminho_imagem = ? WHERE id_usuario = ?";
-                PreparedStatement stmt4 = con.prepareStatement(SQL3);
-                stmt4.setString(1, caminhoAtualizar);
-                stmt4.setString(2, codigo.getText());
-                stmt4.execute();
-                System.out.println("[DEBUG] Atualização na tabela 'imagensUsuarios' concluída.");
-            } catch (SQLException e) {
-                System.err.println("[ERROR] Erro ao atualizar tabela: " + e.getMessage());
+                stmt.setString(1, caminhoAtualizar);
+                stmt.setString(2, codigo.getText());
+                stmt.executeUpdate();
+                LOGGER.info("Tabela 'ImagensUsuarios' atualizada com sucesso.");
             }
 
-            con.commit(); // Confirma as alterações no banco de dados
-            System.out.println("[DEBUG] Alterações confirmadas no banco de dados. Transação concluída com sucesso.");
-
-        } catch (SQLException e) {
-            if (con != null) {
-                try {
-                    con.rollback(); // Reverte as alterações em caso de erro
-                    System.out.println("[DEBUG] Rollback realizado devido a erro.");
-                } catch (SQLException rollbackEx) {
-                    rollbackEx.printStackTrace();
-                    System.out.println("[DEBUG] Erro ao executar rollback.");
-                }
-            }
-            e.printStackTrace();
-        } finally {
-            if (con != null) {
-                try {
-                    con.close(); // Fecha a conexão no final
-                    System.out.println("[DEBUG] Conexão com o banco de dados encerrada.");
-                } catch (SQLException closeEx) {
-                    closeEx.printStackTrace();
-                    System.out.println("[DEBUG] Erro ao fechar a conexão.");
-                }
-            }
+            con.commit();
+            LOGGER.info("Transação concluída com sucesso.");
+            JOptionPane.showMessageDialog(this, "Dados atualizados com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
+        } catch (SQLException ex) {
+            LOGGER.severe("Erro ao atualizar dados: " + ex.getMessage());
+            throw ex; // Propaga a exceção para tratamento externo, se necessário
         }
     }
 
@@ -649,50 +647,111 @@ public class SeusDados extends javax.swing.JInternalFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+    /**
+     * Ação executada ao clicar no botão "Modificar". Habilita os campos de
+     * texto para edição e exibe os botões de ação (Selecionar, Salvar,
+     * Cancelar).
+     *
+     * @param evt Evento de clique do botão.
+     */
 
     private void btModificarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btModificarActionPerformed
-        int resposta = JOptionPane.showConfirmDialog(null, "Deseja realmente alterar seus dados?", "Confirmação", JOptionPane.OK_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE);
+        int resposta = JOptionPane.showConfirmDialog(null,
+                "Deseja realmente alterar seus dados?",
+                "Confirmação",
+                JOptionPane.OK_CANCEL_OPTION,
+                JOptionPane.INFORMATION_MESSAGE);
 
         if (resposta == JOptionPane.OK_OPTION) {
+            LOGGER.info("Modo de edição ativado.");
             for (Component component : getContentPane().getComponents()) {
                 if (component instanceof JTextField) {
                     ((JTextField) component).setEnabled(true);
                 }
-                codigo.setEnabled(false);
-                btCancelar.setVisible(true);
-                btSelecionar.setVisible(true);
-                btSalvar.setVisible(true);
-                btModificar.setVisible(false);
             }
+            // Desabilita o campo de código, que não deve ser editado
+            codigo.setEnabled(false);
+            // Controla visibilidade dos botões
+            btCancelar.setVisible(true);
+            btSelecionar.setVisible(true);
+            btSalvar.setVisible(true);
+            btModificar.setVisible(false);
+        } else {
+            LOGGER.info("Alteração de dados cancelada pelo usuário.");
         }
+
 
     }//GEN-LAST:event_btModificarActionPerformed
+    /**
+     * Ação executada ao clicar no botão "Cancelar". Restaura a interface ao
+     * estado inicial, desabilitando os campos de texto e recarregando a imagem
+     * original.
+     *
+     * @param evt Evento de clique do botão.
+     */
 
     private void btCancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btCancelarActionPerformed
-        initUI();
+        LOGGER.info("Cancelando alterações e restaurando interface.");
+        inicializarInterface();
         btModificar.setVisible(true);
-        imagem.setIcon(new ImageIcon("imagens/usuarios/" + caminhoImagem));
+        // Restaura a imagem original, se disponível
+        if (caminhoImagem != null && !caminhoImagem.isEmpty()) {
+            imagem.setIcon(new ImageIcon("imagens/usuarios/" + caminhoImagem));
+        } else {
+            imagem.setIcon(null); // Remove a imagem se não houver uma original
+        }
+
     }//GEN-LAST:event_btCancelarActionPerformed
+    /**
+     * Ação executada ao clicar no botão "Selecionar". Abre o diálogo para
+     * escolher uma nova imagem.
+     *
+     * @param evt Evento de clique do mouse.
+     */
 
     private void btSelecionarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btSelecionarMouseClicked
-        SelecionarImagens();
+        LOGGER.info("Iniciando seleção de imagem.");
+        selecionarImagens();
+
     }//GEN-LAST:event_btSelecionarMouseClicked
+    /**
+     * Ação executada ao clicar no botão "Salvar". Verifica se houve alterações
+     * nos dados, atualiza o banco de dados e restaura a interface ao estado
+     * inicial.
+     *
+     * @param evt Evento de clique do botão.
+     */
 
     private void btSalvarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btSalvarActionPerformed
-        if (novosDados()) {
-            System.out.println("Novos dados passou");
+        if (verificarAlteracoesDados()) {
+            LOGGER.info("Alterações nos dados detectadas. Iniciando atualização.");
             try {
                 atualizarDados();
-                System.out.println("Passou do atualizarDados");
-                initUI();
-                System.out.println("Passou do initUI");
+                inicializarInterface();
                 btModificar.setVisible(true);
-                recuperarConta(codigoUsuario);
+                carregarDadosUsuario(codigoUsuario); // Recarrega os dados atualizados
+                JOptionPane.showMessageDialog(this,
+                        "Dados atualizados com sucesso!",
+                        "Sucesso",
+                        JOptionPane.INFORMATION_MESSAGE);
             } catch (SQLException ex) {
-                System.out.println("ERRO AO ATUALIZAR");
-                dispose();
+                LOGGER.severe("Erro ao atualizar dados no banco: " + ex.getMessage());
+                JOptionPane.showMessageDialog(this,
+                        "Erro ao atualizar os dados. Tente novamente.",
+                        "Erro",
+                        JOptionPane.ERROR_MESSAGE);
+                dispose(); // Fecha a janela em caso de erro
             }
+        } else {
+            LOGGER.info("Nenhuma alteração detectada. Salvamento não necessário.");
+            JOptionPane.showMessageDialog(this,
+                    "Nenhuma alteração foi feita nos dados.",
+                    "Informação",
+                    JOptionPane.INFORMATION_MESSAGE);
+            inicializarInterface();
+            btModificar.setVisible(true);
         }
+
     }//GEN-LAST:event_btSalvarActionPerformed
 
 

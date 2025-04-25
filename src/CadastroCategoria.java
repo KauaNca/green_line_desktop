@@ -1,4 +1,3 @@
-
 import java.awt.Component;
 import java.awt.Font;
 import java.sql.Connection;
@@ -14,17 +13,43 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
 
+/**
+ * JInternalFrame para cadastro e gerenciamento de categorias e subcategorias no sistema.
+ * Exibe uma tabela com subcategorias e permite carregar categorias em um JComboBox.
+ *
+ * @author [Não especificado]
+ */
 public class CadastroCategoria extends javax.swing.JInternalFrame {
 
+    // Logger para rastreamento de eventos e erros
+    private static final Logger LOGGER = Logger.getLogger(CadastroCategoria.class.getName());
+
+    // Constantes para queries SQL, mensagens de erro e configurações de UI
+    private static final String SELECT_CATEGORIES = "SELECT id_categoria, categoria FROM categoria ORDER BY id_categoria ASC";
+    private static final String SELECT_SUBCATEGORIES = "SELECT s.id_subcat, s.subcategoria, s.descricao " +
+            "FROM subcategorias s JOIN categoria c ON s.id_categoria = c.id_categoria " +
+            "ORDER BY s.id_subcat ASC";
+    private static final String ERROR_DB_ACCESS = "Erro ao carregar dados: ";
+    private static final String ERROR_GENERIC = "Erro inesperado: ";
+    private static final String ERROR_NO_CATEGORY_SELECTED = "Por favor, selecione uma categoria.";
+    private static final Font TABLE_FONT = new Font("Arial", Font.PLAIN, 19);
+    private static final Font HEADER_FONT = new Font("SansSerif", Font.BOLD, 20);
+
+    // Variáveis de estado
     private String descricaoAntiga;
     private int idCategoria;
     private String id_categoria;
-    private DefaultTableModel modeloTabela;
-    Font font = new Font("Arial", Font.PLAIN, 19);
-    Font headerFont = new Font("SansSerif", Font.BOLD, 20);
+    private final DefaultTableModel modeloTabela;
+    private final Font font = TABLE_FONT;
+    private final Font headerFont = HEADER_FONT;
 
+    /**
+     * Construtor padrão. Inicializa a interface, configura a tabela e carrega dados.
+     */
     public CadastroCategoria() {
         initComponents();
+        LOGGER.info("Inicializando interface de cadastro de categorias.");
+        
         // Configurando a tabela
         tabela.setDefaultRenderer(Object.class, new MultiLineCellRenderer());
         modeloTabela = (DefaultTableModel) tabela.getModel();
@@ -33,98 +58,94 @@ public class CadastroCategoria extends javax.swing.JInternalFrame {
         carregarCategoriasCombo();
         setResizable(false);
 
-        //Alterar os títulos das colunas
+        // Configurando o cabeçalho da tabela
         JTableHeader header = tabela.getTableHeader();
         header.setFont(headerFont);
 
-        //Filtro para que não aceite caracteres especiais e números
+        // Aplicando filtro de entrada ao campo nomeSubcategoria
         new CadastroProdutos().applyTextAndNumberFilter(nomeSubcategoria);
-
     }
 
-    //MÉTODOS
+    /**
+     * Limpa os campos de texto do formulário.
+     */
     public void Apagar() {
+        LOGGER.info("Limpando campos do formulário.");
         nomeSubcategoria.setText("");
         descricaoArea.setText("");
     }
 
+    /**
+     * Carrega as categorias do banco de dados e preenche o JComboBox.
+     */
     private void carregarCategoriasCombo() {
-        try {
-            Connection con = Conexao.conexaoBanco();
-            String sql = "SELECT id_categoria, categoria FROM categoria ORDER BY id_categoria ASC;";
-            PreparedStatement stmt = con.prepareStatement(sql);
-            ResultSet rs = stmt.executeQuery();
-
-            carregarCategorias.removeAllItems(); // Limpa os itens existentes
+        LOGGER.info("Carregando categorias no JComboBox.");
+        try (Connection con = Conexao.conexaoBanco();
+             PreparedStatement stmt = con.prepareStatement(SELECT_CATEGORIES);
+             ResultSet rs = stmt.executeQuery()) {
+            carregarCategorias.removeAllItems();
             while (rs.next()) {
-                // Adiciona cada categoria ao JComboBox
-                //id_categoria = rs.getString("id_categoria");
                 carregarCategorias.addItem(rs.getInt("id_categoria") + " " + rs.getString("categoria"));
             }
-
-            stmt.close();
-            rs.close();
-            con.close();
+            LOGGER.info("Categorias carregadas com sucesso.");
         } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(null, "Erro ao carregar categorias: " + ex.getMessage());
-            ex.printStackTrace();
+            LOGGER.log(Level.SEVERE, ERROR_DB_ACCESS + ex.getMessage(), ex);
+            JOptionPane.showMessageDialog(null, ERROR_DB_ACCESS + ex.getMessage());
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "Erro: " + e.getMessage());
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, ERROR_GENERIC + e.getMessage(), e);
+            JOptionPane.showMessageDialog(null, ERROR_GENERIC + e.getMessage());
         }
     }
 
+    /**
+     * Carrega os dados das subcategorias do banco de dados e preenche a tabela.
+     */
     private void carregarDadosTabela() {
-        try {
-            Connection con = Conexao.conexaoBanco();
-            String sql = "SELECT s.id_subcat, s.subcategoria, s.descricao "
-                    + "FROM subcategorias s JOIN categoria c ON s.id_categoria = c.id_categoria "
-                    + "ORDER BY s.id_subcat ASC;";
-            PreparedStatement stmt = con.prepareStatement(sql);
-            ResultSet rs = stmt.executeQuery();
-
+        LOGGER.info("Carregando dados das subcategorias na tabela.");
+        try (Connection con = Conexao.conexaoBanco();
+             PreparedStatement stmt = con.prepareStatement(SELECT_SUBCATEGORIES);
+             ResultSet rs = stmt.executeQuery()) {
             modeloTabela.setNumRows(0);
-
             while (rs.next()) {
                 Object[] dados = {
-                    rs.getInt("id_subcat"),
-                    rs.getString("subcategoria"),
-                    rs.getString("descricao")
+                        rs.getInt("id_subcat"),
+                        rs.getString("subcategoria"),
+                        rs.getString("descricao")
                 };
                 modeloTabela.addRow(dados);
             }
-
-            stmt.close();
-            rs.close();
-            con.close();
+            LOGGER.info("Subcategorias carregadas com sucesso.");
         } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(null, "Erro ao carregar: " + ex.getMessage());
-            ex.printStackTrace();
+            LOGGER.log(Level.SEVERE, ERROR_DB_ACCESS + ex.getMessage(), ex);
+            JOptionPane.showMessageDialog(null, ERROR_DB_ACCESS + ex.getMessage());
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "Erro: " + e.getMessage());
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, ERROR_GENERIC + e.getMessage(), e);
+            JOptionPane.showMessageDialog(null, ERROR_GENERIC + e.getMessage());
         }
     }
 
+    /**
+     * Obtém o ID da categoria selecionada no JComboBox.
+     *
+     * @return ID da categoria selecionada.
+     */
     private String getIdCategoriaSelecionada() {
+        LOGGER.info("Obtendo ID da categoria selecionada.");
         String selectedItem = (String) carregarCategorias.getSelectedItem();
         if (selectedItem != null) {
-            /*String[] parts = selectedItem.split(" \\(ID: ");
-            if (parts.length > 1) {
-                String idString = parts[1].replace(")", "");
-                return Integer.parseInt(idString);
-            }*/
             id_categoria = String.valueOf(selectedItem.charAt(0));
+            LOGGER.info("ID da categoria selecionada: " + id_categoria);
         } else {
-            // Mensagem de erro quando nenhuma categoria é selecionada
-            JOptionPane.showMessageDialog(null, "Por favor, selecione uma categoria.", "Erro", JOptionPane.ERROR_MESSAGE);
+            LOGGER.warning("Nenhuma categoria selecionada.");
+            JOptionPane.showMessageDialog(null, ERROR_NO_CATEGORY_SELECTED, "Erro", JOptionPane.ERROR_MESSAGE);
         }
         return id_categoria;
     }
-    
-    //CLASSE RESPONSÁVEL PELO JTABLE
-    class MultiLineCellRenderer extends JTextArea implements TableCellRenderer {
 
+    /**
+     * Renderizador personalizado para células da tabela, permitindo texto com quebras de linha.
+     */
+    class MultiLineCellRenderer extends JTextArea implements TableCellRenderer {
         public MultiLineCellRenderer() {
             setLineWrap(true);
             setWrapStyleWord(true);
@@ -134,11 +155,8 @@ public class CadastroCategoria extends javax.swing.JInternalFrame {
         public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
             setText(value.toString());
             setSize(table.getColumnModel().getColumn(column).getWidth(), getPreferredSize().height);
-
-            // Preserve a fonte da tabela
             setFont(table.getFont());
 
-            // Preserve as cores de fundo e primeiro plano
             if (isSelected) {
                 setBackground(table.getSelectionBackground());
                 setForeground(table.getSelectionForeground());
@@ -147,7 +165,6 @@ public class CadastroCategoria extends javax.swing.JInternalFrame {
                 setForeground(table.getForeground());
             }
 
-            // Ajuste a altura da linha se necessário
             if (table.getRowHeight(row) != getPreferredSize().height) {
                 table.setRowHeight(row, getPreferredSize().height);
             }
@@ -155,7 +172,6 @@ public class CadastroCategoria extends javax.swing.JInternalFrame {
             return this;
         }
     }
-
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {

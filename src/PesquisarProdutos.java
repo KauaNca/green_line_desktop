@@ -17,76 +17,125 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-
 import javax.swing.JOptionPane;
-
 import javax.swing.Timer;
-
-import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
+import java.util.logging.Logger;
+import javax.swing.JMenuItem;
 
 /**
+ * JInternalFrame para pesquisa de produtos no sistema. Permite buscar produtos
+ * pelo nome, exibir detalhes e imagens associadas, com funcionalidade de
+ * slideshow para múltiplas imagens.
  *
  * @author Kaua33500476
  */
 public class PesquisarProdutos extends javax.swing.JInternalFrame {
 
-    int contagem = 0;
-    File arquivo;
+    // Logger para rastreamento de eventos e erros
+    private static final Logger LOGGER = Logger.getLogger(PesquisarProdutos.class.getName());
+
+    // Constantes para query SQL e caminhos de imagens
+    private static final String SELECT_PRODUCT_NAMES = "SELECT nome_produto FROM produto WHERE LOWER(nome_produto) LIKE ?";
+    private static final String DEFAULT_IMAGE_PATH = "imagens/sem_imagem.jpg";
+    private static final String PRODUCT_IMAGE_PATH = "imagens/produtos/";
+    private static final String RIGHT_ARROW_PATH = "imagens/seta-direita.png";
+    private static final String SEARCH_ICON_PATH = "imagens/lupa.png";
+    private static final String SELECT_PRODUCT_BY_ID = "SELECT * FROM vw_produto_detalhado WHERE id_produto = ?";
+    private static final String SELECT_PRODUCT_BY_NAME = "SELECT * FROM vw_produto_detalhado WHERE nome_produto = ?";
+    private static final String ERROR_DB_CONNECTION = "Erro ao conectar ao banco de dados: ";
+    private static final String ERROR_GENERIC = "Erro: ";
+
+    // Variáveis de estado
+    private int contagem = 0;
+    private File arquivo;
     private boolean atualizandoMascara = false;
+    private String enderecoImagemBanco1;
+    private String enderecoImagemBanco2;
+    private String enderecoNovo1;
+    private String enderecoNovo2;
+    private String[] enderecosImagens = new String[2];
+    private String id_produto;
+    private String Produto;
+    private String Preco;
+    private String Descricao;
+    private String Marca;
+    private String Estoque;
+    private String Categoria;
+    private String Subcategoria;
+    private final JPopupMenu sugestoesProdutos = new JPopupMenu();
+    private List<String> produtos;
+    private final Font fonteItem = new Font("Arial", Font.PLAIN, 15);
 
-    String enderecoImagemBanco1;
-    String enderecoImagemBanco2;
-    String enderecoNovo1;
-    String enderecoNovo2;
-    String[] enderecosImagens = new String[2];
-    String id_produto;
-    String Produto;
-    String Preco;
-    String Descricao;
-    String Marca;
-    String Estoque;
-    String Categoria;
-    String Subcategoria;
-    private JPopupMenu sugestoesProdutos = new JPopupMenu();
-    List<String> produtos;
-    Font fonteItem = new Font("Arial", Font.PLAIN, 15);
+    // Timer para slideshow de imagens
+    private final Timer slide = new Timer(1000, new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            LOGGER.info("Alternando imagem no slideshow. Contagem: " + contagem);
+            // Atribuindo valores aos endereços de imagens
+            enderecosImagens[0] = enderecoNovo1;
+            enderecosImagens[1] = enderecoNovo2;
 
+            // Lógica para alternar as imagens
+            contagem = (contagem + 1) % enderecosImagens.length;
+            ImageIcon proximaImagem = new ImageIcon(PRODUCT_IMAGE_PATH + enderecosImagens[contagem]);
+
+            if (proximaImagem.getIconWidth() == -1) {
+                LOGGER.warning("Imagem não encontrada: " + enderecosImagens[contagem]);
+                slide.stop();
+            } else {
+                sem_imagem.setIcon(redimensionamentoDeImagem(proximaImagem, 250, 216));
+                slide.stop();
+            }
+        }
+    });
+
+    /**
+     * Construtor da classe PesquisarProdutos. Inicializa a interface, configura
+     * ícones padrão e carrega a lista de nomes de produtos.
+     */
     public PesquisarProdutos() {
         initComponents();
         Inicio();
         nomesProdutos();
 
+        // Adiciona listener para clique na seta do slideshow
         seta.addMouseListener(new MouseAdapter() {
+            @Override
             public void mouseClicked(MouseEvent e) {
+                LOGGER.info("Iniciando slideshow de imagens.");
                 slide.start();
             }
-
         });
-
     }
 
+    /**
+     * Carrega os nomes dos produtos do banco de dados com base no texto de
+     * pesquisa.
+     */
     public void nomesProdutos() {
-        try (Connection con = Conexao.conexaoBanco()) {
-            PreparedStatement stmt = con.prepareStatement("SELECT nome_produto FROM produto WHERE LOWER(nome_produto) LIKE ?");
+        LOGGER.info("Carregando nomes de produtos com filtro: " + pesquisar.getText());
+        try (Connection con = Conexao.conexaoBanco(); PreparedStatement stmt = con.prepareStatement(SELECT_PRODUCT_NAMES)) {
             stmt.setString(1, "%" + pesquisar.getText() + "%");
-            ResultSet rs = stmt.executeQuery();
-
-            produtos = new ArrayList<>();
-            while (rs.next()) {
-                produtos.add(rs.getString("nome_produto"));
+            try (ResultSet rs = stmt.executeQuery()) {
+                produtos = new ArrayList<>();
+                while (rs.next()) {
+                    produtos.add(rs.getString("nome_produto"));
+                }
+                LOGGER.info("Nomes de produtos carregados: " + produtos.size());
             }
-            rs.close();
-            stmt.close();
-            con.close();
-
         } catch (SQLException ex) {
-            System.out.println("Sem acesso aos nomes dos produtos");
+            LOGGER.severe("Erro ao carregar nomes dos produtos: " + ex.getMessage());
         }
     }
 
+    /**
+     * Inicializa a interface desabilitando campos de texto, configurando ícones
+     * padrão e ocultando componentes de imagem.
+     */
     public void Inicio() {
+        LOGGER.info("Inicializando interface de pesquisa de produtos.");
         nomeProduto.setEnabled(false);
         preco.setEnabled(false);
         descricao.setEnabled(false);
@@ -98,11 +147,15 @@ public class PesquisarProdutos extends javax.swing.JInternalFrame {
         imagem1.setVisible(false);
         imagem2.setVisible(false);
         sem_imagem.setIcon(sem_imagem());
-        seta.setIcon(new ImageIcon("imagens/seta-direita.png"));
-        pesquisa.setIcon(new ImageIcon("imagens/lupa.png"));
+        seta.setIcon(new ImageIcon(RIGHT_ARROW_PATH));
+        pesquisa.setIcon(new ImageIcon(SEARCH_ICON_PATH));
         seta.setVisible(false);
     }
 
+    /**
+     * Aplica uma máscara ao campo de nome do produto, permitindo apenas
+     * caracteres alfanuméricos e acentuados. Evita loops de atualização.
+     */
     private void atualizarMascara() {
         if (atualizandoMascara) {
             return; // Evita loops
@@ -112,44 +165,37 @@ public class PesquisarProdutos extends javax.swing.JInternalFrame {
             String texto = nomeProduto.getText();
             nomeProduto.setText(texto.replaceAll("[^a-zA-Z0-9áéíóúâêîôûãõçÁÉÍÓÚÂÊÎÔÛÃÕÇñÑ~\\s]", ""));
             atualizandoMascara = false;
+            LOGGER.info("Máscara aplicada ao nome do produto: " + nomeProduto.getText());
         });
     }
-    Timer slide = new Timer(1000, new ActionListener() {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            // Atribuindo valores aos endereços de imagens
-            System.out.println(enderecoNovo1 + enderecoNovo2);
-            enderecosImagens[0] = enderecoNovo1;
-            enderecosImagens[1] = enderecoNovo2;
 
-            // Lógica para alternar as imagens
-            contagem = (contagem + 1) % enderecosImagens.length;
-            ImageIcon proximaImagem = new ImageIcon("imagens/produtos/" + enderecosImagens[contagem]);
-
-            if (proximaImagem.getIconWidth() == -1) {
-                System.out.println("Imagem não encontrada");
-                slide.stop();
-            } else {
-                sem_imagem.setIcon(redimensionamentoDeImagem(proximaImagem, 250, 216));
-                slide.stop();
-            }
-
-        }
-    });
-
+    /**
+     * Retorna o ícone padrão para quando não há imagem disponível.
+     *
+     * @return Ícone redimensionado da imagem padrão.
+     */
     public ImageIcon sem_imagem() {
-        ImageIcon imagem = new ImageIcon("imagens/sem_imagem.jpg");
+        LOGGER.info("Carregando imagem padrão: " + DEFAULT_IMAGE_PATH);
+        ImageIcon imagem = new ImageIcon(DEFAULT_IMAGE_PATH);
         Image redimensionar = imagem.getImage();
         Image redimensionar2 = redimensionar.getScaledInstance(250, 216, Image.SCALE_SMOOTH);
-        ImageIcon imagemRedimensionada = new ImageIcon(redimensionar2);
-        return imagemRedimensionada;
+        return new ImageIcon(redimensionar2);
     }
 
+    /**
+     * Redimensiona uma imagem para as dimensões especificadas, mantendo
+     * suavidade.
+     *
+     * @param imagem Ícone da imagem original.
+     * @param largura Largura desejada.
+     * @param altura Altura desejada.
+     * @return Ícone da imagem redimensionada.
+     */
     public ImageIcon redimensionamentoDeImagem(ImageIcon imagem, int largura, int altura) {
+        LOGGER.info("Redimensionando imagem para " + largura + "x" + altura);
         Image pegarImagem = imagem.getImage();
         Image redimensionando = pegarImagem.getScaledInstance(largura, altura, Image.SCALE_SMOOTH);
-        ImageIcon imagemRedimensionada = new ImageIcon(redimensionando);
-        return imagemRedimensionada;
+        return new ImageIcon(redimensionando);
     }
 
     @SuppressWarnings("unchecked")
@@ -412,7 +458,12 @@ public class PesquisarProdutos extends javax.swing.JInternalFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
+/**
+     * Ação executada ao liberar a tecla Enter no campo de código do produto.
+     * Pesquisa os detalhes do produto pelo código e atualiza a interface.
+     *
+     * @param evt Evento de tecla liberada.
+     */
     private void codigoKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_codigoKeyReleased
         if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
             seta.setVisible(true);
@@ -469,14 +520,28 @@ public class PesquisarProdutos extends javax.swing.JInternalFrame {
             }
         }
     }//GEN-LAST:event_codigoKeyReleased
+    /**
+     * Ação executada ao clicar no botão "Últimas Vendas". (Método vazio,
+     * aguardando implementação.)
+     *
+     * @param evt Evento de ação do botão.
+     */
 
     private void btUltimasVendasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btUltimasVendasActionPerformed
+        LOGGER.info("Botão 'Últimas Vendas' clicado. Aguardando implementação.");
         // TODO add your handling code here:
     }//GEN-LAST:event_btUltimasVendasActionPerformed
+    /**
+     * Ação executada ao liberar uma tecla no campo de pesquisa. Filtra os nomes
+     * de produtos e exibe sugestões em um menu suspenso.
+     *
+     * @param evt Evento de tecla liberada.
+     */
 
 
     private void pesquisarKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_pesquisarKeyReleased
         String pesquisa = pesquisar.getText().toLowerCase();
+        LOGGER.info("Filtrando produtos com texto: " + pesquisa);
         sugestoesProdutos.setVisible(false);
         seta.setVisible(true);
         if (!pesquisa.isEmpty()) {
@@ -490,77 +555,86 @@ public class PesquisarProdutos extends javax.swing.JInternalFrame {
                 for (String p : filtro) {
                     JMenuItem item = new JMenuItem(p);
                     item.setFont(fonteItem);
-
                     item.addActionListener(e -> {
                         pesquisar.setText(p);
                         sugestoesProdutos.setVisible(false);
+                        LOGGER.info("Produto selecionado nas sugestões: " + p);
                     });
-
                     sugestoesProdutos.add(item);
                 }
+                // Exibe o menu suspenso abaixo do campo de pesquisa
                 sugestoesProdutos.show(pesquisar, 0, pesquisar.getHeight());
             }
         }
 
     }//GEN-LAST:event_pesquisarKeyReleased
+    /**
+     * Ação executada ao clicar no ícone de pesquisa. Pesquisa os detalhes do
+     * produto pelo nome e atualiza a interface.
+     *
+     * @param evt Evento de clique do mouse.
+     */
 
     private void pesquisaMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pesquisaMouseClicked
+        LOGGER.info("Pesquisando produto por nome: " + pesquisar.getText());
+        try (Connection con = Conexao.conexaoBanco(); PreparedStatement stmt = con.prepareStatement(SELECT_PRODUCT_BY_NAME)) {
+            stmt.setString(1, pesquisar.getText());
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    // Armazena os dados do produto
+                    id_produto = rs.getString("id_produto");
+                    Produto = rs.getString("nome_produto");
+                    Preco = rs.getString("preco");
+                    Descricao = rs.getString("descricao");
+                    Marca = rs.getString("marca");
+                    Estoque = rs.getString("estoque");
+                    Categoria = rs.getString("categoria");
+                    Subcategoria = rs.getString("subcategoria");
+                    enderecoImagemBanco1 = rs.getString("endereco");
+                    enderecoImagemBanco2 = rs.getString("endereco2");
 
-        try (Connection con = Conexao.conexaoBanco()) {
+                    // Atualiza os campos da interface
+                    codigo.setText(id_produto);
+                    nomeProduto.setText(Produto);
+                    preco.setText(Preco);
+                    descricao.setText(Descricao);
+                    marca.setText(Marca);
+                    estoque.setText(Estoque);
+                    categoria.setText(Categoria);
+                    subcategoria.setText(Subcategoria);
+                    imagem1.setText(enderecoImagemBanco1);
+                    imagem2.setText(enderecoImagemBanco2);
 
-            // Consulta principal
-            String query = "SELECT * FROM vw_produto_detalhado WHERE nome_produto = ?";
-            try (PreparedStatement stmt = con.prepareStatement(query)) {
-                stmt.setString(1, pesquisar.getText());
-                try (ResultSet rs = stmt.executeQuery()) {
-                    // Verifica se há resultados
-                    if (rs.next()) {
-                        id_produto = rs.getString("id_produto");
-                        Produto = rs.getString("nome_produto");
-                        Preco = rs.getString("preco");
-                        Descricao = rs.getString("descricao");
-                        Marca = rs.getString("marca");
-                        Estoque = rs.getString("estoque");
-                        Categoria = rs.getString("categoria");
-                        Subcategoria = rs.getString("subcategoria");
-                        enderecoImagemBanco1 = rs.getString("endereco");
-                        enderecoImagemBanco2 = rs.getString("endereco2");
-
-                        // Atualiza campos na interface
-                        codigo.setText(id_produto);
-                        nomeProduto.setText(Produto);
-                        preco.setText(Preco);
-                        descricao.setText(Descricao);
-                        marca.setText(Marca);
-                        estoque.setText(Estoque);
-                        categoria.setText(Categoria);
-                        subcategoria.setText(Subcategoria);
-                        imagem1.setText(enderecoImagemBanco1);
-                        imagem2.setText(enderecoImagemBanco2);
-
-                        // Exibe a primeira imagem redimensionada
-                        if (enderecoImagemBanco1 != null) {
-                            sem_imagem.setIcon(redimensionamentoDeImagem(
-                                    new ImageIcon("imagens/produtos/" + enderecoImagemBanco1), 245, 270));
-                        }
-
-                    } else {
-                        // Caso nenhum produto seja encontrado
-                        new CadastroProdutos().Avisos("imagens/erro.png", "Produto não encontrado");
+                    // Exibe a primeira imagem redimensionada, se disponível
+                    if (enderecoImagemBanco1 != null) {
+                        sem_imagem.setIcon(redimensionamentoDeImagem(
+                                new ImageIcon(PRODUCT_IMAGE_PATH + enderecoImagemBanco1), 245, 270));
+                        LOGGER.info("Imagem do produto carregada: " + enderecoImagemBanco1);
                     }
+                } else {
+                    LOGGER.warning("Produto não encontrado para o nome: " + pesquisar.getText());
+                    new CadastroProdutos().Avisos("imagens/erro.png", "Produto não encontrado");
                 }
             }
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Erro ao conectar ao banco de dados: " + e.getMessage());
-            System.out.println("ERRO: " + e);
+            LOGGER.severe("Erro ao conectar ao banco de dados: " + e.getMessage());
+            JOptionPane.showMessageDialog(null, ERROR_DB_CONNECTION + e.getMessage());
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "Erro: " + e.getMessage());
-            System.out.println("ERRO: " + e);
+            LOGGER.severe("Erro inesperado: " + e.getMessage());
+            JOptionPane.showMessageDialog(null, ERROR_GENERIC + e.getMessage());
         }
 
+
     }//GEN-LAST:event_pesquisaMouseClicked
+    /**
+     * Ação executada ao clicar no botão "Cancelar". Limpa todos os campos da
+     * interface e restaura a imagem padrão.
+     *
+     * @param evt Evento de ação do botão.
+     */
 
     private void btCancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btCancelarActionPerformed
+        LOGGER.info("Cancelando e limpando campos da interface.");
         codigo.setText("");
         pesquisar.setText("");
         nomeProduto.setText("");
@@ -571,6 +645,7 @@ public class PesquisarProdutos extends javax.swing.JInternalFrame {
         subcategoria.setText("");
         estoque.setText("");
         sem_imagem.setIcon(sem_imagem());
+
     }//GEN-LAST:event_btCancelarActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

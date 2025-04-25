@@ -14,79 +14,121 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JTextField;
+import java.util.logging.Logger;
 
 /**
+ * JInternalFrame para pesquisa de usuários (pessoas físicas ou jurídicas) no
+ * sistema. Permite buscar dados de usuários pelo nome e exibir informações
+ * detalhadas.
  *
  * @author guilherme53961526
  */
 public class PesquisarUsuario extends javax.swing.JInternalFrame {
 
-    CardLayout card;
-    ArrayList<String> usuarios;
-    JPopupMenu caixaDeNomes = new JPopupMenu();
-    ArrayList<String> filtro;
-    Font fonteItem = new Font("Arial", Font.PLAIN, 19);
+    // Logger para rastreamento de eventos e erros
+    private static final Logger LOGGER = Logger.getLogger(PesquisarUsuario.class.getName());
 
+    // Constantes para queries SQL
+    private static final String SELECT_USER_NAMES = "SELECT nome FROM pessoa WHERE tipo_pessoa = ?";
+    private static final String SELECT_PERSON_DATA = "SELECT * FROM dados_pesquisa WHERE nome = ? AND tipo_pessoa = 'F'";
+    private static final String SELECT_COMPANY_DATA = "SELECT * FROM dados_pesquisa WHERE nome = ? AND tipo_pessoa = 'J'";
+
+    // Componentes e variáveis da interface
+    private CardLayout card;
+    private ArrayList<String> usuarios;
+    private JPopupMenu caixaDeNomes = new JPopupMenu();
+    private ArrayList<String> filtro;
+    private final Font fonteItem = new Font("Arial", Font.PLAIN, 19);
+
+    /**
+     * Construtor da classe PesquisarUsuario. Inicializa a interface, configura
+     * ícones e carrega a lista de nomes de usuários.
+     */
     public PesquisarUsuario() {
         initComponents();
+        // Define ícones padrão para os perfis
         perfil1.setIcon(new ImageIcon("imagens/perfil.png"));
         perfil.setIcon(new ImageIcon("imagens/perfil.png"));
         usuarios = new ArrayList<>();
-        rdPessoa.setSelected(true);
-        desativarTextField(painelPessoa);
-        desativarTextField(painelEmpresa);
-        nomesUsuarios("F");
-
+        rdPessoa.setSelected(true); // Seleciona pessoa física por padrão
+        desativarTextField(painelPessoa); // Desativa campos do painel de pessoa
+        desativarTextField(painelEmpresa); // Desativa campos do painel de empresa
+        nomesUsuarios("F"); // Carrega nomes de pessoas físicas
     }
 
+    /**
+     * Desativa todos os campos de texto (JTextField) em um painel, exceto os
+     * campos de código de usuário e CPF/CNPJ.
+     *
+     * @param painel Painel contendo os campos a serem desativados.
+     */
     public void desativarTextField(JPanel painel) {
+        LOGGER.info("Desativando campos de texto no painel: " + painel.getName());
         for (Component component : painel.getComponents()) {
             if (component instanceof JTextField) {
                 component.setEnabled(false);
             }
         }
+        // Habilita campos específicos para entrada de dados
         codigoUsuario.setEnabled(true);
         codigoUsuario1.setEnabled(true);
         cpf.setEnabled(true);
         cnpj.setEnabled(true);
-
-       
     }
 
+    /**
+     * Redimensiona uma imagem para as dimensões especificadas, mantendo
+     * suavidade.
+     *
+     * @param imagem Ícone da imagem original.
+     * @param largura Largura desejada.
+     * @param altura Altura desejada.
+     * @return Ícone da imagem redimensionada.
+     */
     public ImageIcon redimensionamentoDeImagem(ImageIcon imagem, int largura, int altura) {
+        LOGGER.info("Redimensionando imagem para " + largura + "x" + altura);
         Image pegarImagem = imagem.getImage();
         Image redimensionando = pegarImagem.getScaledInstance(largura, altura, Image.SCALE_SMOOTH);
-        ImageIcon imagemRedimensionada = new ImageIcon(redimensionando);
-        return imagemRedimensionada;
+        return new ImageIcon(redimensionando);
     }
 
+    /**
+     * Carrega os nomes dos usuários do banco de dados com base no tipo de
+     * pessoa (F para pessoa física, J para jurídica).
+     *
+     * @param tipo_pessoa Tipo de pessoa ('F' ou 'J').
+     */
     public void nomesUsuarios(String tipo_pessoa) {
+        LOGGER.info("Carregando nomes de usuários do tipo: " + tipo_pessoa);
         usuarios.clear();
-        try {
-            Connection con = Conexao.conexaoBanco();
-            PreparedStatement stmt = con.prepareStatement("SELECT nome FROM pessoa WHERE tipo_pessoa = ?");
+        try (Connection con = Conexao.conexaoBanco(); PreparedStatement stmt = con.prepareStatement(SELECT_USER_NAMES)) {
             stmt.setString(1, tipo_pessoa);
-            ResultSet rs = stmt.executeQuery();
-            while (rs.next()) {
-                usuarios.add(rs.getString("nome"));
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    usuarios.add(rs.getString("nome"));
+                }
+                // Loga os nomes carregados para depuração
+                for (String nome : usuarios) {
+                    LOGGER.info("Nome carregado: " + nome);
+                }
             }
-            for (String nomes : usuarios) {
-                System.out.println(nomes);
-            }
-
-            rs.close();
-            stmt.close();
-            con.close();
         } catch (Exception e) {
+            LOGGER.severe("Erro ao carregar nomes de usuários: " + e.getMessage());
             e.printStackTrace();
         }
     }
 
+    /**
+     * Filtra nomes de usuários com base no texto digitado no campo de pesquisa
+     * e exibe uma lista suspensa com os resultados correspondentes.
+     */
     public void pesquisarNome() {
         String texto = tfPesquisar.getText();
+        LOGGER.info("Pesquisando nomes com texto: " + texto);
         filtro = new ArrayList<>();
         filtro.clear();
         if (!texto.isEmpty()) {
+            // Filtra nomes que contêm o texto digitado
             for (String nome : usuarios) {
                 if (nome.contains(texto)) {
                     filtro.add(nome);
@@ -94,6 +136,7 @@ public class PesquisarUsuario extends javax.swing.JInternalFrame {
             }
             caixaDeNomes.removeAll();
             if (!filtro.isEmpty()) {
+                // Adiciona itens filtrados ao menu suspenso
                 for (String nome : filtro) {
                     JMenuItem item = new JMenuItem(nome);
                     item.addActionListener(e -> {
@@ -103,87 +146,93 @@ public class PesquisarUsuario extends javax.swing.JInternalFrame {
                     });
                     caixaDeNomes.add(item);
                 }
+                // Exibe o menu suspenso abaixo do campo de texto
                 caixaDeNomes.setVisible(true);
                 caixaDeNomes.show(tfPesquisar, 0, tfPesquisar.getHeight());
             } else {
                 caixaDeNomes.setVisible(false);
             }
-
         } else {
-
+            // Limpa e oculta o menu se o campo de texto estiver vazio
             caixaDeNomes.removeAll();
             caixaDeNomes.setVisible(false);
         }
-
     }
 
+    /**
+     * Pesquisa os dados de uma pessoa física no banco de dados com base no nome
+     * e preenche os campos da interface com as informações encontradas.
+     */
     private void pesquisarPessoa() {
-        try {
-            Connection con = Conexao.conexaoBanco();
-            PreparedStatement stmt = con.prepareStatement("SELECT * FROM dados_pesquisa WHERE nome = ? AND tipo_pessoa = 'F'");
+        LOGGER.info("Pesquisando pessoa física com nome: " + tfPesquisar.getText());
+        try (Connection con = Conexao.conexaoBanco(); PreparedStatement stmt = con.prepareStatement(SELECT_PERSON_DATA)) {
             stmt.setString(1, tfPesquisar.getText());
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                codigoUsuario.setText(rs.getString("id_usuario"));
-                nome.setText(rs.getString("nome"));
-                email.setText(rs.getString("email"));
-                telefone.setText(rs.getString("telefone"));
-                cpf.setText(rs.getString("cpf_cnpj"));
-                rg.setText(rs.getString("rg"));
-                idade.setText(rs.getString("idade"));
-                estado.setText(rs.getString("uf"));
-                cep.setText(rs.getString("cep"));
-                cidade.setText(rs.getString("cidade"));
-                bairro.setText(rs.getString("bairro"));
-                endereco.setText(rs.getString("endereco"));
-                complemento.setText(rs.getString("complemento"));
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    // Preenche os campos com os dados da pessoa
+                    codigoUsuario.setText(rs.getString("id_usuario"));
+                    nome.setText(rs.getString("nome"));
+                    email.setText(rs.getString("email"));
+                    telefone.setText(rs.getString("telefone"));
+                    cpf.setText(rs.getString("cpf_cnpj"));
+                    rg.setText(rs.getString("rg"));
+                    idade.setText(rs.getString("idade"));
+                    estado.setText(rs.getString("uf"));
+                    cep.setText(rs.getString("cep"));
+                    cidade.setText(rs.getString("cidade"));
+                    bairro.setText(rs.getString("bairro"));
+                    endereco.setText(rs.getString("endereco"));
+                    complemento.setText(rs.getString("complemento"));
 
-                ImageIcon foto = new ImageIcon("imagens/usuarios/" + rs.getString("caminho_imagem"));
-                perfil.setIcon(redimensionamentoDeImagem(foto, 205, 227));
-
+                    // Carrega e redimensiona a imagem do perfil
+                    ImageIcon foto = new ImageIcon("imagens/usuarios/" + rs.getString("caminho_imagem"));
+                    perfil.setIcon(redimensionamentoDeImagem(foto, 205, 227));
+                    LOGGER.info("Dados da pessoa física carregados com sucesso.");
+                }
             }
-            rs.close();
-            stmt.close();
-            con.close();
         } catch (Exception e) {
+            LOGGER.severe("Erro ao pesquisar pessoa física: " + e.getMessage());
             e.printStackTrace();
             JOptionPane.showMessageDialog(null, "<html> <h3> Não foi possível encontrar este nome</h3> </html>");
-
         }
     }
 
+    /**
+     * Pesquisa os dados de uma pessoa jurídica (empresa) no banco de dados com
+     * base no nome e preenche os campos da interface com as informações
+     * encontradas.
+     */
     private void pesquisarEmpresa() {
-        try {
-            Connection con = Conexao.conexaoBanco();
-            PreparedStatement stmt = con.prepareStatement("SELECT * FROM dados_pesquisa WHERE nome = ? AND tipo_pessoa = 'J'");
+        LOGGER.info("Pesquisando empresa com nome: " + tfPesquisar.getText());
+        try (Connection con = Conexao.conexaoBanco(); PreparedStatement stmt = con.prepareStatement(SELECT_COMPANY_DATA)) {
             stmt.setString(1, tfPesquisar.getText());
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                codigoUsuario1.setText(rs.getString("id_usuario"));
-                nomeEmpresa.setText(rs.getString("razao_social"));
-                emailEmpresa.setText(rs.getString("email"));
-                telefoneEmpresa.setText(rs.getString("telefone"));
-                cnpj.setText(rs.getString("cpf_cnpj"));
-                nomeFantasia.setText(rs.getString("nome"));
-                dataFundacao.setText(rs.getString("data_fundacao"));
-                estado1.setText(rs.getString("uf"));
-                cep1.setText(rs.getString("cep"));
-                cidade1.setText(rs.getString("cidade"));
-                bairroEmpresa.setText(rs.getString("bairro"));
-                endereco1.setText(rs.getString("endereco"));
-                setorAtividade.setText(rs.getString("setor_atividade"));
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    // Preenche os campos com os dados da empresa
+                    codigoUsuario1.setText(rs.getString("id_usuario"));
+                    nomeEmpresa.setText(rs.getString("razao_social"));
+                    emailEmpresa.setText(rs.getString("email"));
+                    telefoneEmpresa.setText(rs.getString("telefone"));
+                    cnpj.setText(rs.getString("cpf_cnpj"));
+                    nomeFantasia.setText(rs.getString("nome"));
+                    dataFundacao.setText(rs.getString("data_fundacao"));
+                    estado1.setText(rs.getString("uf"));
+                    cep1.setText(rs.getString("cep"));
+                    cidade1.setText(rs.getString("cidade"));
+                    bairroEmpresa.setText(rs.getString("bairro"));
+                    endereco1.setText(rs.getString("endereco"));
+                    setorAtividade.setText(rs.getString("setor_atividade"));
 
-                ImageIcon foto = new ImageIcon("imagens/usuarios/" + rs.getString("caminho_imagem"));
-                perfil1.setIcon(redimensionamentoDeImagem(foto, 247, 227));
-
+                    // Carrega e redimensiona a imagem do perfil
+                    ImageIcon foto = new ImageIcon("imagens/usuarios/" + rs.getString("caminho_imagem"));
+                    perfil1.setIcon(redimensionamentoDeImagem(foto, 247, 227));
+                    LOGGER.info("Dados da empresa carregados com sucesso.");
+                }
             }
-            rs.close();
-            stmt.close();
-            con.close();
         } catch (Exception e) {
+            LOGGER.severe("Erro ao pesquisar empresa: " + e.getMessage());
             e.printStackTrace();
             JOptionPane.showMessageDialog(null, "<html> <h3> Não foi possível encontrar este nome</h3> </html>");
-
         }
     }
 
@@ -887,26 +936,57 @@ public class PesquisarUsuario extends javax.swing.JInternalFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+    /**
+     * Ação executada ao selecionar o rádio "Empresa". Alterna para o painel de
+     * empresa e carrega os nomes de pessoas jurídicas.
+     *
+     * @param evt Evento de ação do botão de rádio.
+     */
 
 
     private void rdEmpresaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rdEmpresaActionPerformed
+        LOGGER.info("Alternando para painel de empresa.");
         card = (CardLayout) JCard.getLayout();
         card.show(JCard, "painelEmpresa");
         nomesUsuarios("J");
     }//GEN-LAST:event_rdEmpresaActionPerformed
+    /**
+     * Ação executada ao selecionar o rádio "Pessoa". Alterna para o painel de
+     * pessoa e carrega os nomes de pessoas físicas.
+     *
+     * @param evt Evento de ação do botão de rádio.
+     */
 
     private void rdPessoaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rdPessoaActionPerformed
+        LOGGER.info("Alternando para painel de pessoa.");
         card = (CardLayout) JCard.getLayout();
         card.show(JCard, "painelPessoa");
         nomesUsuarios("F");
+
     }//GEN-LAST:event_rdPessoaActionPerformed
+    /**
+     * Ação executada ao liberar uma tecla no campo de pesquisa. Realiza a
+     * filtragem de nomes com base no texto digitado.
+     *
+     * @param evt Evento de tecla liberada.
+     */
 
     private void tfPesquisarKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tfPesquisarKeyReleased
+        LOGGER.info("Filtrando nomes com base no texto digitado.");
         pesquisarNome();
+
     }//GEN-LAST:event_tfPesquisarKeyReleased
+    /**
+     * Ação executada ao clicar no botão "Procurar". Desativa campos específicos
+     * e realiza a pesquisa de pessoa física ou jurídica com base na seleção.
+     *
+     * @param evt Evento de ação do botão.
+     */
 
     private void btnProcurarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnProcurarActionPerformed
 
+        LOGGER.info("Iniciando pesquisa de usuário.");
+        // Desativa campos que não devem ser editados
         codigoUsuario.setEnabled(false);
         email.setEnabled(false);
         cpf.setEnabled(false);
@@ -914,14 +994,24 @@ public class PesquisarUsuario extends javax.swing.JInternalFrame {
         emailEmpresa.setEnabled(false);
         nomeFantasia.setEnabled(false);
         cnpj.setEnabled(false);
+
+        // Executa a pesquisa com base no tipo selecionado
         if (rdPessoa.isSelected()) {
             pesquisarPessoa();
         } else {
             pesquisarEmpresa();
         }
-        tfPesquisar.setText("");
+        tfPesquisar.setText(""); // Limpa o campo de pesquisa
+
 
     }//GEN-LAST:event_btnProcurarActionPerformed
+    /**
+     * Ação executada ao pressionar a tecla Enter no campo de código de usuário
+     * (pessoa física). Pesquisa os dados da pessoa física pelo código de
+     * usuário e preenche os campos.
+     *
+     * @param evt Evento de tecla pressionada.
+     */
 
     private void codigoUsuarioKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_codigoUsuarioKeyPressed
         if (evt.getKeyChar() == KeyEvent.VK_ENTER) {
@@ -962,27 +1052,32 @@ public class PesquisarUsuario extends javax.swing.JInternalFrame {
         }
 
     }//GEN-LAST:event_codigoUsuarioKeyPressed
+    /**
+     * Ação executada ao clicar no botão "Cancelar" (painel de pessoa). Restaura
+     * os ícones padrão, limpa os campos e desativa os campos de texto.
+     *
+     * @param evt Evento de clique do mouse.
+     */
 
     private void btCancelarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btCancelarMouseClicked
-      perfil1.setIcon(new ImageIcon("imagens/perfil.png"));
+        perfil1.setIcon(new ImageIcon("imagens/perfil.png"));
         perfil.setIcon(new ImageIcon("imagens/perfil.png"));
         usuarios = new ArrayList<>();
-        
 
         if (rdEmpresa.isSelected()) {
             for (Component component : painelEmpresa.getComponents()) {
-            if (component instanceof JTextField) {
-                ((JTextField) component).setText("");
+                if (component instanceof JTextField) {
+                    ((JTextField) component).setText("");
+                }
             }
-        }
             nomesUsuarios("J");
         } else {
             for (Component component : painelPessoa.getComponents()) {
-            if (component instanceof JTextField) {
-                ((JTextField) component).setText("");
+                if (component instanceof JTextField) {
+                    ((JTextField) component).setText("");
+                }
+                nomesUsuarios("F");
             }
-            nomesUsuarios("F");
-        }
         }
 
         desativarTextField(painelPessoa);
@@ -991,30 +1086,35 @@ public class PesquisarUsuario extends javax.swing.JInternalFrame {
     }//GEN-LAST:event_btCancelarMouseClicked
 
     private void btCancelar1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btCancelar1MouseClicked
-      perfil1.setIcon(new ImageIcon("imagens/perfil.png"));
+        perfil1.setIcon(new ImageIcon("imagens/perfil.png"));
         perfil.setIcon(new ImageIcon("imagens/perfil.png"));
         usuarios = new ArrayList<>();
-        
 
         if (rdEmpresa.isSelected()) {
             for (Component component : painelEmpresa.getComponents()) {
-            if (component instanceof JTextField) {
-                ((JTextField) component).setText("");
+                if (component instanceof JTextField) {
+                    ((JTextField) component).setText("");
+                }
             }
-        }
             nomesUsuarios("J");
         } else {
             for (Component component : painelPessoa.getComponents()) {
-            if (component instanceof JTextField) {
-                ((JTextField) component).setText("");
+                if (component instanceof JTextField) {
+                    ((JTextField) component).setText("");
+                }
+                nomesUsuarios("F");
             }
-            nomesUsuarios("F");
-        }
         }
 
         desativarTextField(painelPessoa);
         desativarTextField(painelEmpresa);
     }//GEN-LAST:event_btCancelar1MouseClicked
+    /**
+     * Ação executada ao pressionar a tecla Enter no campo de CPF. Pesquisa os
+     * dados da pessoa física pelo CPF e preenche os campos.
+     *
+     * @param evt Evento de tecla liberada.
+     */
 
     private void cpfKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_cpfKeyReleased
         if (evt.getKeyChar() == KeyEvent.VK_ENTER) {
@@ -1051,87 +1151,100 @@ public class PesquisarUsuario extends javax.swing.JInternalFrame {
                 e.printStackTrace();
                 JOptionPane.showMessageDialog(null, "<html> <h3> Não foi possível encontrar este nome</h3> </html>");
 
-            }}
+            }
+        }
     }//GEN-LAST:event_cpfKeyReleased
+
+    /**
+     * Ação executada ao pressionar a tecla Enter no campo de CNPJ. Pesquisa os
+     * dados da empresa pelo CNPJ e preenche os campos.
+     *
+     * @param evt Evento de tecla pressionada.
+     */
 
     private void cnpjKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_cnpjKeyPressed
         if (evt.getKeyChar() == KeyEvent.VK_ENTER) {
             try {
-            Connection con = Conexao.conexaoBanco();
-            PreparedStatement stmt = con.prepareStatement("SELECT * FROM dados_pesquisa WHERE cpf_cnpj = ? AND tipo_pessoa = 'J'");
-            stmt.setString(1, cnpj.getText());
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                codigoUsuario1.setText(rs.getString("id_usuario"));
-                nomeEmpresa.setText(rs.getString("razao_social"));
-                emailEmpresa.setText(rs.getString("email"));
-                telefoneEmpresa.setText(rs.getString("telefone"));
-                cnpj.setText(rs.getString("cpf_cnpj"));
-                nomeFantasia.setText(rs.getString("nome"));
-                dataFundacao.setText(rs.getString("data_fundacao"));
-                estado1.setText(rs.getString("uf"));
-                cep1.setText(rs.getString("cep"));
-                cidade1.setText(rs.getString("cidade"));
-                bairroEmpresa.setText(rs.getString("bairro"));
-                endereco1.setText(rs.getString("endereco"));
-                setorAtividade.setText(rs.getString("setor_atividade"));
+                Connection con = Conexao.conexaoBanco();
+                PreparedStatement stmt = con.prepareStatement("SELECT * FROM dados_pesquisa WHERE cpf_cnpj = ? AND tipo_pessoa = 'J'");
+                stmt.setString(1, cnpj.getText());
+                ResultSet rs = stmt.executeQuery();
+                if (rs.next()) {
+                    codigoUsuario1.setText(rs.getString("id_usuario"));
+                    nomeEmpresa.setText(rs.getString("razao_social"));
+                    emailEmpresa.setText(rs.getString("email"));
+                    telefoneEmpresa.setText(rs.getString("telefone"));
+                    cnpj.setText(rs.getString("cpf_cnpj"));
+                    nomeFantasia.setText(rs.getString("nome"));
+                    dataFundacao.setText(rs.getString("data_fundacao"));
+                    estado1.setText(rs.getString("uf"));
+                    cep1.setText(rs.getString("cep"));
+                    cidade1.setText(rs.getString("cidade"));
+                    bairroEmpresa.setText(rs.getString("bairro"));
+                    endereco1.setText(rs.getString("endereco"));
+                    setorAtividade.setText(rs.getString("setor_atividade"));
 
-                ImageIcon foto = new ImageIcon("imagens/usuarios/" + rs.getString("caminho_imagem"));
-                perfil1.setIcon(redimensionamentoDeImagem(foto, 247, 227));
+                    ImageIcon foto = new ImageIcon("imagens/usuarios/" + rs.getString("caminho_imagem"));
+                    perfil1.setIcon(redimensionamentoDeImagem(foto, 247, 227));
+
+                } else {
+                    JOptionPane.showMessageDialog(null, "CNPJ não encontrado");
+                }
+                rs.close();
+                stmt.close();
+                con.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+                JOptionPane.showMessageDialog(null, "<html> <h3> Não foi possível encontrar este nome</h3> </html>");
 
             }
-            else{
-                JOptionPane.showMessageDialog(null,"CNPJ não encontrado");
-            }
-            rs.close();
-            stmt.close();
-            con.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(null, "<html> <h3> Não foi possível encontrar este nome</h3> </html>");
-
         }
-            }
     }//GEN-LAST:event_cnpjKeyPressed
+    /**
+     * Ação executada ao pressionar a tecla Enter no campo de código de usuário
+     * (empresa). Pesquisa os dados da empresa pelo código de usuário e preenche
+     * os campos.
+     *
+     * @param evt Evento de tecla pressionada.
+     */
 
     private void codigoUsuario1KeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_codigoUsuario1KeyPressed
-           if (evt.getKeyChar() == KeyEvent.VK_ENTER) {
+        if (evt.getKeyChar() == KeyEvent.VK_ENTER) {
             try {
-            Connection con = Conexao.conexaoBanco();
-            PreparedStatement stmt = con.prepareStatement("SELECT * FROM dados_pesquisa WHERE id_usuario = ? AND tipo_pessoa = 'J'");
-            stmt.setString(1, codigoUsuario1.getText());
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                codigoUsuario1.setText(rs.getString("id_usuario"));
-                nomeEmpresa.setText(rs.getString("razao_social"));
-                emailEmpresa.setText(rs.getString("email"));
-                telefoneEmpresa.setText(rs.getString("telefone"));
-                cnpj.setText(rs.getString("cpf_cnpj"));
-                nomeFantasia.setText(rs.getString("nome"));
-                dataFundacao.setText(rs.getString("data_fundacao"));
-                estado1.setText(rs.getString("uf"));
-                cep1.setText(rs.getString("cep"));
-                cidade1.setText(rs.getString("cidade"));
-                bairroEmpresa.setText(rs.getString("bairro"));
-                endereco1.setText(rs.getString("endereco"));
-                setorAtividade.setText(rs.getString("setor_atividade"));
+                Connection con = Conexao.conexaoBanco();
+                PreparedStatement stmt = con.prepareStatement("SELECT * FROM dados_pesquisa WHERE id_usuario = ? AND tipo_pessoa = 'J'");
+                stmt.setString(1, codigoUsuario1.getText());
+                ResultSet rs = stmt.executeQuery();
+                if (rs.next()) {
+                    codigoUsuario1.setText(rs.getString("id_usuario"));
+                    nomeEmpresa.setText(rs.getString("razao_social"));
+                    emailEmpresa.setText(rs.getString("email"));
+                    telefoneEmpresa.setText(rs.getString("telefone"));
+                    cnpj.setText(rs.getString("cpf_cnpj"));
+                    nomeFantasia.setText(rs.getString("nome"));
+                    dataFundacao.setText(rs.getString("data_fundacao"));
+                    estado1.setText(rs.getString("uf"));
+                    cep1.setText(rs.getString("cep"));
+                    cidade1.setText(rs.getString("cidade"));
+                    bairroEmpresa.setText(rs.getString("bairro"));
+                    endereco1.setText(rs.getString("endereco"));
+                    setorAtividade.setText(rs.getString("setor_atividade"));
 
-                ImageIcon foto = new ImageIcon("imagens/usuarios/" + rs.getString("caminho_imagem"));
-                perfil1.setIcon(redimensionamentoDeImagem(foto, 247, 227));
+                    ImageIcon foto = new ImageIcon("imagens/usuarios/" + rs.getString("caminho_imagem"));
+                    perfil1.setIcon(redimensionamentoDeImagem(foto, 247, 227));
+
+                } else {
+                    JOptionPane.showMessageDialog(null, "Código de usuário não encontrado");
+                }
+                rs.close();
+                stmt.close();
+                con.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+                JOptionPane.showMessageDialog(null, "<html> <h3> Não foi possível encontrar este nome</h3> </html>");
 
             }
-            else{
-                JOptionPane.showMessageDialog(null,"Código de usuário não encontrado");
-            }
-            rs.close();
-            stmt.close();
-            con.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(null, "<html> <h3> Não foi possível encontrar este nome</h3> </html>");
-
         }
-            }
     }//GEN-LAST:event_codigoUsuario1KeyPressed
 
 

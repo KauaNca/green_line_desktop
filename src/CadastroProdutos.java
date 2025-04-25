@@ -26,131 +26,184 @@ import javax.swing.text.AbstractDocument;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DocumentFilter;
+import java.util.logging.Logger;
 
 /**
+ * JInternalFrame para cadastro de produtos no sistema. Permite adicionar novos
+ * produtos com detalhes como nome, preço, descrição, imagens e categorias, com
+ * validação de entrada e slideshow de imagens.
  *
  * @author Kaua33500476
  */
 public class CadastroProdutos extends javax.swing.JInternalFrame {
 
-    int numeroImagens = 0;
-    int contagem = 0;
-    String id_produto;
-    String enderecoImagem1;
-    String enderecoImagem2;
-    File arquivo;
-    String[] enderecosImagens;
-    String Subcategoria;
-    String id_subcat;
-    EscolhaDeSubcategoria janela;
-    String espaco = "";
-    int repeticao = 0;
-        private boolean atualizandoMascara = false;
+    // Logger para rastreamento de eventos e erros
+    private static final Logger LOGGER = Logger.getLogger(CadastroProdutos.class.getName());
 
-    public CadastroProdutos() {
-        initComponents();
-        jPanel1.setBackground(Color.white);
-        sem_imagem.setIcon(sem_imagem());
-        passarImagem.setIcon(new ImageIcon("imagens/seta-direita.png"));
-       atualizarMascara();
-        applyTextAndNumberFilter(preco);
-        applyNumberOnlyMask(estoqueInicial);
-        applyMoneyMask(preco);
-        passarImagem.addMouseListener(new MouseAdapter() {
-            public void mouseClicked(MouseEvent e) {
-                slide.start();
-            }
+    // Constantes para queries SQL, caminhos de imagens e mensagens
+    private static final String SELECT_SUBCATEGORY_ID = "SELECT id_subcat FROM subcategorias WHERE subcategoria = ?";
+    private static final String SELECT_LAST_PRODUCT_ID = "SELECT id_produto FROM produto ORDER BY id_produto DESC LIMIT 1";
+    private static final String INSERT_IMAGES = "INSERT INTO imagens(endereco,endereco2,id_produto) VALUES(?,?,?)";
+    private static final String INSERT_PRODUCT = "INSERT INTO produto(nome_produto,descricao,preco,marca,estoque,id_subcat) "
+            + "VALUES (?,?,?,?,?,(SELECT id_subcat FROM subcategorias WHERE subcategoria = ?))";
+    private static final String SELECT_CATEGORIES = "SELECT id_categoria, categoria FROM categoria ORDER BY id_categoria ASC";
+    private static final String DEFAULT_IMAGE_PATH = "imagens/sem_imagem.jpg";
+    private static final String RIGHT_ARROW_PATH = "imagens/seta-direita.png";
+    private static final String PRODUCT_IMAGE_PATH = "imagens/produtos/";
+    private static final String ERROR_IMAGE_NOT_FOUND = "Imagem não encontrada";
+    private static final String ERROR_DB_ACCESS = "Erro ao carregar dados: ";
+    private static final String ERROR_GENERIC = "Erro: ";
 
-        });
-        carregarCategorias();
-    }
-    //MÉTODOS
-    Timer slide = new Timer(1000, new ActionListener() {
+    // Variáveis de estado
+    private int numeroImagens = 0;
+    private int contagem = 0;
+    private String id_produto;
+    private String enderecoImagem1;
+    private String enderecoImagem2;
+    private File arquivo;
+    private String[] enderecosImagens;
+    private String Subcategoria;
+    private String id_subcat;
+    private EscolhaDeSubcategoria janela;
+    private String espaco = "";
+    private int repeticao = 0;
+    private boolean atualizandoMascara = false;
+
+    // Timer para slideshow de imagens
+    private final Timer slide = new Timer(1000, new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
-
+            LOGGER.info("Alternando imagem no slideshow. Contagem: " + contagem);
             enderecoImagem1 = imagem1.getText();
             enderecoImagem2 = imagem2.getText();
-            enderecosImagens = new String[]{
-                enderecoImagem1, enderecoImagem2
-            };
+            enderecosImagens = new String[]{enderecoImagem1, enderecoImagem2};
             contagem = (contagem + 1) % enderecosImagens.length;
-            ImageIcon proximaImagem = new ImageIcon("imagens/produtos/" + enderecosImagens[contagem]);
+            ImageIcon proximaImagem = new ImageIcon(PRODUCT_IMAGE_PATH + enderecosImagens[contagem]);
             if (proximaImagem.getIconWidth() == -1) {
-                System.out.println("Imagem não encontrada");
+                LOGGER.warning(ERROR_IMAGE_NOT_FOUND + ": " + enderecosImagens[contagem]);
                 slide.stop();
             } else {
                 sem_imagem.setIcon(redimensionamentoDeImagem(proximaImagem, 250, 216));
                 slide.stop();
             }
-
         }
-    }
-    );
+    });
 
-    public String puxarSubcategoria(String subcategoria) {
-        try {
-            Connection con = Conexao.conexaoBanco();
-            String sql = "SELECT id_subcat FROM subcategorias WHERE subcategoria = ?;";
-            PreparedStatement stmt = con.prepareStatement(sql);
-            stmt.setString(1, subcategoria);
-            ResultSet rs = stmt.executeQuery();
-
-            while (rs.next()) {
-                Subcategoria = rs.getString("id_subcat");
+    /**
+     * Construtor padrão. Inicializa a interface, configura ícones, aplica
+     * máscaras de entrada e carrega categorias.
+     */
+    public CadastroProdutos() {
+        initComponents();
+        LOGGER.info("Inicializando interface de cadastro de produtos.");
+        jPanel1.setBackground(Color.white);
+        sem_imagem.setIcon(sem_imagem());
+        passarImagem.setIcon(new ImageIcon(RIGHT_ARROW_PATH));
+        atualizarMascara();
+        applyTextAndNumberFilter(preco);
+        applyNumberOnlyMask(estoqueInicial);
+        applyMoneyMask(preco);
+        passarImagem.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                LOGGER.info("Iniciando slideshow de imagens.");
+                slide.start();
             }
+        });
+        carregarCategorias();
+    }
 
-            stmt.close();
-            rs.close();
-            con.close();
+    /**
+     * Busca o ID da subcategoria com base no nome fornecido.
+     *
+     * @param subcategoria Nome da subcategoria.
+     * @return ID da subcategoria.
+     */
+    public String puxarSubcategoria(String subcategoria) {
+        LOGGER.info("Buscando ID da subcategoria: " + subcategoria);
+        try (Connection con = Conexao.conexaoBanco(); PreparedStatement stmt = con.prepareStatement(SELECT_SUBCATEGORY_ID)) {
+            stmt.setString(1, subcategoria);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    Subcategoria = rs.getString("id_subcat");
+                    LOGGER.info("ID da subcategoria encontrado: " + Subcategoria);
+                }
+            }
         } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(null, "Erro ao carregar categorias: " + ex.getMessage());
-            ex.printStackTrace();
+            LOGGER.severe(ERROR_DB_ACCESS + ex.getMessage());
+            JOptionPane.showMessageDialog(null, ERROR_DB_ACCESS + ex.getMessage());
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "Erro: " + e.getMessage());
-            e.printStackTrace();
+            LOGGER.severe(ERROR_GENERIC + e.getMessage());
+            JOptionPane.showMessageDialog(null, ERROR_GENERIC + e.getMessage());
         }
         return Subcategoria;
     }
 
+    /**
+     * Retorna o ícone padrão para quando não há imagem disponível.
+     *
+     * @return Ícone redimensionado da imagem padrão.
+     */
     public ImageIcon sem_imagem() {
-        ImageIcon imagem = new ImageIcon("imagens/sem_imagem.jpg");
+        LOGGER.info("Carregando imagem padrão: " + DEFAULT_IMAGE_PATH);
+        ImageIcon imagem = new ImageIcon(DEFAULT_IMAGE_PATH);
         Image redimensionar = imagem.getImage();
         Image redimensionar2 = redimensionar.getScaledInstance(250, 216, Image.SCALE_SMOOTH);
-        ImageIcon imagemRedimensionada = new ImageIcon(redimensionar2);
-        return imagemRedimensionada;
+        return new ImageIcon(redimensionar2);
     }
 
+    /**
+     * Redimensiona uma imagem a partir de um arquivo para as dimensões
+     * especificadas.
+     *
+     * @param arquivo Arquivo da imagem.
+     * @return Ícone da imagem redimensionada.
+     */
     public ImageIcon redimensionamentoDeImagem(File arquivo) {
+        LOGGER.info("Redimensionando imagem do arquivo: " + arquivo.getPath());
         ImageIcon imagem = new ImageIcon(arquivo.getPath());
         Image pegarImagem = imagem.getImage();
         Image redimensionando = pegarImagem.getScaledInstance(250, 216, Image.SCALE_SMOOTH);
-        ImageIcon imagemRedimensionada = new ImageIcon(redimensionando);
-        return imagemRedimensionada;
+        return new ImageIcon(redimensionando);
     }
 
+    /**
+     * Redimensiona uma imagem para as dimensões especificadas.
+     *
+     * @param imagem Ícone da imagem original.
+     * @param largura Largura desejada.
+     * @param altura Altura desejada.
+     * @return Ícone da imagem redimensionada.
+     */
     public ImageIcon redimensionamentoDeImagem(ImageIcon imagem, int largura, int altura) {
+        LOGGER.info("Redimensionando imagem para " + largura + "x" + altura);
         Image pegarImagem = imagem.getImage();
         Image redimensionando = pegarImagem.getScaledInstance(largura, altura, Image.SCALE_SMOOTH);
-        ImageIcon imagemRedimensionada = new ImageIcon(redimensionando);
-        return imagemRedimensionada;
+        return new ImageIcon(redimensionando);
     }
 
+    /**
+     * Valida os campos de imagens e solicita a seleção de imagens, se
+     * necessário.
+     *
+     * @return 1 se as imagens são válidas, 0 se há problemas.
+     */
     public int camposImagens() {
-        // Verifica se ambas as imagens estão vazias
+        LOGGER.info("Validando campos de imagens.");
         if (imagem1.getText().isBlank() && imagem2.getText().isBlank()) {
+            LOGGER.warning("Ambos os campos de imagem estão vazios.");
             new CadastroProdutos().Avisos("imagens/sinal-de-aviso.png", "Selecione uma imagem");
             return 0;
         }
 
-        // Verifica se imagem1 está vazia
         if (imagem1.getText().isBlank()) {
+            LOGGER.warning("Campo de imagem 1 está vazio.");
             new CadastroProdutos().Avisos("imagens/sinal-de-aviso.png", "Selecione uma imagem para o campo 1");
             return 0;
         }
 
-        // Verifica se imagem2 está vazia
         if (imagem2.getText().isBlank()) {
+            LOGGER.info("Campo de imagem 2 está vazio. Solicitando confirmação do usuário.");
             int resposta = JOptionPane.showConfirmDialog(
                     null,
                     "Deseja manter apenas uma imagem para o produto?",
@@ -159,106 +212,111 @@ public class CadastroProdutos extends javax.swing.JInternalFrame {
             );
 
             if (resposta == JOptionPane.NO_OPTION) {
-                 if (repeticao == 0) {
-                    new CadastroProdutos().Avisos("imagens/sinal-de-aviso.png", "Escolha imagens que possuam largura acima de 250px e altura de 216px");
+                if (repeticao == 0) {
+                    LOGGER.warning("Imagens devem ter largura acima de 250px e altura de 216px.");
+                    new CadastroProdutos().Avisos("imagens/sinal-de-aviso.png",
+                            "Escolha imagens que possuam largura acima de 250px e altura de 216px");
                     repeticao++;
                 }
                 JFileChooser selecionar = new JFileChooser();
-                // Caminho completo para o diretório na Área de Trabalho
-                selecionar.setCurrentDirectory(new File("imagens"));//Define o diretório inicial que será exibido quando o diálogo for aberto.
-
-                selecionar.setDialogTitle("Escolha a imagem do produto"); //Define o título da caixa de diálogo.
-                selecionar.setFileSelectionMode(JFileChooser.FILES_ONLY); //Define se o usuário pode selecionar arquivos, diretórios ou ambos.
-                selecionar.setMultiSelectionEnabled(false); // Permite selecionar vários arquivos
-                selecionar.setApproveButtonText("Selecionar"); //Define o texto do botão OPEN. Mais usado quando o DialogType é CUSTOM_DIALOG
-                selecionar.setAcceptAllFileFilterUsed(false); //Define se terá a opção de Aceitar Todos Os Arquivos.
-                selecionar.setDialogType(JFileChooser.OPEN_DIALOG); //Define o tipo de processo que será: normal,salvar ou customizado.
-
-                FileNameExtensionFilter filtro = new FileNameExtensionFilter("Imagens", "jpg", "png", "jpge"); //Permite definir filtros para limitar os tipos de arquivos que podem ser selecionados.
-                selecionar.setFileFilter(filtro); //Apenas passar o filtro.
+                selecionar.setCurrentDirectory(new File("imagens"));
+                selecionar.setDialogTitle("Escolha a imagem do produto");
+                selecionar.setFileSelectionMode(JFileChooser.FILES_ONLY);
+                selecionar.setMultiSelectionEnabled(false);
+                selecionar.setApproveButtonText("Selecionar");
+                selecionar.setAcceptAllFileFilterUsed(false);
+                selecionar.setDialogType(JFileChooser.OPEN_DIALOG);
+                FileNameExtensionFilter filtro = new FileNameExtensionFilter("Imagens", "jpg", "png", "jpeg");
+                selecionar.setFileFilter(filtro);
 
                 int retorno = selecionar.showOpenDialog(this);
 
                 if (retorno == JFileChooser.APPROVE_OPTION) {
-                    arquivo = selecionar.getSelectedFile(); //Pega o endereço do arquivo, logo é possível manipular.
+                    arquivo = selecionar.getSelectedFile();
                     String nomeArquivo = arquivo.getName();
-                    if (imagem1.getText().isEmpty() || imagem1.getText() == null) {
+                    if (imagem1.getText().isEmpty()) {
                         imagem1.setText(nomeArquivo);
-
                     } else {
                         imagem2.setText(nomeArquivo);
-
                     }
                     sem_imagem.setIcon(redimensionamentoDeImagem(arquivo));
+                    LOGGER.info("Imagem selecionada: " + nomeArquivo);
                 }
                 repeticao = 0;
                 return 0;
             } else {
-                imagem2.setText(""); // Limpa imagem2
+                imagem2.setText("");
+                LOGGER.info("Usuário optou por manter apenas uma imagem.");
             }
-            return 1; // Retorna 1, pois uma imagem já foi selecionada
+            return 1;
         }
 
-        // Retorna 1 se não houver problemas com as imagens
+        LOGGER.info("Ambos os campos de imagem estão preenchidos.");
         return 1;
     }
 
+    /**
+     * Salva as imagens do produto no banco de dados, associando-as ao último ID
+     * de produto.
+     */
     public void salvarImagem() {
-
-        try (Connection conexao = Conexao.conexaoBanco()) {
-            String sql = "SELECT id_produto FROM produto ORDER BY id_produto DESC LIMIT 1;";
-            PreparedStatement stmt = conexao.prepareStatement(sql);
-            ResultSet rs = stmt.executeQuery();
+        LOGGER.info("Salvando imagens do produto.");
+        try (Connection conexao = Conexao.conexaoBanco(); PreparedStatement stmt = conexao.prepareStatement(SELECT_LAST_PRODUCT_ID); ResultSet rs = stmt.executeQuery()) {
             if (rs.next()) {
                 id_produto = rs.getString("id_produto");
-            }
-            rs.close();
-
-            String sql2 = "INSERT INTO imagens(endereco,endereco2,id_produto) VALUES(?,?,?)";
-            stmt = conexao.prepareStatement(sql2);
-            stmt.setString(1, imagem1.getText());
-            if (imagem2.getText().isBlank()) {
-                stmt.setString(2, espaco);
-            } else {
-                stmt.setString(2, imagem2.getText());
+                LOGGER.info("Último ID de produto obtido: " + id_produto);
             }
 
-            stmt.setString(3, id_produto);
-            stmt.execute();
-
+            try (PreparedStatement stmt2 = conexao.prepareStatement(INSERT_IMAGES)) {
+                stmt2.setString(1, imagem1.getText());
+                stmt2.setString(2, imagem2.getText().isBlank() ? espaco : imagem2.getText());
+                stmt2.setString(3, id_produto);
+                stmt2.execute();
+                LOGGER.info("Imagens salvas no banco de dados.");
+            }
         } catch (Exception e) {
-            System.out.println("ERRO AO SALVAR A IMAGEM" + e.getMessage());
+            LOGGER.severe("Erro ao salvar imagens: " + e.getMessage());
             e.printStackTrace();
         }
     }
 
+    /**
+     * Verifica se há campos obrigatórios vazios no formulário.
+     *
+     * @return 1 se há campos vazios, 0 se todos estão preenchidos.
+     */
     private int camposVazios() {
-
+        LOGGER.info("Verificando campos vazios no formulário.");
         String[] valoresFormularios = new String[]{
             nomeProduto.getText(), preco.getText(), descricao.getText(),
-            marca.getText(), estoqueInicial.getText(), janela.getSubcategoria()};
+            marca.getText(), estoqueInicial.getText(), janela.getSubcategoria()
+        };
 
         int camposVazios = 0;
-        for (int x = 0; x < valoresFormularios.length; x++) {
-            if (valoresFormularios[x].isBlank()) {
+        for (String valor : valoresFormularios) {
+            if (valor.isBlank()) {
                 camposVazios++;
             }
         }
 
         if (camposVazios > 0) {
+            LOGGER.warning("Encontrados " + camposVazios + " campos vazios.");
             new CadastroProdutos().Avisos("imagens/sinal-de-aviso.png", "Campos não preenchidos");
             return 1;
         }
 
+        LOGGER.info("Todos os campos estão preenchidos.");
         return 0;
     }
 
+    /**
+     * Cadastra um novo produto no banco de dados.
+     */
     public void cadastrarProduto() {
-        try (Connection con = Conexao.conexaoBanco()) {
-            String sql = "INSERT INTO produto(nome_produto,descricao,preco,marca,estoque,id_subcat)"
-                    + " VALUES (?,?,?,?,?,(SELECT id_subcat FROM subcategorias WHERE subcategoria = ?))";
-            PreparedStatement stmt = con.prepareStatement(sql);
-            System.out.println(nomeProduto.getText() + ", " + descricao.getText() + ", " + preco.getText() + ", " + marca.getText() + ", " + estoqueInicial.getText() + ", " + Subcategoria);
+        LOGGER.info("Cadastrando novo produto.");
+        try (Connection con = Conexao.conexaoBanco(); PreparedStatement stmt = con.prepareStatement(INSERT_PRODUCT)) {
+            LOGGER.info("Dados do produto: " + nomeProduto.getText() + ", " + descricao.getText() + ", "
+                    + preco.getText() + ", " + marca.getText() + ", " + estoqueInicial.getText() + ", " + janela.getSubcategoria());
 
             stmt.setString(1, nomeProduto.getText());
             stmt.setString(2, descricao.getText());
@@ -267,22 +325,26 @@ public class CadastroProdutos extends javax.swing.JInternalFrame {
             stmt.setString(5, estoqueInicial.getText());
             stmt.setString(6, janela.getSubcategoria());
             stmt.execute();
-            stmt.close();
-            con.close();
+            LOGGER.info("Produto cadastrado com sucesso.");
             janela.setSubcategoria("");
-
         } catch (Exception e) {
+            LOGGER.severe("Erro ao cadastrar produto: " + e.getMessage());
             JOptionPane.showMessageDialog(null, "Aconteceu algum erro", "Exceção", JOptionPane.INFORMATION_MESSAGE);
-            e.printStackTrace();
         }
     }
 
+    /**
+     * Exibe mensagens de aviso com ícone personalizado.
+     *
+     * @param endereco Caminho do ícone.
+     * @param mensagem Mensagem a ser exibida.
+     */
     public void Avisos(String endereco, String mensagem) {
+        LOGGER.info("Exibindo aviso: " + mensagem);
         ImageIcon imagem = new ImageIcon(endereco);
         if (imagem.getIconWidth() == -1) {
-            System.out.println("Ícone não encontrado");
+            LOGGER.warning("Ícone não encontrado: " + endereco);
         } else {
-            // Redimensionar ícone se for necessário
             Image image = imagem.getImage();
             Image scaledImage = image.getScaledInstance(64, 64, Image.SCALE_SMOOTH);
             ImageIcon scaledIcon = new ImageIcon(scaledImage);
@@ -291,43 +353,39 @@ public class CadastroProdutos extends javax.swing.JInternalFrame {
             JOptionPane.showMessageDialog(null, titulo, "Mensagem", JOptionPane.INFORMATION_MESSAGE, scaledIcon);
         }
     }
-    public void carregarCategorias() {
-        try {
-            Connection con = Conexao.conexaoBanco();
-            String sql = "SELECT id_categoria, categoria FROM categoria ORDER BY id_categoria ASC;";
-            PreparedStatement stmt = con.prepareStatement(sql);
-            ResultSet rs = stmt.executeQuery();
 
-            categorias.removeAllItems(); // Limpa os itens existentes
+    /**
+     * Carrega as categorias do banco de dados e preenche o JComboBox.
+     */
+    public void carregarCategorias() {
+        LOGGER.info("Carregando categorias do banco de dados.");
+        try (Connection con = Conexao.conexaoBanco(); PreparedStatement stmt = con.prepareStatement(SELECT_CATEGORIES); ResultSet rs = stmt.executeQuery()) {
+            categorias.removeAllItems();
             categorias.addItem("");
             while (rs.next()) {
-                // Adiciona cada categoria ao JComboBox
-                //id_categoria = rs.getString("id_categoria");
-
                 categorias.addItem(rs.getInt("id_categoria") + " " + rs.getString("categoria"));
             }
-
-            stmt.close();
-            rs.close();
-            con.close();
+            LOGGER.info("Categorias carregadas com sucesso.");
         } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(null, "Erro ao carregar categorias: " + ex.getMessage());
-            ex.printStackTrace();
+            LOGGER.severe(ERROR_DB_ACCESS + ex.getMessage());
+            JOptionPane.showMessageDialog(null, ERROR_DB_ACCESS + ex.getMessage());
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "Erro: " + e.getMessage());
-            e.printStackTrace();
+            LOGGER.severe(ERROR_GENERIC + e.getMessage());
+            JOptionPane.showMessageDialog(null, ERROR_GENERIC + e.getMessage());
         }
     }
-     public void Apagar() {
 
+    /**
+     * Limpa todos os campos do formulário e restaura a imagem padrão.
+     */
+    public void Apagar() {
+        LOGGER.info("Limpando campos do formulário.");
         if (nomeProduto != null) {
             nomeProduto.setText("");
         }
-
         if (descricao != null) {
             descricao.setText("");
         }
-
         if (preco != null) {
             preco.setText("");
         }
@@ -347,7 +405,119 @@ public class CadastroProdutos extends javax.swing.JInternalFrame {
             sem_imagem.setIcon(sem_imagem());
         }
     }
-     
+
+    /**
+     * Aplica uma máscara ao campo de nome do produto, permitindo apenas
+     * caracteres alfanuméricos e acentuados. Evita loops de atualização.
+     */
+    private void atualizarMascara() {
+        if (atualizandoMascara) {
+            return; // Evita loops
+        }
+        atualizandoMascara = true;
+        SwingUtilities.invokeLater(() -> {
+            String texto = nomeProduto.getText();
+            nomeProduto.setText(texto.replaceAll("[^a-zA-Z0-9áéíóúâêîôûãõçÁÉÍÓÚÂÊÎÔÛÃÕÇñÑ~\\s]", ""));
+            atualizandoMascara = false;
+            LOGGER.info("Máscara aplicada ao nome do produto: " + nomeProduto.getText());
+        });
+    }
+
+    /**
+     * Aplica um filtro de entrada para permitir apenas letras, números e
+     * espaços.
+     *
+     * @param textField Campo de texto a ser filtrado.
+     */
+    public void applyTextAndNumberFilter(JTextField textField) {
+        LOGGER.info("Aplicando filtro de letras e números ao campo: " + textField.getName());
+        AbstractDocument doc = (AbstractDocument) textField.getDocument();
+        doc.setDocumentFilter(new DocumentFilter() {
+            @Override
+            public void insertString(FilterBypass fb, int offset, String string, AttributeSet attr) throws BadLocationException {
+                if (string.matches("[a-zA-Z0-9\\s]*")) {
+                    super.insertString(fb, offset, string, attr);
+                }
+            }
+
+            @Override
+            public void replace(FilterBypass fb, int offset, int length, String text, AttributeSet attrs) throws BadLocationException {
+                if (text.matches("[a-zA-Z0-9\\s]*")) {
+                    super.replace(fb, offset, length, text, attrs);
+                }
+            }
+        });
+    }
+
+    /**
+     * Aplica um filtro de entrada para permitir apenas números.
+     *
+     * @param textField Campo de texto a ser filtrado.
+     */
+    public void applyNumberOnlyMask(JTextField textField) {
+        LOGGER.info("Aplicando filtro de números ao campo: " + textField.getName());
+        AbstractDocument doc = (AbstractDocument) textField.getDocument();
+        doc.setDocumentFilter(new DocumentFilter() {
+            @Override
+            public void insertString(FilterBypass fb, int offset, String string, AttributeSet attr) throws BadLocationException {
+                if (string.matches("[0-9]*")) {
+                    super.insertString(fb, offset, string, attr);
+                }
+            }
+
+            @Override
+            public void replace(FilterBypass fb, int offset, int length, String text, AttributeSet attrs) throws BadLocationException {
+                if (text.matches("[0-9]*")) {
+                    super.replace(fb, offset, length, text, attrs);
+                }
+            }
+
+            @Override
+            public void remove(FilterBypass fb, int offset, int length) throws BadLocationException {
+                super.remove(fb, offset, length);
+            }
+        });
+    }
+
+    /**
+     * Aplica uma máscara de entrada para formatar valores monetários.
+     *
+     * @param textField Campo de texto a ser formatado.
+     */
+    public void applyMoneyMask(JTextField textField) {
+        LOGGER.info("Aplicando máscara de valor monetário ao campo: " + textField.getName());
+        NumberFormat currencyFormat = NumberFormat.getCurrencyInstance();
+        AbstractDocument doc = (AbstractDocument) textField.getDocument();
+        doc.setDocumentFilter(new DocumentFilter() {
+            @Override
+            public void insertString(FilterBypass fb, int offset, String string, AttributeSet attr) throws BadLocationException {
+                if (string.matches("[0-9.,]*")) {
+                    super.insertString(fb, offset, string, attr);
+                }
+            }
+
+            @Override
+            public void replace(FilterBypass fb, int offset, int length, String text, AttributeSet attrs) throws BadLocationException {
+                if (text.matches("[0-9.,]*")) {
+                    super.replace(fb, offset, length, text, attrs);
+                }
+            }
+        });
+
+        textField.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyReleased(KeyEvent e) {
+                try {
+                    String text = textField.getText();
+                    if (!text.isEmpty()) {
+                        textField.setText(currencyFormat.format(Double.parseDouble(text.replaceAll("[^0-9]", ""))));
+                    }
+                } catch (NumberFormatException ex) {
+                    LOGGER.warning("Erro ao formatar valor monetário: " + ex.getMessage());
+                }
+            }
+        });
+    }
 
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -647,20 +817,42 @@ public class CadastroProdutos extends javax.swing.JInternalFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+/**
+     * Remove o texto do campo imagem2.
+     *
+     * @param evt Evento de clique do mouse.
+     */
 
     private void btExcluir2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btExcluir2MouseClicked
+        LOGGER.info("Excluindo conteúdo do campo imagem2.");
         imagem2.setText("");
+
     }//GEN-LAST:event_btExcluir2MouseClicked
+    /**
+     * Remove o texto do campo imagem1. Se imagem2 não estiver vazia, transfere
+     * seu conteúdo para imagem1 e limpa imagem2.
+     *
+     * @param evt Evento de clique do mouse.
+     */
 
     private void btExcluirMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btExcluirMouseClicked
+        LOGGER.info("Excluindo conteúdo do campo imagem1.");
         imagem1.setText("");
         if (!imagem2.getText().isBlank()) {
+            LOGGER.info("Transferindo conteúdo de imagem2 para imagem1.");
             imagem1.setText(imagem2.getText());
             imagem2.setText("");
         }
+
     }//GEN-LAST:event_btExcluirMouseClicked
+    /**
+     * Limpa todos os campos do formulário e restaura a imagem padrão.
+     *
+     * @param evt Evento de ação do botão.
+     */
 
     private void btCancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btCancelarActionPerformed
+        LOGGER.info("Cancelando e limpando formulário.");
         nomeProduto.setText(null);
         descricao.setText(null);
         preco.setText(null);
@@ -670,9 +862,15 @@ public class CadastroProdutos extends javax.swing.JInternalFrame {
         imagem2.setText(null);
         sem_imagem.setIcon(sem_imagem());
     }//GEN-LAST:event_btCancelarActionPerformed
+    /**
+     * Cadastra um novo produto se todos os campos forem válidos. Salva imagens
+     * associadas e exibe confirmação.
+     *
+     * @param evt Evento de ação do botão.
+     */
 
     private void btCadastrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btCadastrarActionPerformed
-
+        LOGGER.info("Iniciando processo de cadastro de produto.");
         int resposta = camposVazios();
         if (resposta == 0) {
             int resposta2 = camposImagens();
@@ -682,15 +880,16 @@ public class CadastroProdutos extends javax.swing.JInternalFrame {
                     salvarImagem();
                     Avisos("imagens/confirmacao.png", "Produto cadastrado");
                     Apagar();
+                    LOGGER.info("Produto cadastrado com sucesso.");
                 } catch (Exception e) {
-                    e.printStackTrace();
-                    JOptionPane.showMessageDialog(null, "Houve um erro inesperado. Tente daqui a pouco!", "Mensagem", JOptionPane.ERROR_MESSAGE);
+                    LOGGER.severe("Erro inesperado ao cadastrar produto: " + e.getMessage());
+                    JOptionPane.showMessageDialog(null, "Houve um erro inesperado. Tente daqui a pouco!",
+                            "Mensagem", JOptionPane.ERROR_MESSAGE);
                     dispose();
-
                 }
             }
-
         }
+
 
     }//GEN-LAST:event_btCadastrarActionPerformed
 
@@ -740,7 +939,6 @@ public class CadastroProdutos extends javax.swing.JInternalFrame {
                 janela = new EscolhaDeSubcategoria(id_categoria);
                 janela.setLocation(categorias.getX(), categorias.getY());
                 janela.setVisible(true);
-                
 
             } catch (Exception e) {
                 e.printStackTrace(); // Imprime qualquer erro que possa ocorrer
@@ -749,117 +947,22 @@ public class CadastroProdutos extends javax.swing.JInternalFrame {
     }//GEN-LAST:event_categoriasActionPerformed
 
     private void nomeProdutoFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_nomeProdutoFocusLost
-        try(Connection con = Conexao.conexaoBanco()){
+        try (Connection con = Conexao.conexaoBanco()) {
             PreparedStatement stmt = con.prepareStatement("SELECT nome_produto FROM produto WHERE nome_produto = ?");
-            stmt.setString(1,nomeProduto.getText());
+            stmt.setString(1, nomeProduto.getText());
             ResultSet rs = stmt.executeQuery();
-            if(rs.next()){
-                JOptionPane.showMessageDialog(null,"Produto já existe","Mensagem",JOptionPane.INFORMATION_MESSAGE);
+            if (rs.next()) {
+                JOptionPane.showMessageDialog(null, "Produto já existe", "Mensagem", JOptionPane.INFORMATION_MESSAGE);
                 nomeProduto.setText("");
             }
             rs.close();
             stmt.close();
             con.close();
         } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(null,"ERRO","Mensagem",JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "ERRO", "Mensagem", JOptionPane.ERROR_MESSAGE);
             dispose();
         }
     }//GEN-LAST:event_nomeProdutoFocusLost
-
-    //MÁSCARAS
-    public void applyTextAndNumberFilter(JTextField textField) {
-        // Define a formatter to validate text and number input
-        AbstractDocument doc = (AbstractDocument) textField.getDocument();
-        doc.setDocumentFilter(new DocumentFilter() {
-            @Override
-            public void insertString(DocumentFilter.FilterBypass fb, int offset, String string, AttributeSet attr) throws BadLocationException {
-                if (string.matches("[a-zA-Z0-9\\s]*")) {
-                    super.insertString(fb, offset, string, attr);
-                }
-            }
-
-            @Override
-            public void replace(DocumentFilter.FilterBypass fb, int offset, int length, String text, AttributeSet attrs) throws BadLocationException {
-                if (text.matches("[a-zA-Z0-9\\s]*")) {
-                    super.replace(fb, offset, length, text, attrs);
-                }
-            }
-        });
-    }
-
-    public void applyNumberOnlyMask(JTextField textField) {
-        AbstractDocument doc = (AbstractDocument) textField.getDocument();
-        doc.setDocumentFilter(new DocumentFilter() {
-            @Override
-            public void insertString(DocumentFilter.FilterBypass fb, int offset, String string, AttributeSet attr) throws BadLocationException {
-                if (string.matches("[0-9]*")) {
-                    super.insertString(fb, offset, string, attr);
-                }
-            }
-
-            @Override
-            public void replace(DocumentFilter.FilterBypass fb, int offset, int length, String text, AttributeSet attrs) throws BadLocationException {
-                if (text.matches("[0-9]*")) {
-                    super.replace(fb, offset, length, text, attrs);
-                }
-            }
-
-            @Override
-            public void remove(DocumentFilter.FilterBypass fb, int offset, int length) throws BadLocationException {
-                super.remove(fb, offset, length);
-            }
-        });
-    }
-
-    public void applyMoneyMask(JTextField textField) {
-        NumberFormat currencyFormat = NumberFormat.getCurrencyInstance();
-
-        // Define a formatter to format currency input
-        AbstractDocument doc = (AbstractDocument) textField.getDocument();
-        doc.setDocumentFilter(new DocumentFilter() {
-            @Override
-            public void insertString(DocumentFilter.FilterBypass fb, int offset, String string, AttributeSet attr) throws BadLocationException {
-                if (string.matches("[0-9.,]*")) {
-                    super.insertString(fb, offset, string, attr);
-                }
-            }
-
-            @Override
-            public void replace(DocumentFilter.FilterBypass fb, int offset, int length, String text, AttributeSet attrs) throws BadLocationException {
-                if (text.matches("[0-9.,]*")) {
-                    super.replace(fb, offset, length, text, attrs);
-                }
-            }
-        });
-
-        // Add a key listener to update the text field format as the user types
-        preco.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyReleased(KeyEvent e) {
-                try {
-                    String text = textField.getText();
-                    if (!text.isEmpty()) {
-                        textField.setText(currencyFormat.format(Double.parseDouble(text.replaceAll("[^0-9]", ""))));
-                    }
-                } catch (NumberFormatException ex) {
-                    ex.printStackTrace();
-                }
-            }
-        });
-    }
-
-
-private void atualizarMascara() {
-    if (atualizandoMascara) return; // Evita loops
-    atualizandoMascara = true;
-    SwingUtilities.invokeLater(() -> {
-        String texto = nomeProduto.getText();
-        nomeProduto.setText(texto.replaceAll("[^a-zA-Z0-9áéíóúâêîôûãõçÁÉÍÓÚÂÊÎÔÛÃÕÇñÑ~\\s]", ""));
-        atualizandoMascara = false;
-    });
-}
-
-
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btCadastrar;
