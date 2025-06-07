@@ -29,9 +29,8 @@ public class PesquisarUsuario extends javax.swing.JInternalFrame {
     private static final Logger LOGGER = Logger.getLogger(PesquisarUsuario.class.getName());
 
     // Constantes para queries SQL
-    private static final String SELECT_USER_NAMES = "SELECT nome FROM pessoa WHERE tipo_pessoa = ?";
-    private static final String SELECT_PERSON_DATA = "SELECT * FROM dados_pesquisa WHERE nome = ? AND tipo_pessoa = 'F'";
-    private static final String SELECT_COMPANY_DATA = "SELECT * FROM dados_pesquisa WHERE nome = ? AND tipo_pessoa = 'J'";
+    //private static final String SELECT_USER_NAMES = "SELECT nome FROM pessoa WHERE nome = ?";
+    private static final String SELECT_PERSON_DATA = "SELECT * FROM pessoa WHERE nome = ?";
 
     // Componentes e variáveis da interface
     private CardLayout card;
@@ -50,7 +49,6 @@ public class PesquisarUsuario extends javax.swing.JInternalFrame {
         perfil.setIcon(new ImageIcon("imagens/perfil.png"));
         usuarios = new ArrayList<>();
         desativarTextField(painelPessoa); // Desativa campos do painel de pessoa
-        nomesUsuarios("F"); // Carrega nomes de pessoas físicas
     }
 
     /**
@@ -87,31 +85,6 @@ public class PesquisarUsuario extends javax.swing.JInternalFrame {
         return new ImageIcon(redimensionando);
     }
 
-    /**
-     * Carrega os nomes dos usuários do banco de dados com base no tipo de
-     * pessoa (F para pessoa física, J para jurídica).
-     *
-     * @param tipo_pessoa Tipo de pessoa ('F' ou 'J').
-     */
-    public void nomesUsuarios(String tipo_pessoa) {
-        LOGGER.info("Carregando nomes de usuários do tipo: " + tipo_pessoa);
-        usuarios.clear();
-        try (Connection con = Conexao.conexaoBanco(); PreparedStatement stmt = con.prepareStatement(SELECT_USER_NAMES)) {
-            stmt.setString(1, tipo_pessoa);
-            try (ResultSet rs = stmt.executeQuery()) {
-                while (rs.next()) {
-                    usuarios.add(rs.getString("nome"));
-                }
-                // Loga os nomes carregados para depuração
-                for (String nome : usuarios) {
-                    LOGGER.info("Nome carregado: " + nome);
-                }
-            }
-        } catch (Exception e) {
-            LOGGER.severe("Erro ao carregar nomes de usuários: " + e.getMessage());
-            e.printStackTrace();
-        }
-    }
 
     /**
      * Filtra nomes de usuários com base no texto digitado no campo de pesquisa
@@ -165,22 +138,21 @@ public class PesquisarUsuario extends javax.swing.JInternalFrame {
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     // Preenche os campos com os dados da pessoa
-                    codigoUsuario.setText(rs.getString("id_usuario"));
+                    codigoUsuario.setText(rs.getString("id_pessoa"));
                     nome.setText(rs.getString("nome"));
                     email.setText(rs.getString("email"));
                     telefone.setText(rs.getString("telefone"));
-                    cpf.setText(rs.getString("cpf_cnpj"));
-                    rg.setText(rs.getString("rg"));
-                    idade.setText(rs.getString("idade"));
+                    cpf.setText(rs.getString("cpf"));
+                    /* ENDEREÇO
                     estado.setText(rs.getString("uf"));
                     cep.setText(rs.getString("cep"));
                     cidade.setText(rs.getString("cidade"));
                     bairro.setText(rs.getString("bairro"));
                     endereco.setText(rs.getString("endereco"));
-                    complemento.setText(rs.getString("complemento"));
+                    complemento.setText(rs.getString("complemento"));*/
 
                     // Carrega e redimensiona a imagem do perfil
-                    ImageIcon foto = new ImageIcon("imagens/usuarios/" + rs.getString("caminho_imagem"));
+                    ImageIcon foto = new ImageIcon("imagens/usuarios/" + rs.getString("imagem_perfil"));
                     perfil.setIcon(redimensionamentoDeImagem(foto, 205, 227));
                     LOGGER.info("Dados da pessoa física carregados com sucesso.");
                 }
@@ -207,13 +179,8 @@ public class PesquisarUsuario extends javax.swing.JInternalFrame {
         jLabel2 = new javax.swing.JLabel();
         email = new javax.swing.JTextField();
         jLabel3 = new javax.swing.JLabel();
-        jLabel4 = new javax.swing.JLabel();
         telefone = new javax.swing.JTextField();
         jLabel5 = new javax.swing.JLabel();
-        jLabel6 = new javax.swing.JLabel();
-        idade = new javax.swing.JTextField();
-        dataNascimento = new javax.swing.JTextField();
-        jLabel7 = new javax.swing.JLabel();
         jLabel8 = new javax.swing.JLabel();
         estado = new javax.swing.JTextField();
         jLabel9 = new javax.swing.JLabel();
@@ -229,7 +196,6 @@ public class PesquisarUsuario extends javax.swing.JInternalFrame {
         complemento = new javax.swing.JTextField();
         btComprasUsuario = new javax.swing.JButton();
         cpf = new javax.swing.JFormattedTextField();
-        rg = new javax.swing.JFormattedTextField();
         cep = new javax.swing.JFormattedTextField();
         btCancelar1 = new javax.swing.JButton();
 
@@ -271,26 +237,11 @@ public class PesquisarUsuario extends javax.swing.JInternalFrame {
         jLabel3.setFont(new java.awt.Font("Arial", 0, 19)); // NOI18N
         jLabel3.setText("Cadastro de Pessoa Física (CPF)");
 
-        jLabel4.setFont(new java.awt.Font("Arial", 0, 19)); // NOI18N
-        jLabel4.setText("Registro Geral (RG)");
-
         telefone.setFont(new java.awt.Font("Arial", 0, 20)); // NOI18N
         telefone.setSelectedTextColor(new java.awt.Color(51, 51, 51));
 
         jLabel5.setFont(new java.awt.Font("Arial", 0, 19)); // NOI18N
         jLabel5.setText("Telefone");
-
-        jLabel6.setFont(new java.awt.Font("Arial", 0, 19)); // NOI18N
-        jLabel6.setText("Idade");
-
-        idade.setFont(new java.awt.Font("Arial", 0, 20)); // NOI18N
-        idade.setSelectedTextColor(new java.awt.Color(51, 51, 51));
-
-        dataNascimento.setFont(new java.awt.Font("Arial", 0, 20)); // NOI18N
-        dataNascimento.setSelectedTextColor(new java.awt.Color(51, 51, 51));
-
-        jLabel7.setFont(new java.awt.Font("Arial", 0, 19)); // NOI18N
-        jLabel7.setText("Data de nascimento");
 
         jLabel8.setFont(new java.awt.Font("Arial", 0, 19)); // NOI18N
         jLabel8.setText("Estado");
@@ -348,9 +299,6 @@ public class PesquisarUsuario extends javax.swing.JInternalFrame {
                 cpfKeyReleased(evt);
             }
         });
-
-        rg.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter()));
-        rg.setFont(new java.awt.Font("Arial", 0, 20)); // NOI18N
 
         try {
             cep.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.MaskFormatter("#####-###")));
@@ -412,39 +360,29 @@ public class PesquisarUsuario extends javax.swing.JInternalFrame {
                                         .addGroup(painelPessoaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                             .addComponent(jLabel11)
                                             .addComponent(jLabel14))
-                                        .addGap(0, 0, Short.MAX_VALUE))))
+                                        .addGap(0, 150, Short.MAX_VALUE))))
                             .addGroup(painelPessoaLayout.createSequentialGroup()
-                                .addGroup(painelPessoaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                .addGroup(painelPessoaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(jLabel2)
-                                    .addComponent(email, javax.swing.GroupLayout.DEFAULT_SIZE, 443, Short.MAX_VALUE)
-                                    .addComponent(cpf))
-                                .addGap(18, 18, 18)
+                                    .addComponent(email, javax.swing.GroupLayout.PREFERRED_SIZE, 438, javax.swing.GroupLayout.PREFERRED_SIZE))
                                 .addGroup(painelPessoaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addGroup(painelPessoaLayout.createSequentialGroup()
-                                        .addGroup(painelPessoaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                            .addComponent(jLabel6)
-                                            .addComponent(idade, javax.swing.GroupLayout.PREFERRED_SIZE, 71, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                        .addGap(18, 18, 18)
-                                        .addGroup(painelPessoaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                            .addComponent(jLabel7)
-                                            .addComponent(dataNascimento)))
-                                    .addGroup(painelPessoaLayout.createSequentialGroup()
-                                        .addComponent(jLabel4)
-                                        .addGap(0, 0, Short.MAX_VALUE))
-                                    .addComponent(rg)))
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .addComponent(jLabel5)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 199, Short.MAX_VALUE))
+                                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, painelPessoaLayout.createSequentialGroup()
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .addComponent(telefone, javax.swing.GroupLayout.PREFERRED_SIZE, 267, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                            .addComponent(jLabel3)
                             .addGroup(painelPessoaLayout.createSequentialGroup()
                                 .addGroup(painelPessoaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(jLabel13)
                                     .addComponent(codigoUsuario, javax.swing.GroupLayout.PREFERRED_SIZE, 71, javax.swing.GroupLayout.PREFERRED_SIZE))
                                 .addGap(26, 26, 26)
                                 .addGroup(painelPessoaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(nome, javax.swing.GroupLayout.PREFERRED_SIZE, 483, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(jLabel1))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addGroup(painelPessoaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jLabel5)
-                                    .addComponent(telefone, javax.swing.GroupLayout.PREFERRED_SIZE, 147, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                            .addComponent(jLabel3))))
+                                    .addComponent(jLabel1)
+                                    .addComponent(nome)))
+                            .addComponent(cpf))))
                 .addContainerGap(49, Short.MAX_VALUE))
         );
         painelPessoaLayout.setVerticalGroup(
@@ -457,42 +395,29 @@ public class PesquisarUsuario extends javax.swing.JInternalFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(estado, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, painelPessoaLayout.createSequentialGroup()
-                        .addGroup(painelPessoaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(painelPessoaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                .addGroup(painelPessoaLayout.createSequentialGroup()
-                                    .addComponent(jLabel5)
-                                    .addGap(35, 35, 35))
-                                .addComponent(telefone, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGroup(painelPessoaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addGroup(painelPessoaLayout.createSequentialGroup()
-                                .addComponent(jLabel1)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(nome, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(painelPessoaLayout.createSequentialGroup()
-                                .addComponent(jLabel13)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(codigoUsuario, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addGap(18, 18, 18)
-                        .addGroup(painelPessoaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, painelPessoaLayout.createSequentialGroup()
+                                .addGroup(painelPessoaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(painelPessoaLayout.createSequentialGroup()
+                                        .addComponent(jLabel1)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(nome, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addGroup(painelPessoaLayout.createSequentialGroup()
+                                        .addComponent(jLabel13)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(codigoUsuario, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                .addGap(18, 18, 18)
                                 .addComponent(jLabel2)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(email, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, painelPessoaLayout.createSequentialGroup()
-                                .addComponent(jLabel6)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(idade, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, painelPessoaLayout.createSequentialGroup()
-                                .addComponent(jLabel7)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(dataNascimento, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addGroup(painelPessoaLayout.createSequentialGroup()
+                                .addComponent(jLabel5)
+                                .addGap(35, 35, 35))
+                            .addComponent(telefone, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(painelPessoaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel3, javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jLabel4, javax.swing.GroupLayout.Alignment.TRAILING))
+                        .addComponent(jLabel3)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(painelPessoaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(cpf)
-                            .addComponent(rg))
+                        .addComponent(cpf, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(painelPessoaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(painelPessoaLayout.createSequentialGroup()
@@ -522,7 +447,7 @@ public class PesquisarUsuario extends javax.swing.JInternalFrame {
                 .addGroup(painelPessoaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btComprasUsuario)
                     .addComponent(btCancelar1))
-                .addContainerGap(37, Short.MAX_VALUE))
+                .addContainerGap(45, Short.MAX_VALUE))
         );
 
         JCard.add(painelPessoa, "painelPessoa");
@@ -551,7 +476,7 @@ public class PesquisarUsuario extends javax.swing.JInternalFrame {
                     .addComponent(tfPesquisar, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btnProcurar))
                 .addGap(51, 51, 51)
-                .addComponent(JCard, javax.swing.GroupLayout.DEFAULT_SIZE, 431, Short.MAX_VALUE)
+                .addComponent(JCard, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -599,25 +524,24 @@ public class PesquisarUsuario extends javax.swing.JInternalFrame {
         if (evt.getKeyChar() == KeyEvent.VK_ENTER) {
             try {
                 Connection con = Conexao.conexaoBanco();
-                PreparedStatement stmt = con.prepareStatement("SELECT * FROM dados_pesquisa WHERE id_usuario = ? AND tipo_pessoa = 'F'");
+                PreparedStatement stmt = con.prepareStatement("SELECT * FROM pessoa WHERE id_pessoa = ?");
                 stmt.setString(1, codigoUsuario.getText());
                 ResultSet rs = stmt.executeQuery();
                 if (rs.next()) {
-                    codigoUsuario.setText(rs.getString("id_usuario"));
+                    codigoUsuario.setText(rs.getString("id_pessoa"));
                     nome.setText(rs.getString("nome"));
                     email.setText(rs.getString("email"));
                     telefone.setText(rs.getString("telefone"));
-                    cpf.setText(rs.getString("cpf_cnpj"));
-                    rg.setText(rs.getString("rg"));
-                    idade.setText(rs.getString("idade"));
+                    cpf.setText(rs.getString("cpf"));
+                    /*
                     estado.setText(rs.getString("uf"));
                     cep.setText(rs.getString("cep"));
                     cidade.setText(rs.getString("cidade"));
                     bairro.setText(rs.getString("bairro"));
                     endereco.setText(rs.getString("endereco"));
-                    complemento.setText(rs.getString("complemento"));
+                    complemento.setText(rs.getString("complemento"));*/
 
-                    ImageIcon foto = new ImageIcon("imagens/usuarios/" + rs.getString("caminho_imagem"));
+                    ImageIcon foto = new ImageIcon("imagens/usuarios/" + rs.getString("imagem_perfil"));
                     perfil.setIcon(redimensionamentoDeImagem(foto, 205, 227));
 
                 } else {
@@ -642,11 +566,9 @@ public class PesquisarUsuario extends javax.swing.JInternalFrame {
             if (component instanceof JTextField) {
                 ((JTextField) component).setText("");
             }
-            nomesUsuarios("F");
         }
 
         desativarTextField(painelPessoa);
-
     }//GEN-LAST:event_btCancelar1MouseClicked
     /**
      * Ação executada ao pressionar a tecla Enter no campo de CPF. Pesquisa os
@@ -659,25 +581,24 @@ public class PesquisarUsuario extends javax.swing.JInternalFrame {
         if (evt.getKeyChar() == KeyEvent.VK_ENTER) {
             try {
                 Connection con = Conexao.conexaoBanco();
-                PreparedStatement stmt = con.prepareStatement("SELECT * FROM dados_pesquisa WHERE cpf_cnpj = ? AND tipo_pessoa = 'F'");
+                PreparedStatement stmt = con.prepareStatement("SELECT * FROM pessoa WHERE cpf = ?");
                 stmt.setString(1, cpf.getText());
                 ResultSet rs = stmt.executeQuery();
                 if (rs.next()) {
-                    codigoUsuario.setText(rs.getString("id_usuario"));
+                    codigoUsuario.setText(rs.getString("id_pessoa"));
                     nome.setText(rs.getString("nome"));
                     email.setText(rs.getString("email"));
                     telefone.setText(rs.getString("telefone"));
-                    cpf.setText(rs.getString("cpf_cnpj"));
-                    rg.setText(rs.getString("rg"));
-                    idade.setText(rs.getString("idade"));
+                    cpf.setText(rs.getString("cpf"));
+                    /*
                     estado.setText(rs.getString("uf"));
                     cep.setText(rs.getString("cep"));
                     cidade.setText(rs.getString("cidade"));
                     bairro.setText(rs.getString("bairro"));
                     endereco.setText(rs.getString("endereco"));
-                    complemento.setText(rs.getString("complemento"));
+                    complemento.setText(rs.getString("complemento"));*/
 
-                    ImageIcon foto = new ImageIcon("imagens/usuarios/" + rs.getString("caminho_imagem"));
+                    ImageIcon foto = new ImageIcon("imagens/usuarios/" + rs.getString("imagem_perfil"));
                     perfil.setIcon(redimensionamentoDeImagem(foto, 205, 227));
 
                 } else {
@@ -706,11 +627,9 @@ public class PesquisarUsuario extends javax.swing.JInternalFrame {
     private javax.swing.JTextField codigoUsuario;
     private javax.swing.JTextField complemento;
     private javax.swing.JFormattedTextField cpf;
-    private javax.swing.JTextField dataNascimento;
     private javax.swing.JTextField email;
     private javax.swing.JTextField endereco;
     private javax.swing.JTextField estado;
-    private javax.swing.JTextField idade;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
@@ -719,16 +638,12 @@ public class PesquisarUsuario extends javax.swing.JInternalFrame {
     private javax.swing.JLabel jLabel14;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
-    private javax.swing.JLabel jLabel6;
-    private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
     private javax.swing.JTextField nome;
     private javax.swing.JPanel painelPessoa;
     private javax.swing.JLabel perfil;
-    private javax.swing.JFormattedTextField rg;
     private javax.swing.JTextField telefone;
     private javax.swing.JTextField tfPesquisar;
     private javax.swing.ButtonGroup tipoPessoa;

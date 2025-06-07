@@ -26,11 +26,11 @@ public class SeusDados extends javax.swing.JInternalFrame {
     private static final Logger LOGGER = Logger.getLogger(SeusDados.class.getName());
 
     // Constantes para queries SQL
-    private static final String SELECT_USER_DATA = "SELECT * FROM dados_pessoais WHERE id_pessoa = ?";
-    private static final String SELECT_PERSON_ID = "SELECT id_pessoa FROM pessoa WHERE cpf_cnpj = ?";
-    private static final String UPDATE_PERSON = "UPDATE pessoa SET nome = ?, email = ?, telefone = ?, cpf_cnpj = ?, rg = ?, idade = ? WHERE id_pessoa = ?";
+    private static final String SELECT_USER_DATA = "SELECT * FROM pessoa WHERE id_pessoa = ?";
+    private static final String SELECT_PERSON_ID = "SELECT id_pessoa FROM pessoa WHERE cpf = ?";
+    private static final String UPDATE_PERSON = "UPDATE pessoa SET nome = ?, email = ?, telefone = ?, cpf = ? WHERE id_pessoa = ?";
     private static final String UPDATE_ADDRESS = "UPDATE enderecos SET uf = ?, cep = ?, cidade = ?, bairro = ?, endereco = ?, complemento = ? WHERE id_pessoa = ?";
-    private static final String UPDATE_IMAGE = "UPDATE ImagensUsuarios SET caminho_imagem = ? WHERE id_usuario = ?";
+    private static final String UPDATE_IMAGE = "UPDATE pessoa SET imagem_perfil = ? WHERE id_pessoa = ?";
 
     private final TelaInicial tela;
     private final String codigoUsuario;
@@ -50,7 +50,7 @@ public class SeusDados extends javax.swing.JInternalFrame {
         this.codigoUsuario = codigo;
         initComponents();
         inicializarInterface();
-        carregarDadosUsuario(codigo);
+        carregarDadosUsuario(codigoUsuario);
     }
 
     /**
@@ -85,26 +85,24 @@ public class SeusDados extends javax.swing.JInternalFrame {
                         rs.getString("nome"),
                         rs.getString("email"),
                         rs.getString("telefone"),
-                        rs.getString("cpf_cnpj"),
-                        rs.getString("rg"),
-                        rs.getString("idade"),
+                        rs.getString("cpf"),
+                        /*ENDEREÇO*/
+                        /*
                         rs.getString("cep"),
                         rs.getString("uf"),
                         rs.getString("cidade"),
                         rs.getString("bairro"),
                         rs.getString("endereco"),
-                        rs.getString("complemento")
+                        rs.getString("complemento")*/
                     };
 
                     // Preenche os campos da interface
                     usuario.setText(Objects.toString(rs.getString("nome"), ""));
-                    //codigo.setText(Objects.toString(rs.getString("id_usuario"), "")); AQUI FICOU VERMELHO
+                    codigoPessoa.setText(Objects.toString(rs.getString("id_pessoa"), ""));
                     email.setText(Objects.toString(rs.getString("email"), ""));
                     telefone.setText(Objects.toString(rs.getString("telefone"), ""));
-                    cpf.setText(Objects.toString(rs.getString("cpf_cnpj"), ""));
-                    rg.setText(Objects.toString(rs.getString("rg"), ""));
-                    idade.setText(Objects.toString(rs.getString("idade"), ""));
-                    cep.setText(Objects.toString(rs.getString("cep"), ""));
+                    cpf.setText(Objects.toString(rs.getString("cpf"), ""));
+                    /*cep.setText(Objects.toString(rs.getString("cep"), ""));
 
                     // Seleciona a UF correspondente
                     for (int i = 0; i < uf.getItemCount(); i++) {
@@ -117,11 +115,11 @@ public class SeusDados extends javax.swing.JInternalFrame {
                     cidade.setText(Objects.toString(rs.getString("cidade"), ""));
                     bairro.setText(Objects.toString(rs.getString("bairro"), ""));
                     endereco.setText(Objects.toString(rs.getString("endereco"), ""));
-                    complemento.setText(Objects.toString(rs.getString("complemento"), ""));
+                    complemento.setText(Objects.toString(rs.getString("complemento"), ""));*/
                     senha.setText(Objects.toString(rs.getString("senha"), ""));
 
                     // Carrega a imagem do usuário, se existir
-                    caminhoImagem = rs.getString("caminho_imagem");
+                    caminhoImagem = rs.getString("imagem_perfil");
                     if (caminhoImagem != null && !caminhoImagem.isEmpty()) {
                         ImageIcon imagemUsuario = new ImageIcon("imagens/usuarios/" + caminhoImagem);
                         if (imagemUsuario.getIconWidth() == -1) {
@@ -198,8 +196,6 @@ public class SeusDados extends javax.swing.JInternalFrame {
             email.getText(),
             telefone.getText(),
             cpf.getText(),
-            rg.getText(),
-            idade.getText(),
             cep.getText(),
             uf.getSelectedItem().toString(),
             cidade.getText(),
@@ -251,9 +247,7 @@ public class SeusDados extends javax.swing.JInternalFrame {
                 stmt.setString(2, email.getText());
                 stmt.setString(3, telefone.getText());
                 stmt.setString(4, cpf.getText());
-                stmt.setString(5, rg.getText());
-                stmt.setString(6, idade.getText());
-                stmt.setString(7, idPessoa);
+                stmt.setString(5, idPessoa);
                 stmt.executeUpdate();
                 LOGGER.info("Tabela 'pessoa' atualizada com sucesso.");
             }
@@ -275,7 +269,7 @@ public class SeusDados extends javax.swing.JInternalFrame {
             try (PreparedStatement stmt = con.prepareStatement(UPDATE_IMAGE)) {
                 String caminhoAtualizar = (arquivoEscolhido == null) ? caminhoImagem : arquivoEscolhido;
                 stmt.setString(1, caminhoAtualizar);
-                stmt.setString(2, codigo.getText());
+                stmt.setString(2, codigoPessoa.getText());
                 stmt.executeUpdate();
                 LOGGER.info("Tabela 'ImagensUsuarios' atualizada com sucesso.");
             }
@@ -297,17 +291,13 @@ public class SeusDados extends javax.swing.JInternalFrame {
         jLabel1 = new javax.swing.JLabel();
         usuario = new javax.swing.JTextField();
         jLabel2 = new javax.swing.JLabel();
-        codigo = new javax.swing.JTextField();
-        jLabel3 = new javax.swing.JLabel();
-        idade = new javax.swing.JTextField();
+        codigoPessoa = new javax.swing.JTextField();
         jLabel4 = new javax.swing.JLabel();
         email = new javax.swing.JTextField();
         jLabel5 = new javax.swing.JLabel();
         telefone = new javax.swing.JTextField();
         jLabel6 = new javax.swing.JLabel();
         cpf = new javax.swing.JTextField();
-        jLabel7 = new javax.swing.JLabel();
-        rg = new javax.swing.JTextField();
         jLabel8 = new javax.swing.JLabel();
         uf = new javax.swing.JComboBox<>();
         jLabel9 = new javax.swing.JLabel();
@@ -332,120 +322,69 @@ public class SeusDados extends javax.swing.JInternalFrame {
         setTitle("Seus dados");
 
         jLabel1.setFont(new java.awt.Font("Arial", 0, 20)); // NOI18N
-        jLabel1.setForeground(new java.awt.Color(0, 0, 0));
         jLabel1.setText("Nome");
 
-        usuario.setBackground(new java.awt.Color(255, 255, 255));
         usuario.setFont(new java.awt.Font("Arial", 0, 20)); // NOI18N
-        usuario.setForeground(new java.awt.Color(0, 0, 0));
         usuario.setDisabledTextColor(new java.awt.Color(0, 0, 0));
 
         jLabel2.setFont(new java.awt.Font("Arial", 0, 20)); // NOI18N
-        jLabel2.setForeground(new java.awt.Color(0, 0, 0));
         jLabel2.setText("Usuário");
 
-        codigo.setBackground(new java.awt.Color(255, 255, 255));
-        codigo.setFont(new java.awt.Font("Arial", 0, 20)); // NOI18N
-        codigo.setForeground(new java.awt.Color(0, 0, 0));
-        codigo.setDisabledTextColor(new java.awt.Color(0, 0, 0));
-
-        jLabel3.setFont(new java.awt.Font("Arial", 0, 20)); // NOI18N
-        jLabel3.setForeground(new java.awt.Color(0, 0, 0));
-        jLabel3.setText("Idade");
-
-        idade.setBackground(new java.awt.Color(255, 255, 255));
-        idade.setFont(new java.awt.Font("Arial", 0, 20)); // NOI18N
-        idade.setForeground(new java.awt.Color(0, 0, 0));
-        idade.setDisabledTextColor(new java.awt.Color(0, 0, 0));
+        codigoPessoa.setFont(new java.awt.Font("Arial", 0, 20)); // NOI18N
+        codigoPessoa.setDisabledTextColor(new java.awt.Color(0, 0, 0));
 
         jLabel4.setFont(new java.awt.Font("Arial", 0, 20)); // NOI18N
-        jLabel4.setForeground(new java.awt.Color(0, 0, 0));
         jLabel4.setText("Email");
 
-        email.setBackground(new java.awt.Color(255, 255, 255));
         email.setFont(new java.awt.Font("Arial", 0, 20)); // NOI18N
-        email.setForeground(new java.awt.Color(0, 0, 0));
         email.setDisabledTextColor(new java.awt.Color(0, 0, 0));
 
         jLabel5.setFont(new java.awt.Font("Arial", 0, 20)); // NOI18N
-        jLabel5.setForeground(new java.awt.Color(0, 0, 0));
         jLabel5.setText("Telefone");
 
-        telefone.setBackground(new java.awt.Color(255, 255, 255));
         telefone.setFont(new java.awt.Font("Arial", 0, 20)); // NOI18N
-        telefone.setForeground(new java.awt.Color(0, 0, 0));
         telefone.setDisabledTextColor(new java.awt.Color(0, 0, 0));
 
         jLabel6.setFont(new java.awt.Font("Arial", 0, 20)); // NOI18N
-        jLabel6.setForeground(new java.awt.Color(0, 0, 0));
         jLabel6.setText("Cadastro de Pessoa Física (CPF)");
 
-        cpf.setBackground(new java.awt.Color(255, 255, 255));
         cpf.setFont(new java.awt.Font("Arial", 0, 20)); // NOI18N
-        cpf.setForeground(new java.awt.Color(0, 0, 0));
         cpf.setDisabledTextColor(new java.awt.Color(0, 0, 0));
 
-        jLabel7.setFont(new java.awt.Font("Arial", 0, 20)); // NOI18N
-        jLabel7.setForeground(new java.awt.Color(0, 0, 0));
-        jLabel7.setText("Registro Geral (RG)");
-
-        rg.setBackground(new java.awt.Color(255, 255, 255));
-        rg.setFont(new java.awt.Font("Arial", 0, 20)); // NOI18N
-        rg.setForeground(new java.awt.Color(0, 0, 0));
-        rg.setDisabledTextColor(new java.awt.Color(0, 0, 0));
-
         jLabel8.setFont(new java.awt.Font("Arial", 0, 20)); // NOI18N
-        jLabel8.setForeground(new java.awt.Color(0, 0, 0));
         jLabel8.setText("UF");
 
-        uf.setBackground(new java.awt.Color(255, 255, 255));
         uf.setFont(new java.awt.Font("Arial", 0, 16)); // NOI18N
-        uf.setForeground(new java.awt.Color(0, 0, 0));
         uf.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "AC", "AL", "AM", "AP", "BA", "CE", "DF", "ES", "GO", "MA", "MG", "MS", "MT", "PA", "PB", "PE", "PI", "PR", "RJ", "RN", "RO", "RR", "RS", "SC", "SE", "SP", "TO" }));
 
         jLabel9.setFont(new java.awt.Font("Arial", 0, 20)); // NOI18N
-        jLabel9.setForeground(new java.awt.Color(0, 0, 0));
         jLabel9.setText("Cidade");
 
-        cidade.setBackground(new java.awt.Color(255, 255, 255));
         cidade.setFont(new java.awt.Font("Arial", 0, 20)); // NOI18N
-        cidade.setForeground(new java.awt.Color(0, 0, 0));
         cidade.setDisabledTextColor(new java.awt.Color(0, 0, 0));
 
         jLabel10.setFont(new java.awt.Font("Arial", 0, 20)); // NOI18N
-        jLabel10.setForeground(new java.awt.Color(0, 0, 0));
         jLabel10.setText("Bairro");
 
-        bairro.setBackground(new java.awt.Color(255, 255, 255));
         bairro.setFont(new java.awt.Font("Arial", 0, 20)); // NOI18N
-        bairro.setForeground(new java.awt.Color(0, 0, 0));
         bairro.setDisabledTextColor(new java.awt.Color(0, 0, 0));
 
         jLabel11.setFont(new java.awt.Font("Arial", 0, 20)); // NOI18N
-        jLabel11.setForeground(new java.awt.Color(0, 0, 0));
         jLabel11.setText("Endereço");
 
-        endereco.setBackground(new java.awt.Color(255, 255, 255));
         endereco.setFont(new java.awt.Font("Arial", 0, 20)); // NOI18N
-        endereco.setForeground(new java.awt.Color(0, 0, 0));
         endereco.setDisabledTextColor(new java.awt.Color(0, 0, 0));
 
         jLabel12.setFont(new java.awt.Font("Arial", 0, 20)); // NOI18N
-        jLabel12.setForeground(new java.awt.Color(0, 0, 0));
         jLabel12.setText("Complemento");
 
-        complemento.setBackground(new java.awt.Color(255, 255, 255));
         complemento.setFont(new java.awt.Font("Arial", 0, 20)); // NOI18N
-        complemento.setForeground(new java.awt.Color(0, 0, 0));
         complemento.setDisabledTextColor(new java.awt.Color(0, 0, 0));
 
         jLabel13.setFont(new java.awt.Font("Arial", 0, 20)); // NOI18N
-        jLabel13.setForeground(new java.awt.Color(0, 0, 0));
         jLabel13.setText("Senha");
 
-        senha.setBackground(new java.awt.Color(255, 255, 255));
         senha.setFont(new java.awt.Font("Arial", 0, 20)); // NOI18N
-        senha.setForeground(new java.awt.Color(0, 0, 0));
         senha.setDisabledTextColor(new java.awt.Color(0, 0, 0));
 
         btModificar.setBackground(new java.awt.Color(255, 102, 0));
@@ -479,12 +418,9 @@ public class SeusDados extends javax.swing.JInternalFrame {
         });
 
         jLabel14.setFont(new java.awt.Font("Arial", 0, 20)); // NOI18N
-        jLabel14.setForeground(new java.awt.Color(0, 0, 0));
         jLabel14.setText("CEP");
 
-        cep.setBackground(new java.awt.Color(255, 255, 255));
         cep.setFont(new java.awt.Font("Arial", 0, 20)); // NOI18N
-        cep.setForeground(new java.awt.Color(0, 0, 0));
         cep.setDisabledTextColor(new java.awt.Color(0, 0, 0));
 
         btCancelar.setBackground(new java.awt.Color(255, 0, 51));
@@ -510,57 +446,57 @@ public class SeusDados extends javax.swing.JInternalFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel1)
-                            .addComponent(usuario, javax.swing.GroupLayout.PREFERRED_SIZE, 509, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 44, Short.MAX_VALUE)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(codigo, javax.swing.GroupLayout.PREFERRED_SIZE, 117, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel2)))
-                    .addComponent(cpf, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(email, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(endereco)
-                    .addComponent(senha)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel1)
+                                    .addComponent(usuario, javax.swing.GroupLayout.PREFERRED_SIZE, 509, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 44, Short.MAX_VALUE)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(codigoPessoa, javax.swing.GroupLayout.PREFERRED_SIZE, 117, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jLabel2)))
+                            .addComponent(email, javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(endereco)
+                            .addComponent(senha)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel8)
+                                    .addComponent(uf, javax.swing.GroupLayout.PREFERRED_SIZE, 82, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(jLabel14)
+                                    .addComponent(cep, javax.swing.GroupLayout.PREFERRED_SIZE, 242, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGap(29, 29, 29)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel9)
+                                    .addComponent(cidade)))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel6)
+                                    .addComponent(jLabel4)
+                                    .addComponent(jLabel11)
+                                    .addComponent(jLabel13))
+                                .addGap(0, 0, Short.MAX_VALUE)))
+                        .addGap(30, 30, 30)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel5)
+                                    .addComponent(telefone, javax.swing.GroupLayout.PREFERRED_SIZE, 221, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jLabel10)
+                                    .addComponent(bairro, javax.swing.GroupLayout.PREFERRED_SIZE, 221, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jLabel12)
+                                    .addComponent(complemento, javax.swing.GroupLayout.PREFERRED_SIZE, 221, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGap(2, 2, 2))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(btModificar)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                    .addComponent(btSalvar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(btCancelar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                        .addGap(51, 51, 51))
                     .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel8)
-                            .addComponent(uf, javax.swing.GroupLayout.PREFERRED_SIZE, 82, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jLabel14)
-                            .addComponent(cep, javax.swing.GroupLayout.PREFERRED_SIZE, 242, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(29, 29, 29)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel9)
-                            .addComponent(cidade)))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel6)
-                            .addComponent(jLabel4)
-                            .addComponent(jLabel11)
-                            .addComponent(jLabel13))
-                        .addGap(0, 0, Short.MAX_VALUE)))
-                .addGap(30, 30, 30)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(idade, javax.swing.GroupLayout.PREFERRED_SIZE, 86, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel3)
-                            .addComponent(jLabel5)
-                            .addComponent(telefone, javax.swing.GroupLayout.PREFERRED_SIZE, 221, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel7)
-                            .addComponent(rg, javax.swing.GroupLayout.PREFERRED_SIZE, 221, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel10)
-                            .addComponent(bairro, javax.swing.GroupLayout.PREFERRED_SIZE, 221, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel12)
-                            .addComponent(complemento, javax.swing.GroupLayout.PREFERRED_SIZE, 221, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(2, 2, 2))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(btModificar)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                            .addComponent(btSalvar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(btCancelar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
-                .addGap(51, 51, 51))
+                        .addComponent(cpf, javax.swing.GroupLayout.PREFERRED_SIZE, 932, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -577,13 +513,9 @@ public class SeusDados extends javax.swing.JInternalFrame {
                         .addGap(36, 36, 36)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addGroup(layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                    .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                    .addComponent(idade, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(codigo, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                .addComponent(codigoPessoa, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -598,11 +530,8 @@ public class SeusDados extends javax.swing.JInternalFrame {
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(telefone, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(rg, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(44, 44, 44)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
@@ -670,7 +599,7 @@ public class SeusDados extends javax.swing.JInternalFrame {
                 }
             }
             // Desabilita o campo de código, que não deve ser editado
-            codigo.setEnabled(false);
+            codigoPessoa.setEnabled(false);
             // Controla visibilidade dos botões
             btCancelar.setVisible(true);
             btSelecionar.setVisible(true);
@@ -763,12 +692,11 @@ public class SeusDados extends javax.swing.JInternalFrame {
     private javax.swing.JButton btSelecionar;
     private javax.swing.JTextField cep;
     private javax.swing.JTextField cidade;
-    private javax.swing.JTextField codigo;
+    private javax.swing.JTextField codigoPessoa;
     private javax.swing.JTextField complemento;
     private javax.swing.JTextField cpf;
     private javax.swing.JTextField email;
     private javax.swing.JTextField endereco;
-    private javax.swing.JTextField idade;
     private javax.swing.JLabel imagem;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
@@ -777,14 +705,11 @@ public class SeusDados extends javax.swing.JInternalFrame {
     private javax.swing.JLabel jLabel13;
     private javax.swing.JLabel jLabel14;
     private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
-    private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
-    private javax.swing.JTextField rg;
     private javax.swing.JTextField senha;
     private javax.swing.JTextField telefone;
     private javax.swing.JComboBox<String> uf;
