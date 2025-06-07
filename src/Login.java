@@ -30,17 +30,16 @@ public class Login extends javax.swing.JFrame {
     private static final String USER_IMAGE_PATH = "imagens/usuarios/usuario.png";
     private static final Color GREEN_COLOR = new Color(29, 68, 53);
     private static final EmptyBorder FIELD_BORDER = new EmptyBorder(5, 5, 0, 0);
-    private static final String INSERT_ACCESS = "INSERT INTO acessos(id_usuario,nome_usuario) VALUES (?,?)";
-    private static final String SELECT_USER_LOGIN = "SELECT id_usuario, id_tipo_usuario, nivel_acesso "
-            + "FROM usuario INNER JOIN pessoa ON pessoa.id_pessoa = usuario.id_pessoa "
-            + "WHERE nome = ? AND senha = ?";
-    private static final String SELECT_USER_BY_ID = "SELECT * FROM login WHERE id_usuario = ?";
+    private static final String INSERT_ACCESS = "INSERT INTO acessos(id_pessoa,usuario,local) VALUES (?,?,?)";
+    private static final String SELECT_USER_LOGIN = "SELECT id_pessoa, nome,id_tipo_usuario, senha, situacao, imagem_perfil FROM pessoa WHERE nome = ? AND senha = ?"; 
+    private static final String SELECT_USER_BY_ID = "SELECT * FROM pessoa WHERE id_pessoa = ?";
     private static final String ERROR_GENERIC = "Erro: ";
 
     // Variáveis de estado
     private String codigo;
+    private String nome;
+    private String situacao;
     private String tipo_usuario;
-    private String nivel_acesso;
     private final JLabel imagem2 = new JLabel();
     private final Color corVerde = GREEN_COLOR;
     private final EmptyBorder margensInternas = FIELD_BORDER;
@@ -299,11 +298,13 @@ public class Login extends javax.swing.JFrame {
      * Registra o acesso do usuário no banco de dados, inserindo o ID e nome do
      * usuário na tabela de acessos.
      */
+    
     public void numeroAcesso() {
         LOGGER.info("Registrando acesso do usuário: " + codigo);
         try (Connection con = Conexao.conexaoBanco(); PreparedStatement stmt = con.prepareStatement(INSERT_ACCESS)) {
             stmt.setString(1, codigo);
             stmt.setString(2, usuario.getText());
+            stmt.setString(3,"Desktop");
             stmt.execute();
             LOGGER.info("Acesso registrado com sucesso.");
         } catch (Exception ex) {
@@ -329,11 +330,12 @@ public class Login extends javax.swing.JFrame {
             stmt.setString(2, senha.getText());
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
-                    codigo = rs.getString("id_usuario");
-                    tipo_usuario = rs.getString("id_tipo_usuario");
-                    nivel_acesso = rs.getString("nivel_acesso");
-
-                    if (codigo.equals(codigoCampo.getText()) && nivel_acesso.equals("Com acesso")) {
+                    codigo = rs.getString("id_pessoa");
+                    tipo_usuario = String.valueOf(rs.getString("id_tipo_usuario"));
+                    nome = rs.getString("nome");
+                    situacao = String.valueOf(rs.getString("situacao"));
+                    System.out.println(codigo + tipo_usuario + situacao);
+                    if (tipo_usuario.equals("1") && situacao.equals("A")) {
                         LOGGER.info("Login bem-sucedido. Abrindo TelaInicial.");
                         new TelaInicial(codigo, tipo_usuario);
                         dispose();
@@ -346,7 +348,7 @@ public class Login extends javax.swing.JFrame {
                     JOptionPane.showMessageDialog(null, "Senha ou Usuário incorreto!");
                 }
             }
-            numeroAcesso(); // Registra o acesso após a tentativa de login
+            //numeroAcesso(); // Registra o acesso após a tentativa de login
         } catch (Exception ex) {
             LOGGER.severe("Erro durante o login: " + ex.getMessage());
             JOptionPane.showMessageDialog(null, ERROR_GENERIC + ex.getMessage());
@@ -433,7 +435,7 @@ public class Login extends javax.swing.JFrame {
                 try (ResultSet rs = stmt.executeQuery()) {
                     if (rs.next()) {
                         String nomeUsuario = rs.getString("nome");
-                        String usuarioImagem = rs.getString("caminho_imagem");
+                        String usuarioImagem = rs.getString("imagem_perfil");
                         ImageIcon imagemUsuario = new ImageIcon("imagens/usuarios/" + usuarioImagem);
 
                         if (imagemUsuario.getIconWidth() == -1) {

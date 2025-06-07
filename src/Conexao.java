@@ -16,9 +16,9 @@ public class Conexao {
 
     // Constantes para configuração da conexão com o banco de dados
     private static final String DRIVER = "com.mysql.cj.jdbc.Driver";
-    private static final String URL = "jdbc:mysql://localhost:3307/green_line";
-    private static final String USER = "root";
-    private static final String PASS = "senac";
+    private static final String URL = "jdbc:mysql://sql10.freesqldatabase.com:3306/sql10779613";
+    private static final String USER = "sql10779613";
+    private static final String PASS = "URLWuELfM1";
     private static final String ERROR_DB_CONNECTION = "Erro ao conectar ao banco de dados: ";
     private static final String ERROR_DRIVER_NOT_FOUND = "Driver do banco de dados não encontrado: ";
     private static final String ERROR_GENERIC = "Erro inesperado: ";
