@@ -26,7 +26,7 @@ public class SeusDados extends javax.swing.JInternalFrame {
     private static final Logger LOGGER = Logger.getLogger(SeusDados.class.getName());
 
     // Constantes para queries SQL
-    private static final String SELECT_USER_DATA = "SELECT * FROM pessoa WHERE id_pessoa = ?";
+    private static final String SELECT_USER_DATA = "SELECT * FROM view_pessoa_endereco WHERE id_pessoa = ?";
     private static final String SELECT_PERSON_ID = "SELECT id_pessoa FROM pessoa WHERE cpf = ?";
     private static final String UPDATE_PERSON = "UPDATE pessoa SET nome = ?, email = ?, telefone = ?, cpf = ? WHERE id_pessoa = ?";
     private static final String UPDATE_ADDRESS = "UPDATE enderecos SET uf = ?, cep = ?, cidade = ?, bairro = ?, endereco = ?, complemento = ? WHERE id_pessoa = ?";
@@ -86,14 +86,12 @@ public class SeusDados extends javax.swing.JInternalFrame {
                         rs.getString("email"),
                         rs.getString("telefone"),
                         rs.getString("cpf"),
-                        /*ENDEREÇO*/
-                        /*
                         rs.getString("cep"),
                         rs.getString("uf"),
                         rs.getString("cidade"),
                         rs.getString("bairro"),
                         rs.getString("endereco"),
-                        rs.getString("complemento")*/
+                        rs.getString("complemento")
                     };
 
                     // Preenche os campos da interface
@@ -102,7 +100,7 @@ public class SeusDados extends javax.swing.JInternalFrame {
                     email.setText(Objects.toString(rs.getString("email"), ""));
                     telefone.setText(Objects.toString(rs.getString("telefone"), ""));
                     cpf.setText(Objects.toString(rs.getString("cpf"), ""));
-                    /*cep.setText(Objects.toString(rs.getString("cep"), ""));
+                    cep.setText(Objects.toString(rs.getString("cep"), ""));
 
                     // Seleciona a UF correspondente
                     for (int i = 0; i < uf.getItemCount(); i++) {
@@ -115,8 +113,7 @@ public class SeusDados extends javax.swing.JInternalFrame {
                     cidade.setText(Objects.toString(rs.getString("cidade"), ""));
                     bairro.setText(Objects.toString(rs.getString("bairro"), ""));
                     endereco.setText(Objects.toString(rs.getString("endereco"), ""));
-                    complemento.setText(Objects.toString(rs.getString("complemento"), ""));*/
-                    senha.setText(Objects.toString(rs.getString("senha"), ""));
+                    complemento.setText(Objects.toString(rs.getString("complemento"), ""));
 
                     // Carrega a imagem do usuário, se existir
                     caminhoImagem = rs.getString("imagem_perfil");

@@ -162,7 +162,7 @@ public class TelaInicial extends JFrame {
     }
 
     private void configurarFrame() {
-        setSize(1300, 770);
+        setSize(1800, 1200);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
         setLocationRelativeTo(null);

@@ -43,8 +43,8 @@
                   <Group type="102" alignment="1" attributes="0">
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Component id="jScrollPane2" alignment="0" pref="466" max="32767" attributes="0"/>
-                          <Component id="carregarCategorias" alignment="0" max="32767" attributes="0"/>
-                          <Component id="nomeSubcategoria" max="32767" attributes="0"/>
+                          <Component id="categorias" alignment="0" max="32767" attributes="0"/>
+                          <Component id="nomeCategoria" max="32767" attributes="0"/>
                           <Group type="102" attributes="0">
                               <Group type="103" groupAlignment="0" attributes="0">
                                   <Component id="jLabel1" alignment="0" min="-2" max="-2" attributes="0"/>
@@ -70,11 +70,11 @@
                   <Group type="102" attributes="0">
                       <Component id="jLabel3" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="carregarCategorias" min="-2" pref="28" max="-2" attributes="0"/>
+                      <Component id="categorias" min="-2" pref="28" max="-2" attributes="0"/>
                       <EmptySpace min="-2" pref="23" max="-2" attributes="0"/>
                       <Component id="jLabel4" min="-2" pref="36" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="nomeSubcategoria" min="-2" pref="46" max="-2" attributes="0"/>
+                      <Component id="nomeCategoria" min="-2" pref="46" max="-2" attributes="0"/>
                       <EmptySpace type="separate" max="-2" attributes="0"/>
                       <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
@@ -130,7 +130,7 @@
         <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="jButton2MouseClicked"/>
       </Events>
     </Component>
-    <Component class="javax.swing.JComboBox" name="carregarCategorias">
+    <Component class="javax.swing.JComboBox" name="categorias">
       <Properties>
         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
           <Font name="Arial" size="18" style="0"/>
@@ -141,9 +141,6 @@
           </StringArray>
         </Property>
       </Properties>
-      <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="carregarCategoriasActionPerformed"/>
-      </Events>
       <AuxValues>
         <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;String&gt;"/>
       </AuxValues>
@@ -154,7 +151,7 @@
           <Font name="Arial" size="24" style="0"/>
         </Property>
         <Property name="labelFor" type="java.awt.Component" editor="org.netbeans.modules.form.ComponentChooserEditor">
-          <ComponentRef name="carregarCategorias"/>
+          <ComponentRef name="categorias"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Selecione a categoria:"/>
       </Properties>
@@ -223,7 +220,7 @@
           <Font name="Arial" size="24" style="0"/>
         </Property>
         <Property name="labelFor" type="java.awt.Component" editor="org.netbeans.modules.form.ComponentChooserEditor">
-          <ComponentRef name="nomeSubcategoria"/>
+          <ComponentRef name="nomeCategoria"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Nome:"/>
       </Properties>
@@ -276,7 +273,7 @@
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btCancelarActionPerformed"/>
       </Events>
     </Component>
-    <Component class="javax.swing.JTextField" name="nomeSubcategoria">
+    <Component class="javax.swing.JTextField" name="nomeCategoria">
       <Properties>
         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
           <Font name="Arial" size="18" style="0"/>
