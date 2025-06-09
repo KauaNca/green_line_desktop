@@ -29,8 +29,7 @@ public class PesquisarUsuario extends javax.swing.JInternalFrame {
     private static final Logger LOGGER = Logger.getLogger(PesquisarUsuario.class.getName());
 
     // Constantes para queries SQL
-    //private static final String SELECT_USER_NAMES = "SELECT nome FROM pessoa WHERE nome = ?";
-    private static final String SELECT_PERSON_DATA = "SELECT * FROM pessoa WHERE nome = ?";
+    private static final String SELECT_PERSON_DATA = "SELECT * FROM view_pessoa_endereco WHERE nome = ?";
 
     // Componentes e variáveis da interface
     private CardLayout card;
@@ -143,13 +142,12 @@ public class PesquisarUsuario extends javax.swing.JInternalFrame {
                     email.setText(rs.getString("email"));
                     telefone.setText(rs.getString("telefone"));
                     cpf.setText(rs.getString("cpf"));
-                    /* ENDEREÇO
                     estado.setText(rs.getString("uf"));
                     cep.setText(rs.getString("cep"));
                     cidade.setText(rs.getString("cidade"));
                     bairro.setText(rs.getString("bairro"));
                     endereco.setText(rs.getString("endereco"));
-                    complemento.setText(rs.getString("complemento"));*/
+                    complemento.setText(rs.getString("complemento"));
 
                     // Carrega e redimensiona a imagem do perfil
                     ImageIcon foto = new ImageIcon("imagens/usuarios/" + rs.getString("imagem_perfil"));
@@ -533,13 +531,13 @@ public class PesquisarUsuario extends javax.swing.JInternalFrame {
                     email.setText(rs.getString("email"));
                     telefone.setText(rs.getString("telefone"));
                     cpf.setText(rs.getString("cpf"));
-                    /*
+                    
                     estado.setText(rs.getString("uf"));
                     cep.setText(rs.getString("cep"));
                     cidade.setText(rs.getString("cidade"));
                     bairro.setText(rs.getString("bairro"));
                     endereco.setText(rs.getString("endereco"));
-                    complemento.setText(rs.getString("complemento"));*/
+                    complemento.setText(rs.getString("complemento"));
 
                     ImageIcon foto = new ImageIcon("imagens/usuarios/" + rs.getString("imagem_perfil"));
                     perfil.setIcon(redimensionamentoDeImagem(foto, 205, 227));

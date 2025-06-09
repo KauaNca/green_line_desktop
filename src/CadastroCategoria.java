@@ -45,7 +45,7 @@ public class CadastroCategoria extends javax.swing.JInternalFrame {
         header.setFont(headerFont);
 
         // Aplicando filtro de entrada ao campo nomeCategoria
-        new CadastroProdutos().applyTextAndNumberFilter(nomeCategoria);
+        //new CadastroProdutos().applyTextAndNumberFilter(nomeCategoria);
     }
 
     public void Apagar() {

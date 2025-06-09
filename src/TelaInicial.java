@@ -162,7 +162,7 @@ public class TelaInicial extends JFrame {
     }
 
     private void configurarFrame() {
-        setSize(1800, 1200);
+        setExtendedState(JFrame.MAXIMIZED_BOTH);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
         setLocationRelativeTo(null);
@@ -197,7 +197,7 @@ public class TelaInicial extends JFrame {
         cadastroProdutos.addActionListener(e -> centralizarTela(new CadastroProdutos()));
         cadastroCategorias.addActionListener(e -> centralizarTela(new CadastroCategoria()));
         ItemVendas.addActionListener(e -> centralizarTela(new TelaVendas()));
-        editarProduto.addActionListener(e -> centralizarTela(new EditarP()));
+        editarProduto.addActionListener(e -> centralizarTela(new EditarProdutos()));
         pesquisarProduto.addActionListener(e -> centralizarTela(new PesquisarProdutos()));
         seusDados.addActionListener(e -> centralizarTela(new SeusDados(codigo)));
         pesquisarUsuario.addActionListener(e -> centralizarTela(new PesquisarUsuario()));
