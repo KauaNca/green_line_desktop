@@ -197,7 +197,7 @@ public class TelaInicial extends JFrame {
         cadastroProdutos.addActionListener(e -> centralizarTela(new CadastroProdutos()));
         cadastroCategorias.addActionListener(e -> centralizarTela(new CadastroCategoria()));
         ItemVendas.addActionListener(e -> centralizarTela(new TelaVendas()));
-        editarProduto.addActionListener(e -> centralizarTela(new EditarProdutos()));
+        editarProduto.addActionListener(e -> centralizarTela(new EditarP()));
         pesquisarProduto.addActionListener(e -> centralizarTela(new PesquisarProdutos()));
         seusDados.addActionListener(e -> centralizarTela(new SeusDados(codigo)));
         pesquisarUsuario.addActionListener(e -> centralizarTela(new PesquisarUsuario()));
