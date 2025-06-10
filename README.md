@@ -65,7 +65,7 @@ Desenvolvido por:
 
 ---
 
-<h1 align="center">🖥️ Prototipo Fiogma (Versão Desktop)</h1>
+<h1 align="center">🖥️ Prototipo Figma (Versão Desktop)</h1>
 
 - [Link:](https://www.figma.com/design/7GGlS8aUe45ODwhU3OIHsW/WEB?node-id=0-1&t=Y4zD0nFJw6IsX1zh-1)  
 
