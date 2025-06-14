@@ -1,3 +1,4 @@
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -22,12 +23,14 @@ public class Conexao {
     private static final String ERROR_DB_CONNECTION = "Erro ao conectar ao banco de dados: ";
     private static final String ERROR_DRIVER_NOT_FOUND = "Driver do banco de dados não encontrado: ";
     private static final String ERROR_GENERIC = "Erro inesperado: ";
+    private static Connection connection = null;
 
     /**
      * Estabelece uma conexão com o banco de dados MySQL.
      *
      * @return Objeto Connection para interação com o banco de dados.
-     * @throws RuntimeException Se houver falha na conexão ou carregamento do driver.
+     * @throws RuntimeException Se houver falha na conexão ou carregamento do
+     * driver.
      */
     public static Connection conexaoBanco() {
         LOGGER.info("Tentando estabelecer conexão com o banco de dados.");
@@ -54,6 +57,19 @@ public class Conexao {
             LOGGER.severe(ERROR_GENERIC + e.getMessage());
             JOptionPane.showMessageDialog(null, ERROR_GENERIC + e.getMessage());
             throw new RuntimeException(ERROR_GENERIC, e);
+        }
+    }
+    // Método para fechar a conexão
+
+    public static void fecharConexao() {
+        if (connection != null) {
+            try {
+                connection.close();
+                connection = null; // Para garantir que não seja reutilizada
+                LOGGER.info("Conexão fechada com sucesso");
+            } catch (SQLException e) {
+                LOGGER.severe("Erro ao fechar conexão: " + e.getMessage());
+            }
         }
     }
 

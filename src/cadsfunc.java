@@ -142,7 +142,7 @@ public class cadsfunc extends javax.swing.JInternalFrame {
         File arquivo;
 
         if (contagem == 0) {
-            new CadastroProdutos().Avisos("imagens/sinal-de-aviso.png", "Escolha imagens que possuam largura acima de 250px e altura de 216px");
+            //new CadastroProdutos().Avisos("imagens/sinal-de-aviso.png", "Escolha imagens que possuam largura acima de 250px e altura de 216px");
             contagem++;
         }
 

@@ -371,7 +371,7 @@ public class EditarProdutos extends javax.swing.JInternalFrame {
                     }
                 } else {
                     LOGGER.warning("Produto não encontrado para o parâmetro: " + parametro);
-                    new CadastroProdutos().Avisos("imagens/erro.png", "Produto não encontrado");
+                    new CadastroProduto().Avisos("imagens/erro.png", "Produto não encontrado");
                 }
             }
         } catch (SQLException e) {

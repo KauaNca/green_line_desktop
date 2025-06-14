@@ -320,7 +320,7 @@ public class Login extends javax.swing.JFrame {
     private void Login() {
         if (codigoCampo.getText().isBlank() || senha.getText().isBlank()) {
             LOGGER.warning("Campos de código ou senha estão vazios.");
-            new CadastroProdutos().Avisos("imagens/erro.png", "Preencha os campos");
+            new CadastroProduto().Avisos("imagens/erro.png", "Preencha os campos");
             return;
         }
 
@@ -451,13 +451,13 @@ public class Login extends javax.swing.JFrame {
                         }
                     } else {
                         LOGGER.warning("Usuário não encontrado para o código: " + codigoCampo.getText());
-                        new CadastroProdutos().Avisos("imagens/sinal-de-aviso.png",
+                        new CadastroProduto().Avisos("imagens/sinal-de-aviso.png",
                                 "Usuário não encontrado. Faça um cadastro ou contate os administradores.");
                     }
                 }
             } catch (Exception e) {
                 LOGGER.severe("Erro ao buscar usuário: " + e.getMessage());
-                new CadastroProdutos().Avisos("imagens/erro.png", "Houve um erro. Tente novamente mais tarde");
+                new CadastroProduto().Avisos("imagens/erro.png", "Houve um erro. Tente novamente mais tarde");
             }
         }
     }//GEN-LAST:event_codigoCampoKeyPressed

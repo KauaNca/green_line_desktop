@@ -283,7 +283,7 @@ public class CadastroCategoria extends javax.swing.JInternalFrame {
     private void btCadastrarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btCadastrarMouseClicked
         if (nomeCategoria.getText() == null || descricaoArea.getText() == null || 
             nomeCategoria.getText().isBlank() || descricaoArea.getText().isBlank()) {
-            new CadastroProdutos().Avisos("imagens/sinal-de-aviso.png", "Campos vazios não são aceitos");
+            new CadastroProduto().Avisos("imagens/sinal-de-aviso.png", "Campos vazios não são aceitos");
             return;
         }
 
@@ -297,7 +297,7 @@ public class CadastroCategoria extends javax.swing.JInternalFrame {
 
             stmt.executeUpdate();
             stmt.close();
-            new CadastroProdutos().Avisos("imagens/confirmacao.png", "Categoria cadastrada");
+            new CadastroProduto().Avisos("imagens/confirmacao.png", "Categoria cadastrada");
             Apagar();
             carregarDadosTabela();
         } catch (SQLException ex) {
@@ -310,17 +310,17 @@ public class CadastroCategoria extends javax.swing.JInternalFrame {
    try {
             Connection con = Conexao.conexaoBanco();
             if (con == null) {
-                new CadastroProdutos().Avisos("imagens/erro.png", "Erro ao conectar ao banco de dados.");
+                new CadastroProduto().Avisos("imagens/erro.png", "Erro ao conectar ao banco de dados.");
                 return;
             }
 
             if (idCategoria == 0) {
-                new CadastroProdutos().Avisos("imagens/erro.png", "Selecione uma categoria para alterar.");
+                new CadastroProduto().Avisos("imagens/erro.png", "Selecione uma categoria para alterar.");
                 return;
             }
 
             if (nomeCategoria.getText().trim().isEmpty()) {
-                new CadastroProdutos().Avisos("imagens/erro.png", "O nome não pode estar vazio.");
+                new CadastroProduto().Avisos("imagens/erro.png", "O nome não pode estar vazio.");
                 return;
             }
 

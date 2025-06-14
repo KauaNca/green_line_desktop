@@ -156,7 +156,7 @@ public class SeusDados extends javax.swing.JInternalFrame {
      */
     public void selecionarImagens() {
         if (imageSelectionCount == 0) {
-            new CadastroProdutos().Avisos("imagens/sinal-de-aviso.png",
+            new CadastroProduto().Avisos("imagens/sinal-de-aviso.png",
                     "Escolha imagens com largura acima de 250px e altura de 216px");
             imageSelectionCount++;
         }

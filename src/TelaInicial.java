@@ -48,7 +48,9 @@ public class TelaInicial extends JFrame {
         return tipo_usuario;
     }
 
-    public TelaInicial() {}
+    public TelaInicial() {
+    configurarFrame();
+    }
 
     public TelaInicial(String codigo, String tipo_usuario) {
         this.codigo = codigo;
@@ -218,5 +220,8 @@ public class TelaInicial extends JFrame {
         );
         tela.setVisible(true);
         tela.toFront();
+    }
+    public static void main(String[] args){
+        new TelaInicial();
     }
 }

@@ -614,7 +614,7 @@ public class PesquisarProdutos extends javax.swing.JInternalFrame {
                         }
                     } else {
                         LOGGER.warning("Produto não encontrado para o nome: " + pesquisar.getText());
-                        new CadastroProdutos().Avisos("imagens/erro.png", "Produto não encontrado");
+                        new CadastroProduto().Avisos("imagens/erro.png", "Produto não encontrado");
                     }
                 }
             } catch (SQLException e) {
@@ -743,7 +743,7 @@ public class PesquisarProdutos extends javax.swing.JInternalFrame {
                     }
                 } else {
                     LOGGER.warning("Produto não encontrado para o nome: " + pesquisar.getText());
-                    new CadastroProdutos().Avisos("imagens/erro.png", "Produto não encontrado");
+                    new CadastroProduto().Avisos("imagens/erro.png", "Produto não encontrado");
                 }
             }
         } catch (SQLException e) {
