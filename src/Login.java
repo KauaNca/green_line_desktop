@@ -34,6 +34,7 @@ public class Login extends javax.swing.JFrame {
     private static final String SELECT_USER_LOGIN = "SELECT id_pessoa, nome,id_tipo_usuario, senha, situacao, imagem_perfil FROM pessoa WHERE nome = ? AND senha = ?"; 
     private static final String SELECT_USER_BY_ID = "SELECT * FROM pessoa WHERE id_pessoa = ?";
     private static final String ERROR_GENERIC = "Erro: ";
+    Funcoes funcoes = new Funcoes();
 
     // Variáveis de estado
     private String codigo;
@@ -95,7 +96,6 @@ public class Login extends javax.swing.JFrame {
         jLabel5 = new javax.swing.JLabel();
         codigoCampo = new javax.swing.JTextField();
         jLabel6 = new javax.swing.JLabel();
-        jLabel7 = new javax.swing.JLabel();
         apagarCodigo = new javax.swing.JLabel();
         jLabel8 = new javax.swing.JLabel();
         jLabel9 = new javax.swing.JLabel();
@@ -164,10 +164,6 @@ public class Login extends javax.swing.JFrame {
         jLabel6.setForeground(new java.awt.Color(255, 255, 255));
         jLabel6.setText("Sem cadastro?");
 
-        jLabel7.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
-        jLabel7.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel7.setText("Esqueceu sua senha?");
-
         apagarCodigo.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
         apagarCodigo.setForeground(new java.awt.Color(255, 255, 255));
         apagarCodigo.setText("X");
@@ -199,8 +195,6 @@ public class Login extends javax.swing.JFrame {
         usuario.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
         usuario.setDisabledTextColor(new java.awt.Color(0, 0, 0));
 
-        imagem.setIcon(new javax.swing.ImageIcon("C:\\Users\\kauan\\OneDrive\\Área de Trabalho\\projeto_green_line\\desktop\\imagens\\usuarios\\usuario.png")); // NOI18N
-
         javax.swing.GroupLayout painelPrincipalLayout = new javax.swing.GroupLayout(painelPrincipal);
         painelPrincipal.setLayout(painelPrincipalLayout);
         painelPrincipalLayout.setHorizontalGroup(
@@ -229,9 +223,6 @@ public class Login extends javax.swing.JFrame {
                                 .addGap(76, 76, 76)
                                 .addComponent(jLabel6))
                             .addGroup(painelPrincipalLayout.createSequentialGroup()
-                                .addGap(54, 54, 54)
-                                .addComponent(jLabel7))
-                            .addGroup(painelPrincipalLayout.createSequentialGroup()
                                 .addComponent(btLogin, javax.swing.GroupLayout.PREFERRED_SIZE, 117, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(18, 18, 18)
                                 .addComponent(btSair, javax.swing.GroupLayout.PREFERRED_SIZE, 111, javax.swing.GroupLayout.PREFERRED_SIZE)))
@@ -250,7 +241,7 @@ public class Login extends javax.swing.JFrame {
                 .addContainerGap()
                 .addComponent(jLabel3)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(imagem, javax.swing.GroupLayout.PREFERRED_SIZE, 190, Short.MAX_VALUE)
+                .addComponent(imagem, javax.swing.GroupLayout.DEFAULT_SIZE, 190, Short.MAX_VALUE)
                 .addGap(18, 18, 18)
                 .addGroup(painelPrincipalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel5)
@@ -271,9 +262,7 @@ public class Login extends javax.swing.JFrame {
                 .addComponent(jLabel9)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel6)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel7)
-                .addGap(18, 18, 18)
+                .addGap(41, 41, 41)
                 .addGroup(painelPrincipalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btLogin)
                     .addComponent(btSair))
@@ -320,7 +309,7 @@ public class Login extends javax.swing.JFrame {
     private void Login() {
         if (codigoCampo.getText().isBlank() || senha.getText().isBlank()) {
             LOGGER.warning("Campos de código ou senha estão vazios.");
-            new CadastroProduto().Avisos("imagens/erro.png", "Preencha os campos");
+            funcoes.Avisos("erro.png", "Preencha os campos");
             return;
         }
 
@@ -451,13 +440,13 @@ public class Login extends javax.swing.JFrame {
                         }
                     } else {
                         LOGGER.warning("Usuário não encontrado para o código: " + codigoCampo.getText());
-                        new CadastroProduto().Avisos("imagens/sinal-de-aviso.png",
+                        funcoes.Avisos("sinal-de-aviso.png",
                                 "Usuário não encontrado. Faça um cadastro ou contate os administradores.");
                     }
                 }
             } catch (Exception e) {
                 LOGGER.severe("Erro ao buscar usuário: " + e.getMessage());
-                new CadastroProduto().Avisos("imagens/erro.png", "Houve um erro. Tente novamente mais tarde");
+                funcoes.Avisos("erro.png", "Houve um erro. Tente novamente mais tarde");
             }
         }
     }//GEN-LAST:event_codigoCampoKeyPressed
@@ -489,8 +478,8 @@ public class Login extends javax.swing.JFrame {
      */
     public static void main(String args[]) {
         try {
-            LOGGER.info("Configurando Look and Feel: McWinLookAndFeel");
-            UIManager.setLookAndFeel("com.jtattoo.plaf.mcwin.McWinLookAndFeel");
+            LOGGER.info("Configurando Look and Feel nativo do sistema");
+            UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
         } catch (Exception e) {
             LOGGER.severe("Erro ao configurar Look and Feel: " + e.getMessage());
             e.printStackTrace();
@@ -513,7 +502,6 @@ public class Login extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
-    private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel painelPrincipal;

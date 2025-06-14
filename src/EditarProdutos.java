@@ -1,15 +1,16 @@
+
+import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Image;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
+import java.math.BigDecimal;
 import java.net.URL;
-import javax.swing.ImageIcon;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -19,247 +20,412 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-import javax.swing.JOptionPane;
-import javax.swing.Timer;
-import javax.swing.JPopupMenu;
-import javax.swing.SwingUtilities;
-import java.util.logging.Logger;
 import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
 import javax.swing.JMenuItem;
-import javax.swing.ButtonGroup;
+import javax.swing.JOptionPane;
+import javax.swing.JPopupMenu;
+import javax.swing.JTextField;
 
 /**
- * JInternalFrame para edição de produtos no sistema. Permite buscar produtos
- * pelo nome ou ID, exibir detalhes, editar campos e atualizar no banco de
- * dados.
  *
- * @author Kaua33500476
+ * @author kaua-n-c
  */
 public class EditarProdutos extends javax.swing.JInternalFrame {
 
-    // Logger para rastreamento de eventos e erros
-    private static final Logger LOGGER = Logger.getLogger(EditarProdutos.class.getName());
-
-    // Constantes para query SQL e caminhos de imagens
-    private static final String SELECT_PRODUCT_NAMES = "SELECT produto FROM produto WHERE LOWER(produto) LIKE ? AND ativo = TRUE";
-    private static final String DEFAULT_IMAGE_PATH = "imagens/sem_imagem.jpg";
-    private static final String PRODUCT_IMAGE_PATH = "imagens/produtos/";
-    private static final String RIGHT_ARROW_PATH = "imagens/seta-direita.png";
-    private static final String SEARCH_ICON_PATH = "imagens/lupa.png";
-    private static final String SELECT_PRODUCT_BY_ID = "SELECT id_produto, produto, descricao, descricao_curta, preco, preco_promocional, promocao, marca, avaliacao, quantidade_avaliacoes, estoque, parcelas_permitidas, peso_kg, dimensoes, ativo, imagem_1, imagem_2, imagem_3, imagem_4, categoria FROM produto WHERE id_produto = ? AND ativo = TRUE";
-    private static final String SELECT_PRODUCT_BY_NAME = "SELECT id_produto, produto, descricao, descricao_curta, preco, preco_promocional, promocao, marca, avaliacao, quantidade_avaliacoes, estoque, parcelas_permitidas, peso_kg, dimensoes, ativo, imagem_1, imagem_2, imagem_3, imagem_4, categoria FROM produto WHERE produto = ? AND ativo = TRUE";
-    private static final String UPDATE_PRODUCT = "UPDATE produto SET produto = ?, descricao = ?, descricao_curta = ?, preco = ?, preco_promocional = ?, promocao = ?, marca = ?, avaliacao = ?, quantidade_avaliacoes = ?, estoque = ?, parcelas_permitidas = ?, peso_kg = ?, dimensoes = ?, ativo = ?, categoria = ?, data_alteracao = NOW() WHERE id_produto = ?";
-    private static final String SELECT_CATEGORIES = "SELECT categoria FROM categorias ORDER BY categoria";
-    private static final String ERROR_DB_CONNECTION = "Erro ao conectar ao banco de dados: ";
-    private static final String ERROR_GENERIC = "Erro: ";
-
-    // Variáveis de estado
-    private int contagem = 0;
-    private File arquivo;
-    private boolean atualizandoMascara = false;
-    private String[] enderecosImagens = new String[4]; // Suporta até 4 imagens
-    private String id_produto;
-    private String Produto;
-    private String Preco;
-    private String PrecoPromocional;
-    private boolean Promocao;
-    private String Descricao;
-    private String DescricaoCurta;
-    private String Marca;
-    private String Avaliacao;
-    private String QuantidadeAvaliacoes;
-    private String Estoque;
-    private String ParcelasPermitidas;
-    private String Peso;
-    private String Dimensoes;
-    private String Categoria;
-    private boolean Ativo;
+    private String produtoPesquisado = "SELECT * FROM produto WHERE produto = ?";
+    private String pesquisarPorId = "SELECT * FROM produto WHERE id_produto = ?";
+    private String atualizarProduto = "UPDATE produto SET "
+            + "produto = ?, "
+            + "descricao = ?, "
+            + "descricao_curta = ?, "
+            + "preco = ?, "
+            + "preco_promocional = ?, "
+            + "promocao = ?, "
+            + "marca = ?, "
+            + "avaliacao = ?, "
+            + "quantidade_avaliacoes = ?, "
+            + "estoque = ?, "
+            + "parcelas_permitidas = ?, "
+            + "peso_kg = ?, "
+            + "dimensoes = ?, "
+            + "ativo = ?, "
+            + "imagem_1 = ?, "
+            + "imagem_2 = ?, "
+            + "categoria = ?, "
+            + "data_alteracao = CURRENT_TIMESTAMP "
+            + "WHERE id_produto = ?";
+    private String buscarCategorias = "SELECT categoria FROM categorias";
+    private String buscarTodosProdutos = "SELECT produto FROM produto WHERE LOWER(produto) LIKE ? AND ativo = TRUE";
+    private static final String conexaoFalha = "Erro ao conectar ao banco de dados: ";
+    private static final String erro_generico = "Erro genêrico";
+    private final String semImagemEndereco = "imagens/sem_imagem.jpg";
     private final JPopupMenu sugestoesProdutos = new JPopupMenu();
     private List<String> produtos;
     private final Font fonteItem = new Font("Arial", Font.PLAIN, 15);
+    Funcoes funcoes = new Funcoes();
+    Connection conexao = null;
 
-    // Timer para slideshow de imagens
-    private final Timer slide = new Timer(1000, new ActionListener() {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            LOGGER.info("Alternando imagem no slideshow. Contagem: " + contagem);
-            // Filtra imagens não nulas
-            List<String> imagensValidas = new ArrayList<>();
-            for (String img : enderecosImagens) {
-                if (img != null && !img.isEmpty()) {
-                    imagensValidas.add(img);
-                }
-            }
-            if (imagensValidas.isEmpty()) {
-                LOGGER.warning("Nenhuma imagem válida para o slideshow.");
-                slide.stop();
-                return;
-            }
+    //Campos
+    private String id_produto;
+    private String produto;
+    private String descricao;
+    private String descricao_curta;
+    private String campoPreco;
+    private String preco_promocional;
+    private String campoPromocao;
+    private String campoMarca;
+    private String campoQuantidadeAvaliacoes;
+    private String campoEstoque;
+    private String campoPeso;
+    private String campoDimensoes;
+    private Boolean promocao;
+    private Boolean produtoAtivo;
+    private String categoria;
+    private String campoAvaliacao;
+    private String campoParcelas;
+    private String campoImagem1;
+    private String campoImagem2;
 
-            // Lógica para alternar as imagens
-            contagem = (contagem + 1) % imagensValidas.size();
-            ImageIcon proximaImagem;
-            if (imagensValidas.get(contagem).contains("http")) {
-                try {
-                    URL url = new URL(imagensValidas.get(contagem));
-                    BufferedImage image = ImageIO.read(url);
-                    proximaImagem = new ImageIcon(image);
-                } catch (Exception ex) {
-                    LOGGER.warning("Erro ao carregar imagem de URL: " + imagensValidas.get(contagem));
-                    proximaImagem = sem_imagem();
-                }
-            } else {
-                proximaImagem = new ImageIcon(PRODUCT_IMAGE_PATH + imagensValidas.get(contagem));
-            }
-
-            if (proximaImagem.getIconWidth() == -1) {
-                LOGGER.warning("Imagem não encontrada: " + imagensValidas.get(contagem));
-                proximaImagem = sem_imagem();
-            }
-            sem_imagem.setIcon(redimensionamentoDeImagem(proximaImagem, 245, 270));
-        }
-    });
-
-    /**
-     * Construtor da classe EditarProdutos. Inicializa a interface, configura
-     * ícones padrão e carrega a lista de nomes de produtos.
-     */
     public EditarProdutos() {
         initComponents();
-        Inicio();
-        nomesProdutos();
-        carregarCategorias();
+        // Desabilitando campos
+        preco.setEnabled(false);
+        descricaoGeral.setEnabled(false);
+        descricaoCurta.setEnabled(false);
+        preco.setEnabled(false);
+        precoPromocional.setEnabled(false);
+        estoque.setEnabled(false);
+        marca.setEnabled(false);
+        avaliacao.setEnabled(true);
+        totalAvaliacao.setEnabled(true);
+        estoque.setEnabled(true);
+        parcelas.setEnabled(true);
+        peso.setEnabled(true);
+        dimensoes.setEnabled(true);
+        categorias.setEnabled(true);
+        imagem1.setEnabled(true);
+        imagem2.setEnabled(true);
+        promoSim.setEnabled(true);
+        promoNao.setEnabled(true);
+        ativoSim.setEnabled(true);
+        ativoNao.setEnabled(true);
 
-        // Adiciona listener para clique na seta do slideshow
-        seta.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                List<String> imagensValidas = new ArrayList<>();
-                for (String img : enderecosImagens) {
-                    if (img != null && !img.isEmpty()) {
-                        imagensValidas.add(img);
-                    }
-                }
-                if (!imagensValidas.isEmpty()) {
-                    LOGGER.info("Iniciando slideshow de imagens.");
-                    slide.start();
-                } else {
-                    LOGGER.warning("Nenhuma imagem válida para iniciar o slideshow.");
-                }
-            }
-        });
+        buscarCategorias();
+        buscarTodosProdutos();
+        imagemProduto.setIcon(semImagem());
+        excluirImagem1.setIcon(redimensionamentoDeImagem(new ImageIcon("imagens/erro.png"), 42, 40));
+        excluirImagem2.setIcon(redimensionamentoDeImagem(new ImageIcon("imagens/erro.png"), 42, 40));
+        funcoes.aplicarMascaraNome(nomeProduto);
+        funcoes.aplicarMascaraNome(marca);
+        funcoes.aplicarMascaraPreco(preco);
+        funcoes.aplicarMascaraPreco(precoPromocional);
+        funcoes.aplicarMascaraInteiro(estoque);
+        funcoes.aplicarMascaraInteiro(totalAvaliacao);
+        funcoes.aplicarMascaraPeso(peso);
+        funcoes.aplicarMascaraTextoNumerico(descricaoGeral);
+        funcoes.aplicarMascaraTextoNumerico(descricaoCurta);
 
-        // Adiciona listener para nomeProduto
-        nomeProduto.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyReleased(KeyEvent evt) {
-                nomeProdutoKeyReleased(evt);
-            }
-        });
     }
 
-    /**
-     * Carrega os nomes dos produtos do banco de dados com base no texto de
-     * pesquisa.
-     */
-    public void nomesProdutos() {
-        LOGGER.info("Carregando nomes de produtos com filtro: " + pesquisar.getText());
-        try (Connection con = Conexao.conexaoBanco(); PreparedStatement stmt = con.prepareStatement(SELECT_PRODUCT_NAMES)) {
-            stmt.setString(1, "%" + pesquisar.getText().toLowerCase() + "%");
+    public void nomeProdutoCaixaDeNomes(JTextField campo) {
+        String pesquisa = campo.getText().trim().toLowerCase();
+        sugestoesProdutos.setVisible(false);
+
+        if (!pesquisa.isEmpty()) {
+            // Filtra produtos que contêm o texto pesquisado (case insensitive)
+            List<String> produtosFiltrados = produtos.stream()
+                    .filter(produto -> produto.toLowerCase().contains(pesquisa))
+                    .limit(10) // Limita o número de sugestões
+                    .collect(Collectors.toList());
+
+            if (!produtosFiltrados.isEmpty()) {
+                sugestoesProdutos.removeAll(); // Limpa sugestões anteriores
+
+                for (String produto : produtosFiltrados) {
+                    JMenuItem item = new JMenuItem(produto);
+                    item.setFont(fonteItem);
+
+                    item.addActionListener(e -> {
+                        campo.setText(produto);
+                        sugestoesProdutos.setVisible(false);
+                        carregarProduto(produtoPesquisado, produto);
+                    });
+
+                    // Melhor tratamento do clique do mouse
+                    item.addMouseListener(new MouseAdapter() {
+                        @Override
+                        public void mouseEntered(MouseEvent e) {
+                            item.setBackground(new Color(220, 220, 255)); // Feedback visual
+                        }
+
+                        @Override
+                        public void mouseExited(MouseEvent e) {
+                            item.setBackground(null);
+                        }
+                    });
+
+                    sugestoesProdutos.add(item);
+                }
+
+                // Mostra o popup alinhado com o campo
+                sugestoesProdutos.show(campo, 0, campo.getHeight());
+                sugestoesProdutos.setPreferredSize(new Dimension(
+                        campo.getWidth(),
+                        Math.min(produtosFiltrados.size() * 25, 200) // Altura máxima
+                ));
+            }
+        }
+    }
+
+    private void atualizarProduto() {
+        //1. Verificar campos obrigatórios primeiro
+        if (camposObrigatorios()) {
+            funcoes.Avisos("aviso.jpg", "Preencha todos os campos obrigatórios!");
+            return;
+        }
+        // 2. Verificação de imagens (opcional)
+        if (verificacaoDeImagens()) { // Usuário cancelou ou escolheu a opção não 
+            return;
+        }
+        try {
+            pegarRespostas();
+
+            try (Connection con = Conexao.conexaoBanco(); PreparedStatement stmt = con.prepareStatement(atualizarProduto)) {
+
+                // Preenche os parâmetros na mesma ordem da query
+                stmt.setString(1, produto);
+                stmt.setString(2, descricao);
+                stmt.setString(3, descricao_curta);
+                stmt.setString(4, campoPreco);
+                stmt.setString(5, preco_promocional);
+                stmt.setBoolean(6, promocao);
+                stmt.setString(7, campoMarca);
+                stmt.setString(8, campoAvaliacao);
+                stmt.setInt(9, Integer.parseInt(campoQuantidadeAvaliacoes));
+                stmt.setInt(10, Integer.parseInt(campoEstoque));
+                stmt.setInt(11, Integer.parseInt(campoParcelas));
+                stmt.setDouble(12, campoPeso.isEmpty() ? 0 : Double.parseDouble(campoPeso));
+                stmt.setString(13, campoDimensoes);
+                stmt.setBoolean(14, produtoAtivo);
+                stmt.setString(15, campoImagem1);
+                stmt.setString(16, campoImagem2.equals("Nenhuma imagem") ? null : campoImagem2);
+                stmt.setString(17, categoria);
+                stmt.setString(18, id_produto); // ID para a cláusula WHERE
+
+                int linhasAfetadas = stmt.executeUpdate();
+
+                if (linhasAfetadas > 0) {
+                    JOptionPane.showMessageDialog(null, "Produto atualizado com sucesso!");
+                    limpar();
+                } else {
+                    JOptionPane.showMessageDialog(null, "Nenhum produto foi atualizado. Verifique o ID.");
+                }
+            }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(null, "Erro ao atualizar no banco de dados: " + e.getMessage());
+            e.printStackTrace();
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(null, "Erro em campos numéricos: " + e.getMessage());
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "Erro inesperado: " + e.getMessage());
+        }
+    }
+
+    private void buscarTodosProdutos() {
+        try (Connection con = Conexao.conexaoBanco(); PreparedStatement stmt = con.prepareStatement(buscarTodosProdutos)) {
+            stmt.setString(1, "%" + nomeProduto.getText().toLowerCase() + "%");
             try (ResultSet rs = stmt.executeQuery()) {
                 produtos = new ArrayList<>();
                 while (rs.next()) {
                     produtos.add(rs.getString("produto"));
                 }
-                LOGGER.info("Nomes de produtos carregados: " + produtos.size());
             }
         } catch (SQLException ex) {
-            LOGGER.severe("Erro ao carregar nomes dos produtos: " + ex.getMessage());
-            JOptionPane.showMessageDialog(null, ERROR_DB_CONNECTION + ex.getMessage());
+            JOptionPane.showMessageDialog(null, conexaoFalha + ex.getMessage());
         }
     }
 
-    /**
-     * Carrega as categorias do banco de dados para o JComboBox.
-     */
-    private void carregarCategorias() {
-        LOGGER.info("Carregando categorias do banco de dados.");
-        try (Connection con = Conexao.conexaoBanco(); PreparedStatement stmt = con.prepareStatement(SELECT_CATEGORIES)) {
+    private boolean camposObrigatorios() {
+        // Validação 1: Nome do Produto
+        if (nomeProduto.getText().isBlank()) {
+            funcoes.Avisos("incorreto.jpg", "O campo 'Nome do Produto' é obrigatório!");
+            nomeProduto.requestFocus();
+            return true; // Sai no primeiro erro
+        }
+
+        // Validação 2: Descrição Geral
+        if (descricaoGeral.getText().isBlank()) {
+            funcoes.Avisos("incorreto.jpg", "O campo 'Descrição Geral' é obrigatório!");
+            descricaoGeral.requestFocus();
+            return true;
+        }
+
+        // Validação 3: Preço
+        if (preco.getText().isBlank()) {
+            funcoes.Avisos("incorreto.jpg", "O campo 'Preço' é obrigatório!");
+            preco.requestFocus();
+            return true;
+        }
+
+        // Validação 4: Estoque
+        if (estoque.getText().isBlank()) {
+            funcoes.Avisos("incorreto.jpg", "O campo 'Estoque' é obrigatório!");
+            estoque.requestFocus();
+            return true;
+        }
+
+        // Validação 5: Imagem Principal
+        if (imagem1.getText().isBlank()) {
+            funcoes.Avisos("incorreto.jpg", "O campo 'Imagem Principal' é obrigatório!");
+            imagem1.requestFocus();
+            return true;
+        }
+
+        // Validação 6: Categoria
+        if (categorias.getSelectedItem() == null || categorias.getSelectedItem().toString().isBlank()) {
+            funcoes.Avisos("incorreto.jpg", "Selecione uma 'Categoria'!");
+            categorias.requestFocus();
+            return true;
+        }
+
+        // Validação 7: Preço Promocional (se promoção ativa)
+        if (promoSim.isSelected() && precoPromocional.getText().isBlank()) {
+            funcoes.Avisos("incorreto.jpg", "Com promoção ativa, o 'Preço Promocional' é obrigatório!");
+            precoPromocional.requestFocus();
+            return true;
+        }
+
+        // Validação 8: Status Ativo/Inativo
+        if (!ativoSim.isSelected() && !ativoNao.isSelected()) {
+            funcoes.Avisos("incorreto.jpg", "Selecione o status 'Ativo' do produto!");
+            return true;
+        }
+
+        return false;
+    }
+
+    private void carregarProduto(String query, String parametro) {
+        try (Connection con = Conexao.conexaoBanco(); PreparedStatement stmt = con.prepareStatement(query)) {
+            stmt.setString(1, parametro);
             try (ResultSet rs = stmt.executeQuery()) {
-                categorias.removeAllItems();
-                while (rs.next()) {
-                    categorias.addItem(rs.getString("categoria"));
+                if (rs.next()) {
+                    // Mapeia os dados do produto
+                    id_produto = rs.getString("id_produto");
+                    produto = rs.getString("produto");
+                    campoPreco = rs.getString("preco");
+                    preco_promocional = rs.getString("preco_promocional");
+                    promocao = rs.getBoolean("promocao");
+                    descricao = rs.getString("descricao");
+                    descricao_curta = rs.getString("descricao_curta");
+                    campoMarca = rs.getString("marca");
+                    campoAvaliacao = rs.getString("avaliacao");
+                    campoQuantidadeAvaliacoes = rs.getString("quantidade_avaliacoes");
+                    campoEstoque = rs.getString("estoque");
+                    campoParcelas = rs.getString("parcelas_permitidas");
+                    campoPeso = rs.getString("peso_kg");
+                    campoDimensoes = rs.getString("dimensoes");
+                    categoria = rs.getString("categoria");
+                    produtoAtivo = rs.getBoolean("ativo");
+                    campoImagem1 = rs.getString("imagem_1");
+                    campoImagem2 = rs.getString("imagem_2");
+
+                    // Atualiza campos na interface
+                    codigo.setText(id_produto);
+                    nomeProduto.setText(produto);
+                    preco.setText(campoPreco);
+                    precoPromocional.setText(preco_promocional);
+                    if (promocao) {
+                        promoSim.setSelected(true);
+                        precoPromocional.setEnabled(true);
+                    } else {
+                        promoNao.setSelected(true);
+                        precoPromocional.setEnabled(false);
+                    }
+                    descricaoGeral.setText(descricao);
+                    descricaoCurta.setText(descricao_curta);
+                    marca.setText(campoMarca);
+                    avaliacao.setSelectedItem(campoAvaliacao);
+                    totalAvaliacao.setText(campoQuantidadeAvaliacoes);
+                    estoque.setText(campoEstoque);
+                    parcelas.setSelectedItem(campoParcelas);
+                    peso.setText(campoPeso);
+                    dimensoes.setText(campoDimensoes);
+                    categorias.setSelectedItem(categoria);
+                    if (produtoAtivo) {
+                        ativoSim.setSelected(true);
+                    } else {
+                        ativoNao.setSelected(false);
+                    }
+                    imagem1.setText(campoImagem1);
+                    imagem2.setText(campoImagem2);
+
+                    carregarImagemURL(imagem1);
+
+                    // Habilita campos para edição
+                    nomeProduto.setEnabled(true);
+                    preco.setEnabled(true);
+                    descricaoGeral.setEnabled(true);
+                    descricaoCurta.setEnabled(true);
+                    marca.setEnabled(true);
+                    avaliacao.setEnabled(true);
+                    totalAvaliacao.setEnabled(true);
+                    estoque.setEnabled(true);
+                    parcelas.setEnabled(true);
+                    peso.setEnabled(true);
+                    dimensoes.setEnabled(true);
+                    categorias.setEnabled(true);
                 }
-                LOGGER.info("Categorias carregadas: " + categorias.getItemCount());
             }
-        } catch (SQLException ex) {
-            LOGGER.severe("Erro ao carregar categorias: " + ex.getMessage());
-            JOptionPane.showMessageDialog(null, ERROR_DB_CONNECTION + ex.getMessage());
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(null, conexaoFalha + e.getMessage());
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, erro_generico + e.getMessage());
         }
     }
 
-    /**
-     * Inicializa a interface desabilitando campos de texto, configurando ícones
-     * padrão e ocultando componentes de imagem.
-     */
-    public void Inicio() {
-        LOGGER.info("Inicializando interface de edição de produtos.");
-        // Desabilita campos
-        nomeProduto.setEnabled(false);
-        preco.setEnabled(false);
-        preco_promocional.setEnabled(false);
-        descricao.setEnabled(false);
-        descricao_curta.setEnabled(false);
-        marca.setEnabled(false);
-        avaliacao.setEnabled(false);
-        quantidade_avaliacao.setEnabled(false);
-        estoque.setEnabled(false);
-        parcelas.setEnabled(false);
-        peso.setEnabled(false);
-        dimensoes.setEnabled(false);
-        categorias.setEnabled(false);
-        prom_sim.setEnabled(false);
-        prom_nao.setEnabled(false);
-        ativo_sim.setEnabled(false);
-        ativo_nao.setEnabled(false);
-        // Configura ícones
-        sem_imagem.setIcon(sem_imagem());
-        seta.setIcon(new ImageIcon(RIGHT_ARROW_PATH));
-        pesquisa.setIcon(new ImageIcon(SEARCH_ICON_PATH));
-        seta.setVisible(false);
+    private void pegarRespostas() {
+        produto = nomeProduto.getText();
+        descricao = descricaoGeral.getText();
+        descricao_curta = descricaoCurta.getText();
+        campoPreco = preco.getText();
+        preco_promocional = precoPromocional.getText().isBlank() ? "0.00" : precoPromocional.getText();
+        campoMarca = marca.getText();
+        campoQuantidadeAvaliacoes = totalAvaliacao.getText().isBlank() ? "0" : totalAvaliacao.getText();
+        campoEstoque = estoque.getText();
+        campoPeso = peso.getText().isBlank() ? "0" : peso.getText();
+        campoDimensoes = dimensoes.getText().isBlank() ? "0x0x0" : dimensoes.getText();
+        categoria = categorias.getSelectedItem().toString();
+        campoImagem1 = imagem1.getText();
+        campoImagem2 = imagem2.getText().isBlank() ? "Nenhuma imagem" : imagem2.getText();
+
     }
 
-    /**
-     * Aplica uma máscara ao campo de nome do produto, permitindo apenas
-     * caracteres alfanuméricos e acentuados. Evita loops de atualização.
-     */
-    private void atualizarMascara() {
-        if (atualizandoMascara) {
+    public void carregarImagemURL(JTextField campo) {
+
+        String imageUrl = campo.getText().trim();
+        if (imageUrl.isEmpty() || !imageUrl.contains("http")) {
             return;
         }
-        atualizandoMascara = true;
-        SwingUtilities.invokeLater(() -> {
-            String texto = nomeProduto.getText();
-            nomeProduto.setText(texto.replaceAll("[^a-zA-Z0-9áéíóúâêîôûãõçÁÉÍÓÚÂÊÎÔÛÃÕÇñÑ~\\s]", ""));
-            atualizandoMascara = false;
-            LOGGER.info("Máscara aplicada ao nome do produto: " + nomeProduto.getText());
-        });
+        funcoes.mostrarMensagemCarregando();
+        System.out.println("Carregando imagem de URL para o campo: " + campo + " " + imageUrl);
+        try {
+            URL url = new URL(imageUrl);
+            BufferedImage image = ImageIO.read(url);
+            if (image != null) {
+                imagemProduto.setIcon(redimensionamentoDeImagem(new ImageIcon(image), 346, 349));
+            } else {
+                funcoes.Avisos("aviso.jpg", "Imagem inválida. Tente outra URL.");
+                campo.setText("");
+            }
+        } catch (IOException e) {
+            funcoes.Avisos("erro.png", "Falha ao carregar URL. Tente novamente.");
+            campo.setText("");
+        }
     }
 
     /**
-     * Retorna o ícone padrão para quando não há imagem disponível.
-     *
-     * @return Ícone redimensionado da imagem padrão.
-     */
-    public ImageIcon sem_imagem() {
-        LOGGER.info("Carregando imagem padrão: " + DEFAULT_IMAGE_PATH);
-        ImageIcon imagem = new ImageIcon(DEFAULT_IMAGE_PATH);
-        return redimensionamentoDeImagem(imagem, 245, 270);
-    }
-
-    /**
-     * Redimensiona uma imagem para as dimensões especificadas, mantendo
-     * suavidade.
+     * Redimensiona uma imagem para as dimensões especificadas.
      *
      * @param imagem Ícone da imagem original.
      * @param largura Largura desejada.
@@ -267,803 +433,656 @@ public class EditarProdutos extends javax.swing.JInternalFrame {
      * @return Ícone da imagem redimensionada.
      */
     public ImageIcon redimensionamentoDeImagem(ImageIcon imagem, int largura, int altura) {
-        LOGGER.info("Redimensionando imagem para " + largura + "x" + altura);
-        Image redimensionada = imagem.getImage().getScaledInstance(largura, altura, Image.SCALE_SMOOTH);
-        return new ImageIcon(redimensionada);
+        Image pegarImagem = imagem.getImage();
+        Image redimensionando = pegarImagem.getScaledInstance(largura, altura, Image.SCALE_SMOOTH);
+        return new ImageIcon(redimensionando);
     }
 
-    /**
-     * Carrega os detalhes do produto a partir do ID ou nome.
-     *
-     * @param query Consulta SQL (SELECT_PRODUCT_BY_ID ou SELECT_PRODUCT_BY_NAME).
-     * @param parametro Parâmetro para a consulta (ID ou nome do produto).
-     */
-    private void carregarProduto(String query, String parametro) {
-        LOGGER.info("Carregando produto com query: " + query + ", parâmetro: " + parametro);
-        seta.setVisible(true);
-        try (Connection con = Conexao.conexaoBanco(); PreparedStatement stmt = con.prepareStatement(query)) {
-            stmt.setString(1, parametro);
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    // Mapeia os dados do produto
-                    id_produto = rs.getString("id_produto");
-                    Produto = rs.getString("produto");
-                    Preco = NumberFormat.getCurrencyInstance().format(rs.getDouble("preco"));
-                    PrecoPromocional = rs.getObject("preco_promocional") != null ? NumberFormat.getCurrencyInstance().format(rs.getDouble("preco_promocional")) : "";
-                    Promocao = rs.getBoolean("promocao");
-                    Descricao = rs.getString("descricao");
-                    DescricaoCurta = rs.getString("descricao_curta");
-                    Marca = rs.getString("marca");
-                    Avaliacao = rs.getObject("avaliacao") != null ? rs.getString("avaliacao") : "";
-                    QuantidadeAvaliacoes = rs.getString("quantidade_avaliacoes");
-                    Estoque = rs.getString("estoque");
-                    ParcelasPermitidas = rs.getString("parcelas_permitidas");
-                    Peso = rs.getObject("peso_kg") != null ? rs.getString("peso_kg") : "";
-                    Dimensoes = rs.getString("dimensoes");
-                    Categoria = rs.getString("categoria");
-                    Ativo = rs.getBoolean("ativo");
-                    enderecosImagens[0] = rs.getString("imagem_1");
-                    enderecosImagens[1] = rs.getString("imagem_2");
-                    enderecosImagens[2] = rs.getString("imagem_3");
-                    enderecosImagens[3] = rs.getString("imagem_4");
+    private Boolean verificacaoDeImagens() {
+        int resposta = JOptionPane.showConfirmDialog(
+                null,
+                "Deseja adicionar somente uma imagem?",
+                "Configuração de Imagens",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE
+        );
 
-                    // Atualiza campos na interface
-                    codigo.setText(id_produto);
-                    nomeProduto.setText(Produto);
-                    preco.setText(Preco);
-                    preco_promocional.setText(PrecoPromocional);
-                    prom_sim.setSelected(Promocao);
-                    prom_nao.setSelected(!Promocao);
-                    preco_promocional.setEnabled(Promocao);
-                    descricao.setText(Descricao);
-                    descricao_curta.setText(DescricaoCurta);
-                    marca.setText(Marca);
-                    avaliacao.setText(Avaliacao);
-                    quantidade_avaliacao.setText(QuantidadeAvaliacoes);
-                    estoque.setText(Estoque);
-                    parcelas.setSelectedItem(ParcelasPermitidas);
-                    peso.setText(Peso);
-                    dimensoes.setText(Dimensoes);
-                    if (Categoria != null) {
-                        categorias.setSelectedItem(Categoria);
-                    }
-                    ativo_sim.setSelected(Ativo);
-                    ativo_nao.setSelected(!Ativo);
-
-                    // Habilita campos para edição
-                    nomeProduto.setEnabled(true);
-                    preco.setEnabled(true);
-                    preco_promocional.setEnabled(Promocao);
-                    descricao.setEnabled(true);
-                    descricao_curta.setEnabled(true);
-                    marca.setEnabled(true);
-                    avaliacao.setEnabled(true);
-                    quantidade_avaliacao.setEnabled(true);
-                    estoque.setEnabled(true);
-                    parcelas.setEnabled(true);
-                    peso.setEnabled(true);
-                    dimensoes.setEnabled(true);
-                    categorias.setEnabled(true);
-                    prom_sim.setEnabled(true);
-                    prom_nao.setEnabled(true);
-                    ativo_sim.setEnabled(true);
-                    ativo_nao.setEnabled(true);
-
-                    // Exibe a primeira imagem redimensionada
-                    if (enderecosImagens[0] != null && !enderecosImagens[0].isEmpty()) {
-                        if (enderecosImagens[0].contains("http")) {
-                            try {
-                                URL url = new URL(enderecosImagens[0]);
-                                BufferedImage image = ImageIO.read(url);
-                                sem_imagem.setIcon(redimensionamentoDeImagem(new ImageIcon(image), 245, 270));
-                                LOGGER.info("Imagem do produto carregada de URL: " + enderecosImagens[0]);
-                            } catch (Exception ex) {
-                                LOGGER.warning("Erro ao carregar imagem de URL: " + enderecosImagens[0]);
-                                sem_imagem.setIcon(sem_imagem());
-                            }
-                        } else {
-                            sem_imagem.setIcon(redimensionamentoDeImagem(
-                                    new ImageIcon(PRODUCT_IMAGE_PATH + enderecosImagens[0]), 245, 270));
-                            LOGGER.info("Imagem do produto carregada: " + enderecosImagens[0]);
-                        }
-                    } else {
-                        sem_imagem.setIcon(sem_imagem());
-                    }
-                } else {
-                    LOGGER.warning("Produto não encontrado para o parâmetro: " + parametro);
-                    new CadastroProduto().Avisos("imagens/erro.png", "Produto não encontrado");
-                }
-            }
-        } catch (SQLException e) {
-            LOGGER.severe("Erro ao conectar ao banco de dados: " + e.getMessage());
-            JOptionPane.showMessageDialog(null, ERROR_DB_CONNECTION + e.getMessage());
-        } catch (Exception e) {
-            LOGGER.severe("Erro inesperado: " + e.getMessage());
-            JOptionPane.showMessageDialog(null, ERROR_GENERIC + e.getMessage());
+        if (resposta == JOptionPane.YES_OPTION) {
+            return false;
+        } else if (resposta == JOptionPane.NO_OPTION) {
+            imagem2.requestFocus();
+            System.out.println("Usuário quer múltiplas imagens");
+            return true;
+        } else {
+            // Código se o usuário fechar a janela (X)
+            System.out.println("Janela fechada sem resposta");
+            return true;
         }
     }
 
+    private ImageIcon semImagem() {
+        ImageIcon imagem = new ImageIcon(semImagemEndereco);
+        return redimensionamentoDeImagem(imagem, 346, 349);
+    }
+
+    private void buscarCategorias() {
+        try {
+            conexao = Conexao.conexaoBanco();
+            if (conexao == null) {
+                funcoes.Avisos("aviso.jpg", "Categorias: conexão não foi possível");
+                return;
+            }
+            PreparedStatement stmt = conexao.prepareStatement(buscarCategorias);
+            ResultSet rs = stmt.executeQuery();
+            categorias.removeAllItems();
+            categorias.addItem("");
+            while (rs.next()) {
+                categorias.addItem(rs.getString("categoria"));
+            }
+        } catch (Exception e) {
+            funcoes.Avisos("erro.png", e.getMessage() + "Tente novamente mais tarde");
+            dispose();
+        }
+    }
+
+    private void limpar() {
+        // Limpa TextFields
+        nomeProduto.setText("");
+        marca.setText("");
+        preco.setText("");
+        precoPromocional.setText("");
+        estoque.setText("");
+        peso.setText("");
+        dimensoes.setText("");
+        totalAvaliacao.setText("");
+        imagem1.setText("");
+        imagem2.setText("");
+
+        // Limpa TextAreas
+        descricaoGeral.setText("");
+        descricaoCurta.setText("");
+
+        // Reseta ComboBoxes
+        categorias.setSelectedIndex(0);
+        avaliacao.setSelectedIndex(0);
+        parcelas.setSelectedIndex(0);
+
+        // Configura RadioButtons
+        promoNao.setSelected(true);  // Desativa promoção por padrão
+        ativoSim.setSelected(true);  // Ativa produto por padrão
+
+        // Limpa imagens exibidas (se houver)
+        imagemProduto.setIcon(null);
+        excluirImagem1.setVisible(false);
+        excluirImagem2.setVisible(false);
+
+        // Foca no primeiro campo
+        nomeProduto.requestFocus();
+    }
+
     @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
-        // Agrupando os JRadioButtons
-        ButtonGroup promocaoGroup = new ButtonGroup();
-        ButtonGroup ativoGroup = new ButtonGroup();
 
-        sem_imagem = new javax.swing.JLabel();
-        pesquisar = new javax.swing.JTextField();
-        pesquisa = new javax.swing.JLabel();
-        codigo = new javax.swing.JTextField();
-        jLabel3 = new javax.swing.JLabel();
-        jLabel11 = new javax.swing.JLabel();
+        gpPromocao = new javax.swing.ButtonGroup();
+        gpAtivo = new javax.swing.ButtonGroup();
+        imagemProduto = new javax.swing.JLabel();
         nomeProduto = new javax.swing.JTextField();
-        jLabel5 = new javax.swing.JLabel();
-        preco = new javax.swing.JTextField();
+        jLabel1 = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        descricao = new javax.swing.JTextArea();
-        btUltimasVendas = new javax.swing.JButton();
-        seta = new javax.swing.JLabel();
-        jScrollPane2 = new javax.swing.JScrollPane();
-        descricao_curta = new javax.swing.JTextArea();
-        jLabel12 = new javax.swing.JLabel();
-        jLabel10 = new javax.swing.JLabel();
-        prom_sim = new javax.swing.JRadioButton();
-        prom_nao = new javax.swing.JRadioButton();
-        jLabel14 = new javax.swing.JLabel();
-        preco_promocional = new javax.swing.JTextField();
+        preco = new javax.swing.JTextField();
+        jLabel5 = new javax.swing.JLabel();
+        precoPromocional = new javax.swing.JTextField();
         jLabel6 = new javax.swing.JLabel();
-        marca = new javax.swing.JTextField();
-        jLabel15 = new javax.swing.JLabel();
-        avaliacao = new javax.swing.JTextField();
-        jLabel16 = new javax.swing.JLabel();
-        quantidade_avaliacao = new javax.swing.JTextField();
-        jLabel17 = new javax.swing.JLabel();
-        parcelas = new javax.swing.JComboBox<>();
-        peso = new javax.swing.JTextField();
-        jLabel18 = new javax.swing.JLabel();
-        jLabel19 = new javax.swing.JLabel();
-        dimensoes = new javax.swing.JTextField();
-        jLabel20 = new javax.swing.JLabel();
-        ativo_sim = new javax.swing.JRadioButton();
-        ativo_nao = new javax.swing.JRadioButton();
-        estoque = new javax.swing.JTextField();
+        promoSim = new javax.swing.JRadioButton();
+        promoNao = new javax.swing.JRadioButton();
         jLabel7 = new javax.swing.JLabel();
+        totalAvaliacao = new javax.swing.JTextField();
+        jLabel8 = new javax.swing.JLabel();
+        avaliacao = new javax.swing.JComboBox<>();
+        jLabel10 = new javax.swing.JLabel();
+        marca = new javax.swing.JTextField();
+        jLabel11 = new javax.swing.JLabel();
+        estoque = new javax.swing.JTextField();
+        jLabel12 = new javax.swing.JLabel();
+        peso = new javax.swing.JTextField();
+        jLabel13 = new javax.swing.JLabel();
+        dimensoes = new javax.swing.JTextField();
+        jLabel14 = new javax.swing.JLabel();
+        ativoSim = new javax.swing.JRadioButton();
+        ativoNao = new javax.swing.JRadioButton();
         jLabel9 = new javax.swing.JLabel();
+        parcelas = new javax.swing.JComboBox<>();
+        jLabel15 = new javax.swing.JLabel();
         categorias = new javax.swing.JComboBox<>();
+        jLabel16 = new javax.swing.JLabel();
+        imagem2 = new javax.swing.JTextField();
+        imagem1 = new javax.swing.JTextField();
+        btAtualizar = new javax.swing.JButton();
         btCancelar = new javax.swing.JButton();
-        btSalvar = new javax.swing.JButton();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        descricaoGeral = new javax.swing.JTextArea();
+        jScrollPane4 = new javax.swing.JScrollPane();
+        descricaoCurta = new javax.swing.JTextArea();
+        excluirImagem2 = new javax.swing.JLabel();
+        excluirImagem1 = new javax.swing.JLabel();
+        codigo = new javax.swing.JTextField();
+        jLabel17 = new javax.swing.JLabel();
 
-        // Adiciona JRadioButtons aos grupos
-        promocaoGroup.add(prom_sim);
-        promocaoGroup.add(prom_nao);
-        ativoGroup.add(ativo_sim);
-        ativoGroup.add(ativo_nao);
-
-        setBackground(new java.awt.Color(255, 255, 255));
         setClosable(true);
-        setIconifiable(true);
         setMaximizable(true);
-        setResizable(true);
-        setTitle("Produtos");
+        setTitle("Cadastrar Produtos");
 
-        sem_imagem.setBackground(new java.awt.Color(255, 255, 255));
-
-        pesquisar.setFont(new java.awt.Font("Arial", 0, 20));
-        pesquisar.addKeyListener(new java.awt.event.KeyAdapter() {
+        nomeProduto.setFont(new java.awt.Font("Inter Light", 0, 16)); // NOI18N
+        nomeProduto.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyReleased(java.awt.event.KeyEvent evt) {
-                pesquisarKeyReleased(evt);
+                nomeProdutoKeyReleased(evt);
             }
         });
 
-        pesquisa.addMouseListener(new java.awt.event.MouseAdapter() {
+        jLabel1.setFont(new java.awt.Font("Inter Light", 1, 18)); // NOI18N
+        jLabel1.setText("Produto");
+
+        jLabel2.setFont(new java.awt.Font("Inter Light", 1, 18)); // NOI18N
+        jLabel2.setText("Descrição");
+
+        jLabel3.setFont(new java.awt.Font("Inter Light", 1, 18)); // NOI18N
+        jLabel3.setText("Descrição curta");
+
+        jLabel4.setFont(new java.awt.Font("Inter Light", 1, 18)); // NOI18N
+        jLabel4.setText("Preço");
+
+        preco.setFont(new java.awt.Font("Inter Light", 0, 16)); // NOI18N
+
+        jLabel5.setFont(new java.awt.Font("Inter Light", 1, 18)); // NOI18N
+        jLabel5.setText("Preço promocional");
+
+        precoPromocional.setFont(new java.awt.Font("Inter Light", 0, 16)); // NOI18N
+
+        jLabel6.setFont(new java.awt.Font("Inter Light", 1, 18)); // NOI18N
+        jLabel6.setText("Promoção");
+
+        gpPromocao.add(promoSim);
+        promoSim.setFont(new java.awt.Font("Inter Light", 1, 14)); // NOI18N
+        promoSim.setText("Sim");
+        promoSim.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                promoSimActionPerformed(evt);
+            }
+        });
+
+        gpPromocao.add(promoNao);
+        promoNao.setFont(new java.awt.Font("Inter Light", 1, 14)); // NOI18N
+        promoNao.setText("Não");
+        promoNao.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                promoNaoActionPerformed(evt);
+            }
+        });
+
+        jLabel7.setFont(new java.awt.Font("Inter Light", 1, 18)); // NOI18N
+        jLabel7.setText("Marca");
+
+        totalAvaliacao.setFont(new java.awt.Font("Inter Light", 0, 16)); // NOI18N
+
+        jLabel8.setFont(new java.awt.Font("Inter Light", 1, 18)); // NOI18N
+        jLabel8.setText("Avaliação");
+
+        avaliacao.setFont(new java.awt.Font("Inter Light", 0, 16)); // NOI18N
+        avaliacao.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "0", "0.5", "1", "1.5", "2", "2.5", "3", "3.5", "4", "4.5", "5" }));
+        avaliacao.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                avaliacaoActionPerformed(evt);
+            }
+        });
+
+        jLabel10.setFont(new java.awt.Font("Inter Light", 1, 18)); // NOI18N
+        jLabel10.setText("Total de avaliações");
+
+        marca.setFont(new java.awt.Font("Inter Light", 0, 16)); // NOI18N
+
+        jLabel11.setFont(new java.awt.Font("Inter Light", 1, 18)); // NOI18N
+        jLabel11.setText("Estoque");
+
+        estoque.setFont(new java.awt.Font("Inter Light", 0, 16)); // NOI18N
+
+        jLabel12.setFont(new java.awt.Font("Inter Light", 1, 18)); // NOI18N
+        jLabel12.setText("Peso (kg)");
+
+        peso.setFont(new java.awt.Font("Inter Light", 0, 16)); // NOI18N
+
+        jLabel13.setFont(new java.awt.Font("Inter Light", 1, 18)); // NOI18N
+        jLabel13.setText("Dimensões");
+
+        dimensoes.setFont(new java.awt.Font("Inter Light", 0, 16)); // NOI18N
+
+        jLabel14.setFont(new java.awt.Font("Inter Light", 1, 18)); // NOI18N
+        jLabel14.setText("Ativo");
+
+        gpAtivo.add(ativoSim);
+        ativoSim.setFont(new java.awt.Font("Inter Light", 1, 14)); // NOI18N
+        ativoSim.setText("Sim");
+        ativoSim.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                ativoSimActionPerformed(evt);
+            }
+        });
+
+        gpAtivo.add(ativoNao);
+        ativoNao.setFont(new java.awt.Font("Inter Light", 1, 14)); // NOI18N
+        ativoNao.setText("Não");
+        ativoNao.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                ativoNaoActionPerformed(evt);
+            }
+        });
+
+        jLabel9.setFont(new java.awt.Font("Inter Light", 1, 18)); // NOI18N
+        jLabel9.setText("Parcelas");
+
+        parcelas.setFont(new java.awt.Font("Inter Light", 0, 16)); // NOI18N
+        parcelas.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", " " }));
+        parcelas.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                parcelasActionPerformed(evt);
+            }
+        });
+
+        jLabel15.setFont(new java.awt.Font("Inter Light", 1, 18)); // NOI18N
+        jLabel15.setText("Categorias");
+
+        categorias.setFont(new java.awt.Font("Inter Light", 0, 16)); // NOI18N
+        categorias.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { " " }));
+
+        jLabel16.setFont(new java.awt.Font("Inter Light", 1, 18)); // NOI18N
+        jLabel16.setText("Imagens (URL)");
+
+        imagem2.setFont(new java.awt.Font("Inter Light", 0, 16)); // NOI18N
+        imagem2.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                imagem2FocusLost(evt);
+            }
+        });
+
+        imagem1.setFont(new java.awt.Font("Inter Light", 0, 16)); // NOI18N
+        imagem1.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                imagem1FocusLost(evt);
+            }
+        });
+
+        btAtualizar.setBackground(new java.awt.Color(102, 255, 51));
+        btAtualizar.setFont(new java.awt.Font("Inter SemiBold", 1, 18)); // NOI18N
+        btAtualizar.setForeground(new java.awt.Color(255, 255, 255));
+        btAtualizar.setText("Atualizar");
+        btAtualizar.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                pesquisaMouseClicked(evt);
+                btAtualizarMouseClicked(evt);
             }
         });
 
-        codigo.setFont(new java.awt.Font("Arial", 0, 20));
-        codigo.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyReleased(java.awt.event.KeyEvent evt) {
-                codigoKeyReleased(evt);
-            }
-        });
-
-        jLabel3.setFont(new java.awt.Font("Arial", 0, 21));
-        jLabel3.setText("Código");
-
-        jLabel11.setFont(new java.awt.Font("Arial", 0, 21));
-        jLabel11.setText("Produto");
-
-        nomeProduto.setFont(new java.awt.Font("Arial", 0, 20));
-        nomeProduto.setDisabledTextColor(new java.awt.Color(51, 51, 51));
-
-        jLabel5.setFont(new java.awt.Font("Arial", 0, 21));
-        jLabel5.setText("Preço:");
-
-        preco.setFont(new java.awt.Font("Arial", 0, 20));
-        preco.setDisabledTextColor(new java.awt.Color(51, 51, 51));
-        preco.setEnabled(false);
-
-        jLabel4.setFont(new java.awt.Font("Arial", 0, 21));
-        jLabel4.setText("Descrição");
-
-        descricao.setColumns(20);
-        descricao.setFont(new java.awt.Font("Arial", 0, 20));
-        descricao.setRows(5);
-        descricao.setDisabledTextColor(new java.awt.Color(51, 51, 51));
-        descricao.setEnabled(false);
-        jScrollPane1.setViewportView(descricao);
-
-        btUltimasVendas.setBackground(new java.awt.Color(204, 204, 255));
-        btUltimasVendas.setFont(new java.awt.Font("Arial", 0, 21));
-        btUltimasVendas.setForeground(new java.awt.Color(51, 51, 51));
-        btUltimasVendas.setText("Últimas vendas");
-        btUltimasVendas.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btUltimasVendasActionPerformed(evt);
-            }
-        });
-
-        seta.setPreferredSize(new java.awt.Dimension(24, 24));
-
-        descricao_curta.setColumns(20);
-        descricao_curta.setFont(new java.awt.Font("Arial", 0, 20));
-        descricao_curta.setRows(5);
-        descricao_curta.setEnabled(false);
-        jScrollPane2.setViewportView(descricao_curta);
-
-        jLabel12.setFont(new java.awt.Font("Arial", 0, 20));
-        jLabel12.setText("Descrição curta");
-
-        jLabel10.setFont(new java.awt.Font("Arial", 0, 20));
-        jLabel10.setText("Promoção");
-
-        prom_sim.setText("Sim");
-        prom_sim.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                prom_simActionPerformed(evt);
-            }
-        });
-
-        prom_nao.setText("Não");
-        prom_nao.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                prom_naoActionPerformed(evt);
-            }
-        });
-
-        jLabel14.setFont(new java.awt.Font("Arial", 0, 20));
-        jLabel14.setText("Preço promocional");
-
-        preco_promocional.setFont(new java.awt.Font("Arial", 0, 20));
-
-        jLabel6.setFont(new java.awt.Font("Arial", 0, 20));
-        jLabel6.setText("Marca:");
-
-        marca.setFont(new java.awt.Font("Arial", 0, 20));
-
-        jLabel15.setFont(new java.awt.Font("Arial", 0, 20));
-        jLabel15.setText("Avaliação");
-
-        avaliacao.setFont(new java.awt.Font("Arial", 0, 20));
-
-        jLabel16.setFont(new java.awt.Font("Arial", 0, 20));
-        jLabel16.setText("Quantidade de avaliações");
-
-        quantidade_avaliacao.setFont(new java.awt.Font("Arial", 0, 20));
-
-        jLabel17.setFont(new java.awt.Font("Arial", 0, 20));
-        jLabel17.setText("Parcelas");
-
-        parcelas.setFont(new java.awt.Font("Arial", 0, 20));
-        parcelas.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12" }));
-
-        peso.setFont(new java.awt.Font("Arial", 0, 20));
-
-        jLabel18.setFont(new java.awt.Font("Arial", 0, 20));
-        jLabel18.setText("Peso (kg)");
-
-        jLabel19.setFont(new java.awt.Font("Arial", 0, 20));
-        jLabel19.setText("Dimensões");
-
-        dimensoes.setFont(new java.awt.Font("Arial", 0, 20));
-
-        jLabel20.setFont(new java.awt.Font("Arial", 0, 20));
-        jLabel20.setText("Ativo");
-
-        ativo_sim.setText("Sim");
-        ativo_sim.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                ativo_simActionPerformed(evt);
-            }
-        });
-
-        ativo_nao.setText("Não");
-        ativo_nao.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                ativo_naoActionPerformed(evt);
-            }
-        });
-
-        estoque.setFont(new java.awt.Font("Arial", 0, 20));
-
-        jLabel7.setFont(new java.awt.Font("Arial", 0, 20));
-        jLabel7.setText("Estoque");
-
-        jLabel9.setFont(new java.awt.Font("Arial", 0, 20));
-        jLabel9.setText("Categoria:");
-
-        categorias.setFont(new java.awt.Font("Arial", 0, 20));
-
-        btCancelar.setBackground(new java.awt.Color(169, 169, 169));
-        btCancelar.setFont(new java.awt.Font("Arial", 0, 20));
+        btCancelar.setBackground(new java.awt.Color(153, 153, 153));
+        btCancelar.setFont(new java.awt.Font("Inter SemiBold", 1, 18)); // NOI18N
         btCancelar.setForeground(new java.awt.Color(255, 255, 255));
         btCancelar.setText("Cancelar");
-        btCancelar.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btCancelarActionPerformed(evt);
+        btCancelar.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                btCancelarMouseClicked(evt);
             }
         });
 
-        btSalvar.setBackground(new java.awt.Color(43, 189, 49));
-        btSalvar.setFont(new java.awt.Font("Arial", 0, 20));
-        btSalvar.setForeground(new java.awt.Color(255, 255, 255));
-        btSalvar.setText("Salvar");
-        btSalvar.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btSalvarActionPerformed(evt);
+        descricaoGeral.setColumns(20);
+        descricaoGeral.setFont(new java.awt.Font("Inter Light", 0, 16)); // NOI18N
+        descricaoGeral.setRows(5);
+        jScrollPane3.setViewportView(descricaoGeral);
+
+        descricaoCurta.setColumns(20);
+        descricaoCurta.setFont(new java.awt.Font("Inter Light", 0, 16)); // NOI18N
+        descricaoCurta.setRows(5);
+        jScrollPane4.setViewportView(descricaoCurta);
+
+        excluirImagem2.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                excluirImagem2MouseClicked(evt);
             }
         });
+
+        excluirImagem1.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                excluirImagem1MouseClicked(evt);
+            }
+        });
+
+        codigo.setFont(new java.awt.Font("Inter Light", 0, 16)); // NOI18N
+        codigo.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                codigoKeyPressed(evt);
+            }
+        });
+
+        jLabel17.setFont(new java.awt.Font("Inter Light", 1, 18)); // NOI18N
+        jLabel17.setText("Cod");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(sem_imagem, javax.swing.GroupLayout.PREFERRED_SIZE, 245, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(seta, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(53, 53, 53)
+                .addGap(24, 24, 24)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addComponent(jLabel16, javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(imagem1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 1234, Short.MAX_VALUE)
+                            .addComponent(imagem2, javax.swing.GroupLayout.Alignment.LEADING))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(excluirImagem2, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(excluirImagem1, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(0, 0, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addGroup(layout.createSequentialGroup()
-                                .addComponent(pesquisar)
-                                .addGap(10, 10, 10)
-                                .addComponent(pesquisa, javax.swing.GroupLayout.PREFERRED_SIZE, 54, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(jLabel11)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(nomeProduto, javax.swing.GroupLayout.DEFAULT_SIZE, 661, Short.MAX_VALUE)))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 78, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(2, 2, 2)
-                                .addComponent(preco, javax.swing.GroupLayout.PREFERRED_SIZE, 136, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                .addComponent(jLabel3)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(codigo, javax.swing.GroupLayout.PREFERRED_SIZE, 99, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel4)
-                            .addComponent(jLabel12)
-                            .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 960, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(0, 0, Short.MAX_VALUE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(jLabel6)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(marca, javax.swing.GroupLayout.PREFERRED_SIZE, 255, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addComponent(jLabel15)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(avaliacao, javax.swing.GroupLayout.PREFERRED_SIZE, 146, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addComponent(jLabel10)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                        .addComponent(prom_sim, javax.swing.GroupLayout.PREFERRED_SIZE, 61, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(prom_nao)))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                        .addComponent(jLabel16)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(quantidade_avaliacao, javax.swing.GroupLayout.PREFERRED_SIZE, 146, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                        .addComponent(jLabel14)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                        .addComponent(preco_promocional, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                            .addGroup(layout.createSequentialGroup()
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addGroup(layout.createSequentialGroup()
+                                        .addComponent(jLabel11)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(estoque, javax.swing.GroupLayout.PREFERRED_SIZE, 102, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                        .addComponent(jLabel14, javax.swing.GroupLayout.PREFERRED_SIZE, 61, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(ativoSim)
+                                        .addGap(18, 18, 18)
+                                        .addComponent(ativoNao))
+                                    .addComponent(imagemProduto, javax.swing.GroupLayout.PREFERRED_SIZE, 346, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGap(18, 18, 18)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(jLabel12)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(peso, javax.swing.GroupLayout.PREFERRED_SIZE, 162, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGap(652, 664, Short.MAX_VALUE))
+                                    .addComponent(jScrollPane3)
+                                    .addComponent(jScrollPane4)
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addComponent(jLabel2)
+                                            .addComponent(jLabel3))
+                                        .addGap(0, 0, Short.MAX_VALUE))
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(jLabel1)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(nomeProduto, javax.swing.GroupLayout.PREFERRED_SIZE, 672, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                         .addComponent(jLabel17)
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(parcelas, javax.swing.GroupLayout.PREFERRED_SIZE, 253, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                        .addComponent(jLabel18))
+                                        .addComponent(codigo, javax.swing.GroupLayout.PREFERRED_SIZE, 86, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jLabel4)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(preco, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(18, 18, 18)
+                                .addComponent(jLabel6)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(promoSim)
+                                .addGap(18, 18, 18)
+                                .addComponent(promoNao)
+                                .addGap(28, 28, 28)
+                                .addComponent(jLabel5)
+                                .addGap(18, 18, 18)
+                                .addComponent(precoPromocional)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jLabel15)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(categorias, javax.swing.GroupLayout.PREFERRED_SIZE, 333, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                                     .addGroup(layout.createSequentialGroup()
-                                        .addComponent(jLabel20)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                        .addComponent(ativo_sim, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addGap(18, 18, 18)
-                                        .addComponent(ativo_nao)
-                                        .addGap(29, 29, 29)
                                         .addComponent(jLabel7)
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(estoque, javax.swing.GroupLayout.PREFERRED_SIZE, 139, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(marca, javax.swing.GroupLayout.PREFERRED_SIZE, 361, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(jLabel9)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                        .addComponent(parcelas, 0, 79, Short.MAX_VALUE)
+                                        .addGap(18, 18, 18)
+                                        .addComponent(jLabel8)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                        .addComponent(avaliacao, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addGap(0, 0, Short.MAX_VALUE)
+                                        .addComponent(jLabel13)
+                                        .addGap(20, 20, 20)))
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addGroup(layout.createSequentialGroup()
-                                        .addComponent(jLabel9)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(categorias, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                        .addComponent(dimensoes, javax.swing.GroupLayout.PREFERRED_SIZE, 496, javax.swing.GroupLayout.PREFERRED_SIZE))
                                     .addGroup(layout.createSequentialGroup()
-                                        .addComponent(peso, javax.swing.GroupLayout.PREFERRED_SIZE, 132, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addGap(18, 18, 18)
-                                        .addComponent(jLabel19)
+                                        .addGap(29, 29, 29)
+                                        .addComponent(jLabel10)
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(dimensoes, javax.swing.GroupLayout.PREFERRED_SIZE, 263, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(btUltimasVendas)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(btSalvar)
-                                .addGap(18, 18, 18)
-                                .addComponent(btCancelar)))
-                        .addGap(0, 0, Short.MAX_VALUE)))
-                .addGap(18, 18, 18))
+                                        .addComponent(totalAvaliacao, javax.swing.GroupLayout.PREFERRED_SIZE, 86, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                        .addGap(18, 18, 18))))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(btAtualizar)
+                .addGap(18, 18, 18)
+                .addComponent(btCancelar)
+                .addGap(37, 37, 37))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(pesquisar)
-                            .addComponent(pesquisa, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                .addComponent(jLabel3)
-                                .addComponent(codigo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addGap(36, 36, 36)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(preco, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel11)
-                            .addComponent(nomeProduto, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel5))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addComponent(jLabel1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                .addComponent(nomeProduto, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(codigo, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(jLabel17, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jLabel4)
+                        .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 114, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jLabel12)
+                        .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                .addComponent(jLabel10)
-                                .addComponent(prom_sim)
-                                .addComponent(prom_nao))
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                .addComponent(preco_promocional, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addComponent(jLabel14)))
-                        .addGap(31, 31, 31)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel6, javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                .addComponent(marca, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addComponent(jLabel15)
-                                .addComponent(avaliacao, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                .addComponent(jLabel16)
-                                .addComponent(quantidade_avaliacao, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addGap(33, 33, 33)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                .addComponent(jLabel17)
-                                .addComponent(parcelas, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(jLabel18)
-                            .addComponent(peso, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel19)
-                            .addComponent(dimensoes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(32, 32, 32)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel20)
-                            .addComponent(ativo_sim)
-                            .addComponent(ativo_nao)
-                            .addComponent(jLabel7)
-                            .addComponent(estoque, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel9)
-                            .addComponent(categorias, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 114, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18))
+                    .addComponent(imagemProduto, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 349, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(sem_imagem, javax.swing.GroupLayout.PREFERRED_SIZE, 270, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(seta, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(promoNao, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(promoSim, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(0, 4, Short.MAX_VALUE))
+                    .addComponent(jLabel15, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(preco, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel5, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(precoPromocional)
+                    .addComponent(categorias))
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(btUltimasVendas, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(btCancelar)
-                        .addComponent(btSalvar)))
-                .addContainerGap(25, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(jLabel13, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(dimensoes, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(jLabel12, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(peso, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(jLabel11, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(estoque, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addComponent(jLabel14, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addComponent(ativoNao, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(ativoSim, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGap(12, 12, 12)))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                .addComponent(jLabel9, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(parcelas, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(marca, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                .addComponent(jLabel8, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(avaliacao, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jLabel10, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(totalAvaliacao, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabel16, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(excluirImagem1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(imagem1, javax.swing.GroupLayout.DEFAULT_SIZE, 40, Short.MAX_VALUE))
+                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(imagem2, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(excluirImagem2, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btAtualizar, javax.swing.GroupLayout.PREFERRED_SIZE, 46, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btCancelar, javax.swing.GroupLayout.PREFERRED_SIZE, 46, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(12, 12, 12))
         );
 
         pack();
-    }
+    }// </editor-fold>//GEN-END:initComponents
 
-    private void codigoKeyReleased(java.awt.event.KeyEvent evt) {
+    private void promoNaoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_promoNaoActionPerformed
+        promocao = false;
+        precoPromocional.setEnabled(false);
+        precoPromocional.setText("");
+    }//GEN-LAST:event_promoNaoActionPerformed
+
+    private void ativoNaoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ativoNaoActionPerformed
+        produtoAtivo = false;
+        System.out.println("produtoAtivo = " + produtoAtivo);
+    }//GEN-LAST:event_ativoNaoActionPerformed
+
+    private void promoSimActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_promoSimActionPerformed
+        promocao = true;
+        precoPromocional.setEnabled(true);
+        precoPromocional.setText("");
+        System.out.println("promoção = " + promocao);
+    }//GEN-LAST:event_promoSimActionPerformed
+
+    private void ativoSimActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ativoSimActionPerformed
+        produtoAtivo = true;
+        System.out.println("produtoAtivo = " + produtoAtivo);
+    }//GEN-LAST:event_ativoSimActionPerformed
+
+    private void avaliacaoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_avaliacaoActionPerformed
+        campoAvaliacao = avaliacao.getSelectedItem().toString();
+        System.out.println("campoAvaliacao = " + campoAvaliacao);
+    }//GEN-LAST:event_avaliacaoActionPerformed
+
+    private void parcelasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_parcelasActionPerformed
+        campoParcelas = parcelas.getSelectedItem().toString();
+        System.out.println("campoParcelas = " + campoParcelas);
+    }//GEN-LAST:event_parcelasActionPerformed
+
+    private void imagem1FocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_imagem1FocusLost
+        carregarImagemURL(imagem1);
+    }//GEN-LAST:event_imagem1FocusLost
+
+    private void imagem2FocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_imagem2FocusLost
+        carregarImagemURL(imagem2);
+    }//GEN-LAST:event_imagem2FocusLost
+
+    private void excluirImagem1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_excluirImagem1MouseClicked
+        imagem1.setText("");
+        if (!imagem2.getText().isBlank()) {
+            imagem1.setText(imagem2.getText());
+            imagem2.setText("");
+        }
+    }//GEN-LAST:event_excluirImagem1MouseClicked
+
+    private void excluirImagem2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_excluirImagem2MouseClicked
+        if (!imagem1.getText().isBlank()) {
+            imagem1.setText(imagem2.getText());
+            imagem2.setText("");
+        } else {
+            imagem2.setText("");
+        }
+    }//GEN-LAST:event_excluirImagem2MouseClicked
+
+    private void btAtualizarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btAtualizarMouseClicked
+        atualizarProduto();
+    }//GEN-LAST:event_btAtualizarMouseClicked
+
+    private void btCancelarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btCancelarMouseClicked
+        limpar();
+    }//GEN-LAST:event_btCancelarMouseClicked
+
+    private void nomeProdutoKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_nomeProdutoKeyReleased
+        nomeProdutoCaixaDeNomes(nomeProduto);
+    }//GEN-LAST:event_nomeProdutoKeyReleased
+
+    private void codigoKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_codigoKeyPressed
         if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
-            carregarProduto(SELECT_PRODUCT_BY_ID, codigo.getText());
+            carregarProduto(pesquisarPorId, codigo.getText());
         }
-    }
+    }//GEN-LAST:event_codigoKeyPressed
 
-    private void btUltimasVendasActionPerformed(java.awt.event.ActionEvent evt) {
-        LOGGER.info("Botão 'Últimas Vendas' clicado. Aguardando implementação.");
-        // TODO add your handling code here:
-    }
 
-    private void pesquisarKeyReleased(java.awt.event.KeyEvent evt) {
-        String pesquisa = pesquisar.getText().toLowerCase();
-        LOGGER.info("Filtrando produtos com texto: " + pesquisa);
-        sugestoesProdutos.setVisible(false);
-        seta.setVisible(true);
-        if (!pesquisa.isEmpty()) {
-            List<String> filtro = produtos.stream()
-                    .filter(produto -> produto.toLowerCase().contains(pesquisa))
-                    .collect(Collectors.toList());
-
-            if (!filtro.isEmpty()) {
-                sugestoesProdutos.removeAll();
-                for (String p : filtro) {
-                    JMenuItem item = new JMenuItem(p);
-                    item.setFont(fonteItem);
-                    item.addActionListener(e -> {
-                        pesquisar.setText(p);
-                        sugestoesProdutos.setVisible(false);
-                        LOGGER.info("Produto selecionado nas sugestões: " + p);
-                        pesquisaMouseClicked(null);
-                    });
-                    sugestoesProdutos.add(item);
-                }
-                sugestoesProdutos.show(pesquisar, 0, pesquisar.getHeight());
-            }
-        }
-    }
-
-    private void pesquisaMouseClicked(java.awt.event.MouseEvent evt) {
-        carregarProduto(SELECT_PRODUCT_BY_NAME, pesquisar.getText());
-    }
-
-    private void prom_simActionPerformed(java.awt.event.ActionEvent evt) {
-        LOGGER.info("Promoção marcada como 'Sim'.");
-        Promocao = true;
-        preco_promocional.setEnabled(true);
-    }
-
-    private void prom_naoActionPerformed(java.awt.event.ActionEvent evt) {
-        LOGGER.info("Promoção marcada como 'Não'.");
-        Promocao = false;
-        preco_promocional.setEnabled(false);
-    }
-
-    private void ativo_simActionPerformed(java.awt.event.ActionEvent evt) {
-        LOGGER.info("Produto marcado como 'Ativo'.");
-        Ativo = true;
-    }
-
-    private void ativo_naoActionPerformed(java.awt.event.ActionEvent evt) {
-        LOGGER.info("Produto marcado como 'Inativo'.");
-        Ativo = false;
-    }
-
-    private void nomeProdutoKeyReleased(java.awt.event.KeyEvent evt) {
-        atualizarMascara();
-    }
-
-    private void btSalvarActionPerformed(java.awt.event.ActionEvent evt) {
-        LOGGER.info("Salvando alterações do produto: " + nomeProduto.getText());
-        if (id_produto == null || id_produto.isEmpty()) {
-            JOptionPane.showMessageDialog(null, "Nenhum produto selecionado para edição.");
-            return;
-        }
-
-        // Validação dos campos obrigatórios
-        if (nomeProduto.getText().isEmpty() || preco.getText().isEmpty()
-                || descricao.getText().isEmpty() || estoque.getText().isEmpty()
-                || categorias.getSelectedItem() == null) {
-            JOptionPane.showMessageDialog(null, "Preencha todos os campos obrigatórios: Nome, Preço, Descrição, Estoque e Categoria.");
-            return;
-        }
-
-        // Validação de formatos numéricos
-        try {
-            if (!preco.getText().isEmpty()) {
-                NumberFormat.getCurrencyInstance().parse(preco.getText()).doubleValue();
-            }
-            if (Promocao && !preco_promocional.getText().isEmpty()) {
-                NumberFormat.getCurrencyInstance().parse(preco_promocional.getText()).doubleValue();
-            }
-            if (!avaliacao.getText().isEmpty()) {
-                Double.parseDouble(avaliacao.getText());
-            }
-            if (!quantidade_avaliacao.getText().isEmpty()) {
-                Integer.parseInt(quantidade_avaliacao.getText());
-            }
-            if (!estoque.getText().isEmpty()) {
-                Integer.parseInt(estoque.getText());
-            }
-            if (!peso.getText().isEmpty()) {
-                Double.parseDouble(peso.getText());
-            }
-        } catch (ParseException | NumberFormatException e) {
-            LOGGER.severe("Erro nos formatos de número: " + e.getMessage());
-            JOptionPane.showMessageDialog(null, "Verifique os formatos de preço, avaliação, quantidade de avaliações, estoque ou peso.");
-            return;
-        }
-
-        try (Connection con = Conexao.conexaoBanco(); PreparedStatement stmt = con.prepareStatement(UPDATE_PRODUCT)) {
-            stmt.setString(1, nomeProduto.getText());
-            stmt.setString(2, descricao.getText());
-            stmt.setString(3, descricao_curta.getText());
-
-            // Converte preço
-            double precoValue = NumberFormat.getCurrencyInstance().parse(preco.getText()).doubleValue();
-            stmt.setDouble(4, precoValue);
-
-            // Converte preço promocional
-            if (Promocao && !preco_promocional.getText().isEmpty()) {
-                double precoPromocionalValue = NumberFormat.getCurrencyInstance().parse(preco_promocional.getText()).doubleValue();
-                stmt.setDouble(5, precoPromocionalValue);
-            } else {
-                stmt.setNull(5, java.sql.Types.DECIMAL);
-            }
-
-            stmt.setBoolean(6, Promocao);
-            stmt.setString(7, marca.getText().isEmpty() ? null : marca.getText());
-
-            // Converte avaliação
-            if (!avaliacao.getText().isEmpty()) {
-                stmt.setDouble(8, Double.parseDouble(avaliacao.getText()));
-            } else {
-                stmt.setNull(8, java.sql.Types.DECIMAL);
-            }
-
-            // Converte quantidade de avaliações
-            stmt.setInt(9, Integer.parseInt(quantidade_avaliacao.getText().isEmpty() ? "0" : quantidade_avaliacao.getText()));
-
-            // Converte estoque
-            stmt.setInt(10, Integer.parseInt(estoque.getText()));
-
-            // Converte parcelas
-            stmt.setInt(11, Integer.parseInt((String) parcelas.getSelectedItem()));
-
-            // Converte peso
-            if (!peso.getText().isEmpty()) {
-                stmt.setDouble(12, Double.parseDouble(peso.getText()));
-            } else {
-                stmt.setNull(12, java.sql.Types.DECIMAL);
-            }
-
-            stmt.setString(13, dimensoes.getText().isEmpty() ? null : dimensoes.getText());
-            stmt.setBoolean(14, Ativo);
-            stmt.setString(15, (String) categorias.getSelectedItem());
-            stmt.setString(16, id_produto);
-
-            int rowsAffected = stmt.executeUpdate();
-            if (rowsAffected > 0) {
-                LOGGER.info("Produto atualizado com sucesso: " + id_produto);
-                JOptionPane.showMessageDialog(null, "Produto atualizado com sucesso!");
-                btCancelarActionPerformed(null);
-            } else {
-                LOGGER.warning("Nenhuma alteração realizada para o produto: " + id_produto);
-                JOptionPane.showMessageDialog(null, "Nenhuma alteração realizada.");
-            }
-        } catch (SQLException e) {
-            LOGGER.severe("Erro ao atualizar produto: " + e.getMessage());
-            JOptionPane.showMessageDialog(null, ERROR_DB_CONNECTION + e.getMessage());
-        } catch (ParseException e) {
-            LOGGER.severe("Erro ao converter valores numéricos: " + e.getMessage());
-            JOptionPane.showMessageDialog(null, "Erro nos valores de preço, avaliação ou peso.");
-        }
-    }
-
-    private void btCancelarActionPerformed(java.awt.event.ActionEvent evt) {
-        LOGGER.info("Cancelando e limpando campos da interface.");
-        id_produto = null;
-        codigo.setText("");
-        pesquisar.setText("");
-        nomeProduto.setText("");
-        preco.setText("");
-        preco_promocional.setText("");
-        prom_sim.setSelected(false);
-        prom_nao.setSelected(false);
-        preco_promocional.setEnabled(false);
-        descricao.setText("");
-        descricao_curta.setText("");
-        marca.setText("");
-        avaliacao.setText("");
-        quantidade_avaliacao.setText("");
-        estoque.setText("");
-        parcelas.setSelectedIndex(0);
-        peso.setText("");
-        dimensoes.setText("");
-        categorias.setSelectedIndex(-1);
-        ativo_sim.setSelected(false);
-        ativo_nao.setSelected(false);
-        sem_imagem.setIcon(sem_imagem());
-        seta.setVisible(false);
-        slide.stop();
-
-        // Desabilita campos
-        nomeProduto.setEnabled(false);
-        preco.setEnabled(false);
-        preco_promocional.setEnabled(false);
-        descricao.setEnabled(false);
-        descricao_curta.setEnabled(false);
-        marca.setEnabled(false);
-        avaliacao.setEnabled(false);
-        quantidade_avaliacao.setEnabled(false);
-        estoque.setEnabled(false);
-        parcelas.setEnabled(false);
-        peso.setEnabled(false);
-        dimensoes.setEnabled(false);
-        categorias.setEnabled(false);
-        prom_sim.setEnabled(false);
-        prom_nao.setEnabled(false);
-        ativo_sim.setEnabled(false);
-        ativo_nao.setEnabled(false);
-    }
-
-    // Variables declaration
-    private javax.swing.JRadioButton ativo_nao;
-    private javax.swing.JRadioButton ativo_sim;
-    private javax.swing.JTextField avaliacao;
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JRadioButton ativoNao;
+    private javax.swing.JRadioButton ativoSim;
+    private javax.swing.JComboBox<String> avaliacao;
+    private javax.swing.JButton btAtualizar;
     private javax.swing.JButton btCancelar;
-    private javax.swing.JButton btSalvar;
-    private javax.swing.JButton btUltimasVendas;
     private javax.swing.JComboBox<String> categorias;
     private javax.swing.JTextField codigo;
-    private javax.swing.JTextArea descricao;
-    private javax.swing.JTextArea descricao_curta;
+    private javax.swing.JTextArea descricaoCurta;
+    private javax.swing.JTextArea descricaoGeral;
     private javax.swing.JTextField dimensoes;
     private javax.swing.JTextField estoque;
+    private javax.swing.JLabel excluirImagem1;
+    private javax.swing.JLabel excluirImagem2;
+    private javax.swing.ButtonGroup gpAtivo;
+    private javax.swing.ButtonGroup gpPromocao;
+    private javax.swing.JTextField imagem1;
+    private javax.swing.JTextField imagem2;
+    private javax.swing.JLabel imagemProduto;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
+    private javax.swing.JLabel jLabel13;
     private javax.swing.JLabel jLabel14;
     private javax.swing.JLabel jLabel15;
     private javax.swing.JLabel jLabel16;
     private javax.swing.JLabel jLabel17;
-    private javax.swing.JLabel jLabel18;
-    private javax.swing.JLabel jLabel19;
-    private javax.swing.JLabel jLabel20;
+    private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
-    private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JTextField marca;
     private javax.swing.JTextField nomeProduto;
     private javax.swing.JComboBox<String> parcelas;
     private javax.swing.JTextField peso;
-    private javax.swing.JLabel pesquisa;
-    private javax.swing.JTextField pesquisar;
     private javax.swing.JTextField preco;
-    private javax.swing.JTextField preco_promocional;
-    private javax.swing.JRadioButton prom_nao;
-    private javax.swing.JRadioButton prom_sim;
-    private javax.swing.JTextField quantidade_avaliacao;
-    private javax.swing.JLabel sem_imagem;
-    private javax.swing.JLabel seta;
+    private javax.swing.JTextField precoPromocional;
+    private javax.swing.JRadioButton promoNao;
+    private javax.swing.JRadioButton promoSim;
+    private javax.swing.JTextField totalAvaliacao;
+    // End of variables declaration//GEN-END:variables
 }

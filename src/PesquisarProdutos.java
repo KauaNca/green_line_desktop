@@ -9,6 +9,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import javax.swing.ImageIcon;
 import java.sql.Connection;
@@ -26,6 +27,7 @@ import javax.swing.SwingUtilities;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.swing.JMenuItem;
+import javax.swing.JTextField;
 
 /**
  * JInternalFrame para pesquisa de produtos no sistema. Permite buscar produtos
@@ -45,16 +47,16 @@ public class PesquisarProdutos extends javax.swing.JInternalFrame {
     private static final String PRODUCT_IMAGE_PATH = "imagens/produtos/";
     private static final String RIGHT_ARROW_PATH = "imagens/seta-direita.png";
     private static final String SEARCH_ICON_PATH = "imagens/lupa.png";
-    private static final String SELECT_PRODUCT_BY_ID = "SELECT id_produto, produto, descricao, descricao_curta, preco, preco_promocional, promocao, marca, estoque, ativo, imagem_1, imagem_2, imagem_3, imagem_4, categoria FROM produto WHERE id_produto = ? AND ativo = TRUE";
-    private static final String SELECT_PRODUCT_BY_NAME = "SELECT id_produto, produto, descricao, descricao_curta, preco, preco_promocional, promocao, marca, estoque, ativo, imagem_1, imagem_2, imagem_3, imagem_4, categoria FROM produto WHERE produto = ? AND ativo = TRUE";
+    private static final String SELECT_PRODUCT_BY_ID = "SELECT id_produto, produto, descricao, descricao_curta, preco, preco_promocional, promocao, marca, estoque, ativo, imagem_1, imagem_2, categoria FROM produto WHERE id_produto = ? AND ativo = TRUE";
+    private static final String SELECT_PRODUCT_BY_NAME = "SELECT id_produto, produto, descricao, descricao_curta, preco, preco_promocional, promocao, marca, estoque, ativo, imagem_1, imagem_2, categoria FROM produto WHERE produto = ? AND ativo = TRUE";
     private static final String ERROR_DB_CONNECTION = "Erro ao conectar ao banco de dados: ";
     private static final String ERROR_GENERIC = "Erro: ";
+    Funcoes funcoes = new Funcoes();
 
     // Variáveis de estado
     private int contagem = 0;
     private File arquivo;
     private boolean atualizandoMascara = false;
-    private String[] enderecosImagens = new String[4]; // Suporta até 4 imagens
     private String id_produto;
     private String Produto;
     private String Preco;
@@ -69,38 +71,7 @@ public class PesquisarProdutos extends javax.swing.JInternalFrame {
     private final JPopupMenu sugestoesProdutos = new JPopupMenu();
     private List<String> produtos;
     private final Font fonteItem = new Font("Arial", Font.PLAIN, 15);
-
-    // Timer para slideshow de imagens
-    private final Timer slide = new Timer(1000, new ActionListener() {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            LOGGER.info("Alternando imagem no slideshow. Contagem: " + contagem);
-            // Filtra imagens não nulas
-            List<String> imagensValidas = new ArrayList<>();
-            for (String img : enderecosImagens) {
-                if (img != null && !img.isEmpty()) {
-                    imagensValidas.add(img);
-                }
-            }
-            if (imagensValidas.isEmpty()) {
-                LOGGER.warning("Nenhuma imagem válida para o slideshow.");
-                slide.stop();
-                return;
-            }
-
-            // Lógica para alternar as imagens
-            contagem = (contagem + 1) % imagensValidas.size();
-            ImageIcon proximaImagem = new ImageIcon(PRODUCT_IMAGE_PATH + imagensValidas.get(contagem));
-
-            if (proximaImagem.getIconWidth() == -1) {
-                LOGGER.warning("Imagem não encontrada: " + imagensValidas.get(contagem));
-                slide.stop();
-            } else {
-                sem_imagem.setIcon(redimensionamentoDeImagem(proximaImagem, 250, 216));
-                slide.stop();
-            }
-        }
-    });
+    String imagem1;
 
     /**
      * Construtor da classe PesquisarProdutos. Inicializa a interface, configura
@@ -111,24 +82,6 @@ public class PesquisarProdutos extends javax.swing.JInternalFrame {
         Inicio();
         nomesProdutos();
 
-        // Adiciona listener para clique na seta do slideshow
-        seta.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                List<String> imagensValidas = new ArrayList<>();
-                for (String img : enderecosImagens) {
-                    if (img != null && !img.isEmpty()) {
-                        imagensValidas.add(img);
-                    }
-                }
-                if (!imagensValidas.isEmpty()) {
-                    LOGGER.info("Iniciando slideshow de imagens.");
-                    slide.start();
-                } else {
-                    LOGGER.warning("Nenhuma imagem válida para iniciar o slideshow.");
-                }
-            }
-        });
     }
 
     /**
@@ -149,6 +102,27 @@ public class PesquisarProdutos extends javax.swing.JInternalFrame {
         } catch (SQLException ex) {
             LOGGER.severe("Erro ao carregar nomes dos produtos: " + ex.getMessage());
             JOptionPane.showMessageDialog(null, ERROR_DB_CONNECTION + ex.getMessage());
+        }
+    }
+
+    public void carregarImagemURL(String campo) {
+
+        String imageUrl = campo.trim();
+        if (imageUrl.isEmpty() || !imageUrl.contains("http")) {
+            return;
+        }
+        funcoes.mostrarMensagemCarregando();
+        System.out.println("Carregando imagem de URL para o campo: " + campo + " " + imageUrl);
+        try {
+            URL url = new URL(imageUrl);
+            BufferedImage image = ImageIO.read(url);
+            if (image != null) {
+                sem_imagem.setIcon(redimensionamentoDeImagem(new ImageIcon(image), 346, 349));
+            } else {
+                funcoes.Avisos("aviso.jpg", "Imagem inválida. Tente outra URL.");
+            }
+        } catch (IOException e) {
+            funcoes.Avisos("erro.png", "Falha ao carregar URL. Tente novamente.");
         }
     }
 
@@ -173,9 +147,7 @@ public class PesquisarProdutos extends javax.swing.JInternalFrame {
         ativo_nao.setEnabled(false);
         // Configura ícones
         sem_imagem.setIcon(sem_imagem());
-        seta.setIcon(new ImageIcon(RIGHT_ARROW_PATH));
         pesquisa.setIcon(new ImageIcon(SEARCH_ICON_PATH));
-        seta.setVisible(false);
     }
 
     /**
@@ -245,7 +217,6 @@ public class PesquisarProdutos extends javax.swing.JInternalFrame {
         jLabel9 = new javax.swing.JLabel();
         categoria = new javax.swing.JTextField();
         btCancelar = new javax.swing.JButton();
-        seta = new javax.swing.JLabel();
         jScrollPane2 = new javax.swing.JScrollPane();
         descricao_curta = new javax.swing.JTextArea();
         jLabel12 = new javax.swing.JLabel();
@@ -267,7 +238,12 @@ public class PesquisarProdutos extends javax.swing.JInternalFrame {
 
         sem_imagem.setBackground(new java.awt.Color(255, 255, 255));
 
-        pesquisar.setFont(new java.awt.Font("Arial", 0, 20)); // NOI18N
+        pesquisar.setFont(new java.awt.Font("Inter Light", 0, 16)); // NOI18N
+        pesquisar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                pesquisarActionPerformed(evt);
+            }
+        });
         pesquisar.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyReleased(java.awt.event.KeyEvent evt) {
                 pesquisarKeyReleased(evt);
@@ -280,7 +256,7 @@ public class PesquisarProdutos extends javax.swing.JInternalFrame {
             }
         });
 
-        codigo.setFont(new java.awt.Font("Arial", 0, 20)); // NOI18N
+        codigo.setFont(new java.awt.Font("Inter Light", 0, 16)); // NOI18N
         codigo.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyReleased(java.awt.event.KeyEvent evt) {
                 codigoKeyReleased(evt);
@@ -293,13 +269,13 @@ public class PesquisarProdutos extends javax.swing.JInternalFrame {
         jLabel11.setFont(new java.awt.Font("Arial", 0, 21)); // NOI18N
         jLabel11.setText("Produto");
 
-        nomeProduto.setFont(new java.awt.Font("Arial", 0, 20)); // NOI18N
+        nomeProduto.setFont(new java.awt.Font("Inter Light", 0, 16)); // NOI18N
         nomeProduto.setDisabledTextColor(new java.awt.Color(51, 51, 51));
 
         jLabel5.setFont(new java.awt.Font("Arial", 0, 21)); // NOI18N
         jLabel5.setText("Preço:");
 
-        preco.setFont(new java.awt.Font("Arial", 0, 20)); // NOI18N
+        preco.setFont(new java.awt.Font("Inter Light", 0, 16)); // NOI18N
         preco.setDisabledTextColor(new java.awt.Color(51, 51, 51));
         preco.setEnabled(false);
 
@@ -316,11 +292,11 @@ public class PesquisarProdutos extends javax.swing.JInternalFrame {
         jLabel6.setFont(new java.awt.Font("Arial", 0, 21)); // NOI18N
         jLabel6.setText("Marca");
 
-        marca.setFont(new java.awt.Font("Arial", 0, 20)); // NOI18N
+        marca.setFont(new java.awt.Font("Inter Light", 0, 16)); // NOI18N
         marca.setDisabledTextColor(new java.awt.Color(51, 51, 51));
         marca.setEnabled(false);
 
-        estoque.setFont(new java.awt.Font("Arial", 0, 20)); // NOI18N
+        estoque.setFont(new java.awt.Font("Inter Light", 0, 16)); // NOI18N
         estoque.setDisabledTextColor(new java.awt.Color(51, 51, 51));
         estoque.setEnabled(false);
 
@@ -340,7 +316,7 @@ public class PesquisarProdutos extends javax.swing.JInternalFrame {
         jLabel9.setFont(new java.awt.Font("Arial", 0, 21)); // NOI18N
         jLabel9.setText("Categoria");
 
-        categoria.setFont(new java.awt.Font("Arial", 0, 20)); // NOI18N
+        categoria.setFont(new java.awt.Font("Inter Light", 0, 16)); // NOI18N
         categoria.setDisabledTextColor(new java.awt.Color(51, 51, 51));
         categoria.setEnabled(false);
 
@@ -354,8 +330,6 @@ public class PesquisarProdutos extends javax.swing.JInternalFrame {
             }
         });
 
-        seta.setPreferredSize(new java.awt.Dimension(24, 24));
-
         descricao_curta.setColumns(20);
         descricao_curta.setFont(new java.awt.Font("Arial", 0, 20)); // NOI18N
         descricao_curta.setRows(5);
@@ -368,7 +342,7 @@ public class PesquisarProdutos extends javax.swing.JInternalFrame {
         jLabel13.setFont(new java.awt.Font("Arial", 0, 20)); // NOI18N
         jLabel13.setText("Preço promocional");
 
-        preco_promocional.setFont(new java.awt.Font("Arial", 0, 20)); // NOI18N
+        preco_promocional.setFont(new java.awt.Font("Inter Light", 0, 16)); // NOI18N
         preco_promocional.setEnabled(false);
 
         jLabel8.setFont(new java.awt.Font("Arial", 0, 20)); // NOI18N
@@ -411,10 +385,8 @@ public class PesquisarProdutos extends javax.swing.JInternalFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(sem_imagem, javax.swing.GroupLayout.PREFERRED_SIZE, 245, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(seta, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(53, 53, 53)
+                .addComponent(sem_imagem, javax.swing.GroupLayout.PREFERRED_SIZE, 343, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
@@ -425,7 +397,7 @@ public class PesquisarProdutos extends javax.swing.JInternalFrame {
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(jLabel11)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(nomeProduto, javax.swing.GroupLayout.DEFAULT_SIZE, 516, Short.MAX_VALUE)))
+                                .addComponent(nomeProduto, javax.swing.GroupLayout.DEFAULT_SIZE, 511, Short.MAX_VALUE)))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
@@ -443,16 +415,16 @@ public class PesquisarProdutos extends javax.swing.JInternalFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(ativo_sim, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(ativo_nao)
-                        .addGap(28, 28, 28)
+                        .addComponent(ativo_nao, javax.swing.GroupLayout.PREFERRED_SIZE, 64, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(jLabel8)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(prom_sim, javax.swing.GroupLayout.PREFERRED_SIZE, 53, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(prom_nao)
-                        .addGap(18, 18, 18)
-                        .addComponent(jLabel13)
+                        .addComponent(prom_nao, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jLabel13)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(preco_promocional))
                     .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
@@ -486,9 +458,7 @@ public class PesquisarProdutos extends javax.swing.JInternalFrame {
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(sem_imagem, javax.swing.GroupLayout.PREFERRED_SIZE, 270, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(seta, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(sem_imagem, javax.swing.GroupLayout.PREFERRED_SIZE, 343, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
@@ -514,13 +484,12 @@ public class PesquisarProdutos extends javax.swing.JInternalFrame {
                         .addGap(18, 18, 18)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                .addComponent(prom_sim)
-                                .addComponent(prom_nao))
-                            .addComponent(ativo_sim)
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                                 .addComponent(jLabel20)
                                 .addComponent(jLabel8)
-                                .addComponent(ativo_nao))
+                                .addComponent(ativo_nao)
+                                .addComponent(ativo_sim)
+                                .addComponent(prom_sim)
+                                .addComponent(prom_nao))
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                                 .addComponent(preco_promocional, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addComponent(jLabel13)))
@@ -542,7 +511,7 @@ public class PesquisarProdutos extends javax.swing.JInternalFrame {
                             .addGroup(layout.createSequentialGroup()
                                 .addGap(38, 38, 38)
                                 .addComponent(btCancelar)))
-                        .addGap(134, 134, 134))))
+                        .addGap(33, 33, 33))))
         );
 
         pack();
@@ -555,7 +524,6 @@ public class PesquisarProdutos extends javax.swing.JInternalFrame {
      */
     private void codigoKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_codigoKeyReleased
         if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
-            seta.setVisible(true);
             try (Connection con = Conexao.conexaoBanco(); PreparedStatement stmt = con.prepareStatement(SELECT_PRODUCT_BY_ID)) {
                 stmt.setString(1, codigo.getText());
                 try (ResultSet rs = stmt.executeQuery()) {
@@ -572,10 +540,9 @@ public class PesquisarProdutos extends javax.swing.JInternalFrame {
                         Estoque = rs.getString("estoque");
                         Categoria = rs.getString("categoria");
                         Ativo = rs.getBoolean("ativo");
-                        enderecosImagens[0] = rs.getString("imagem_1");
-                        enderecosImagens[1] = rs.getString("imagem_2");
-                        enderecosImagens[2] = rs.getString("imagem_3");
-                        enderecosImagens[3] = rs.getString("imagem_4");
+                        imagem1 = rs.getString("imagem_1");
+
+                        carregarImagemURL(imagem1);
 
                         // Atualiza campos na interface
                         codigo.setText(id_produto);
@@ -593,28 +560,9 @@ public class PesquisarProdutos extends javax.swing.JInternalFrame {
                         ativo_sim.setSelected(Ativo);
                         ativo_nao.setSelected(!Ativo);
 
-                        // Exibe a primeira imagem redimensionada
-                        if (enderecosImagens[0] != null && !enderecosImagens[0].isEmpty()) {
-                            if (enderecosImagens[0].contains("http")) {
-                                URL url = new URL(enderecosImagens[0]);
-                                BufferedImage image = ImageIO.read(url);
-
-                                Image imagemRedimensionada = image.getScaledInstance(245, 270, Image.SCALE_SMOOTH);
-                                sem_imagem.setIcon(redimensionamentoDeImagem(
-                                        new ImageIcon(imagemRedimensionada), 245, 270));
-                                LOGGER.info("Imagem do produto carregada: " + enderecosImagens[0]);
-                            } else {
-                                sem_imagem.setIcon(redimensionamentoDeImagem(
-                                        new ImageIcon(PRODUCT_IMAGE_PATH + enderecosImagens[0]), 245, 270));
-                                LOGGER.info("Imagem do produto carregada: " + enderecosImagens[0]);
-                            }
-
-                        } else {
-                            sem_imagem.setIcon(sem_imagem());
-                        }
                     } else {
                         LOGGER.warning("Produto não encontrado para o nome: " + pesquisar.getText());
-                        new CadastroProduto().Avisos("imagens/erro.png", "Produto não encontrado");
+                        funcoes.Avisos("erro.png", "Produto não encontrado");
                     }
                 }
             } catch (SQLException e) {
@@ -650,7 +598,7 @@ public class PesquisarProdutos extends javax.swing.JInternalFrame {
         String pesquisa = pesquisar.getText().toLowerCase();
         LOGGER.info("Filtrando produtos com texto: " + pesquisa);
         sugestoesProdutos.setVisible(false);
-        seta.setVisible(true);
+
         if (!pesquisa.isEmpty()) {
             // Filtra a lista usando Streams
             List<String> filtro = produtos.stream()
@@ -701,10 +649,9 @@ public class PesquisarProdutos extends javax.swing.JInternalFrame {
                     Estoque = rs.getString("estoque");
                     Categoria = rs.getString("categoria");
                     Ativo = rs.getBoolean("ativo");
-                    enderecosImagens[0] = rs.getString("imagem_1");
-                    enderecosImagens[1] = rs.getString("imagem_2");
-                    enderecosImagens[2] = rs.getString("imagem_3");
-                    enderecosImagens[3] = rs.getString("imagem_4");
+                    imagem1 = rs.getString("imagem_1");
+
+                    carregarImagemURL(imagem1);
 
                     // Atualiza campos na interface
                     codigo.setText(id_produto);
@@ -722,28 +669,9 @@ public class PesquisarProdutos extends javax.swing.JInternalFrame {
                     ativo_sim.setSelected(Ativo);
                     ativo_nao.setSelected(!Ativo);
 
-                    // Exibe a primeira imagem redimensionada
-                    if (enderecosImagens[0] != null && !enderecosImagens[0].isEmpty()) {
-                        if (enderecosImagens[0].contains("http")) {
-                            URL url = new URL(enderecosImagens[0]);
-                            BufferedImage image = ImageIO.read(url);
-
-                            Image imagemRedimensionada = image.getScaledInstance(245, 270, Image.SCALE_SMOOTH);
-                            sem_imagem.setIcon(redimensionamentoDeImagem(
-                                    new ImageIcon(imagemRedimensionada), 245, 270));
-                            LOGGER.info("Imagem do produto carregada: " + enderecosImagens[0]);
-                        } else {
-                            sem_imagem.setIcon(redimensionamentoDeImagem(
-                                    new ImageIcon(PRODUCT_IMAGE_PATH + enderecosImagens[0]), 245, 270));
-                            LOGGER.info("Imagem do produto carregada: " + enderecosImagens[0]);
-                        }
-
-                    } else {
-                        sem_imagem.setIcon(sem_imagem());
-                    }
                 } else {
                     LOGGER.warning("Produto não encontrado para o nome: " + pesquisar.getText());
-                    new CadastroProduto().Avisos("imagens/erro.png", "Produto não encontrado");
+                    funcoes.Avisos("erro.png", "Produto não encontrado");
                 }
             }
         } catch (SQLException e) {
@@ -780,7 +708,6 @@ public class PesquisarProdutos extends javax.swing.JInternalFrame {
         ativo_sim.setSelected(false);
         ativo_nao.setSelected(false);
         sem_imagem.setIcon(sem_imagem());
-        seta.setVisible(false);
 
 
     }//GEN-LAST:event_btCancelarActionPerformed
@@ -812,6 +739,10 @@ public class PesquisarProdutos extends javax.swing.JInternalFrame {
         Ativo = false;
 
     }//GEN-LAST:event_ativo_naoActionPerformed
+
+    private void pesquisarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_pesquisarActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_pesquisarActionPerformed
     /**
      * Ação executada ao liberar uma tecla no campo de nome do produto. Aplica a
      * máscara ao texto inserido.
@@ -853,7 +784,6 @@ public class PesquisarProdutos extends javax.swing.JInternalFrame {
     private javax.swing.JRadioButton prom_nao;
     private javax.swing.JRadioButton prom_sim;
     private javax.swing.JLabel sem_imagem;
-    private javax.swing.JLabel seta;
     // End of variables declaration//GEN-END:variables
 
 }

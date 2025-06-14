@@ -28,6 +28,7 @@ public class CadastroCategoria extends javax.swing.JInternalFrame {
     private final DefaultTableModel modeloTabela;
     private final Font font = TABLE_FONT;
     private final Font headerFont = HEADER_FONT;
+    Funcoes funcoes = new Funcoes();
 
     public CadastroCategoria() {
         initComponents();
@@ -45,7 +46,7 @@ public class CadastroCategoria extends javax.swing.JInternalFrame {
         header.setFont(headerFont);
 
         // Aplicando filtro de entrada ao campo nomeCategoria
-        //new CadastroProdutos().applyTextAndNumberFilter(nomeCategoria);
+        //funcoes).applyTextAndNumberFilter(nomeCategoria);
     }
 
     public void Apagar() {
@@ -283,7 +284,7 @@ public class CadastroCategoria extends javax.swing.JInternalFrame {
     private void btCadastrarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btCadastrarMouseClicked
         if (nomeCategoria.getText() == null || descricaoArea.getText() == null || 
             nomeCategoria.getText().isBlank() || descricaoArea.getText().isBlank()) {
-            new CadastroProduto().Avisos("imagens/sinal-de-aviso.png", "Campos vazios não são aceitos");
+            funcoes.Avisos("sinal-de-aviso.png", "Campos vazios não são aceitos");
             return;
         }
 
@@ -297,7 +298,7 @@ public class CadastroCategoria extends javax.swing.JInternalFrame {
 
             stmt.executeUpdate();
             stmt.close();
-            new CadastroProduto().Avisos("imagens/confirmacao.png", "Categoria cadastrada");
+            funcoes.Avisos("confirmacao.png", "Categoria cadastrada");
             Apagar();
             carregarDadosTabela();
         } catch (SQLException ex) {
@@ -310,17 +311,17 @@ public class CadastroCategoria extends javax.swing.JInternalFrame {
    try {
             Connection con = Conexao.conexaoBanco();
             if (con == null) {
-                new CadastroProduto().Avisos("imagens/erro.png", "Erro ao conectar ao banco de dados.");
+                funcoes.Avisos("erro.png", "Erro ao conectar ao banco de dados.");
                 return;
             }
 
             if (idCategoria == 0) {
-                new CadastroProduto().Avisos("imagens/erro.png", "Selecione uma categoria para alterar.");
+                funcoes.Avisos("erro.png", "Selecione uma categoria para alterar.");
                 return;
             }
 
             if (nomeCategoria.getText().trim().isEmpty()) {
-                new CadastroProduto().Avisos("imagens/erro.png", "O nome não pode estar vazio.");
+                funcoes.Avisos("erro.png", "O nome não pode estar vazio.");
                 return;
             }
 

@@ -39,6 +39,7 @@ public class SeusDados extends javax.swing.JInternalFrame {
     private String[] dadosBanco;
     private String[] novosDados;
     private String arquivoEscolhido;
+    Funcoes funcoes = new Funcoes();
 
     /**
      * Construtor da classe SeusDados.
@@ -156,7 +157,7 @@ public class SeusDados extends javax.swing.JInternalFrame {
      */
     public void selecionarImagens() {
         if (imageSelectionCount == 0) {
-            new CadastroProduto().Avisos("imagens/sinal-de-aviso.png",
+            funcoes.Avisos("sinal-de-aviso.png",
                     "Escolha imagens com largura acima de 250px e altura de 216px");
             imageSelectionCount++;
         }

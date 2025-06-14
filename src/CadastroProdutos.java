@@ -3,6 +3,7 @@ import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -29,7 +30,7 @@ public class CadastroProdutos extends javax.swing.JInternalFrame {
     private String buscarCategorias = "SELECT categoria FROM categorias";
     private final String semImagemEndereco = "imagens/sem_imagem.jpg";
     Funcoes funcoes = new Funcoes();
-    Connection conexao;
+    Connection conexao = null;
 
     //Campos
     private String produto;
@@ -53,10 +54,13 @@ public class CadastroProdutos extends javax.swing.JInternalFrame {
 
     public CadastroProdutos() {
         initComponents();
+        promocao = false;
+        produtoAtivo = true;
         imagemProduto.setIcon(semImagem());
         excluirImagem1.setIcon(redimensionamentoDeImagem(new ImageIcon("imagens/erro.png"), 42, 40));
         excluirImagem2.setIcon(redimensionamentoDeImagem(new ImageIcon("imagens/erro.png"), 42, 40));
         promoNao.setSelected(true);
+        precoPromocional.setEnabled(false);
         funcoes.aplicarMascaraNome(nomeProduto);
         funcoes.aplicarMascaraNome(marca);
         funcoes.aplicarMascaraPreco(preco);
@@ -70,43 +74,75 @@ public class CadastroProdutos extends javax.swing.JInternalFrame {
     }
 
     private void cadastrarProduto() {
-        if (!camposObrigatorios()) {
-            if (!verificacaoDeImagens()) {
-                try {
-                    System.out.println("Cadastrando...");
-                    pegarRespostas();
-                    conexao = Conexao.conexaoBanco();
-                    if (conexao == null) {
-                        funcoes.Avisos("aviso.jpg", "Cadastrar Produtos: conexão não foi possível");
-                        return;
-                    }
-                    PreparedStatement stmt = conexao.prepareStatement(cadastrarProduto);
-                    stmt.setString(1, produto);
-                    stmt.setString(2, descricao);
-                    stmt.setString(3, descricao_curta);
-                    stmt.setString(4, campoPreco);
-                    stmt.setString(5, preco_promocional);
-                    stmt.setBoolean(6, promocao);
-                    stmt.setString(7, campoMarca);
-                    stmt.setString(8, campoAvaliacao);
-                    stmt.setString(9, campoQuantidadeAvaliacoes);
-                    stmt.setString(10, campoEstoque);
-                    stmt.setString(11, campoParcelas);
-                    stmt.setString(12, campoPeso);
-                    stmt.setString(13, campoDimensoes);
-                    stmt.setBoolean(14, produtoAtivo);
-                    stmt.setString(15, campoImagem1);
-                    stmt.setString(16, campoImagem2);
-                    funcoes.Avisos("confirmacao.png", "Produto cadastrado com sucesso");
-                    limpar();
-                } catch (Exception e) {
-                    funcoes.Avisos("erro.png", "Infelizmente não conseguimos cadastrar o produto <br> ERRO DESCOBERTO:" + e.getMessage());
-                    dispose();
-                }
-            } else {
+        //1. Verificar campos obrigatórios primeiro
+        if (camposObrigatorios()) {
+            funcoes.Avisos("aviso.jpg", "Preencha todos os campos obrigatórios!");
+            return;
+        }
+        // 2. Verificação de imagens (opcional)
+        if (verificacaoDeImagens()) { // Usuário cancelou ou escolheu a opção não 
+            return;
+        }
+
+        try {
+            System.out.println("Iniciando cadastro...");
+            pegarRespostas(); // Obter valores dos campos
+
+            // 3. Validar valores numéricos antes de inserir
+            try {
+                new BigDecimal(campoPreco);
+                new BigDecimal(preco_promocional);
+                Integer.parseInt(campoEstoque);
+                Integer.parseInt(campoParcelas);
+                Double.parseDouble(campoPeso);
+            } catch (NumberFormatException e) {
+                funcoes.Avisos("erro.png", "Valores numéricos inválidos!");
                 return;
             }
 
+            // 4. Conexão e inserção
+            try (Connection conexao = Conexao.conexaoBanco(); PreparedStatement stmt = conexao.prepareStatement(cadastrarProduto)) {
+
+                if (conexao == null) {
+                    funcoes.Avisos("aviso.jpg", "Erro na conexão com o banco");
+                    return;
+                }
+
+                // Preencher parâmetros
+                stmt.setString(1, produto);
+                stmt.setString(2, descricao);
+                stmt.setString(3, descricao_curta);
+                stmt.setBigDecimal(4, new BigDecimal(campoPreco)); // Converter para BigDecimal
+                stmt.setBigDecimal(5, new BigDecimal(preco_promocional));
+                stmt.setBoolean(6, promocao);
+                stmt.setString(7, campoMarca);
+                stmt.setDouble(8, Double.parseDouble(campoAvaliacao));
+                stmt.setInt(9, Integer.parseInt(campoQuantidadeAvaliacoes));
+                stmt.setInt(10, Integer.parseInt(campoEstoque));
+                stmt.setInt(11, Integer.parseInt(campoParcelas));
+                stmt.setDouble(12, Double.parseDouble(campoPeso));
+                stmt.setString(13, campoDimensoes);
+                stmt.setBoolean(14, produtoAtivo);
+                stmt.setString(15, campoImagem1);
+                stmt.setString(16, campoImagem2);
+                stmt.setString(17, categoria);
+
+                // Executar inserção
+                int linhasAfetadas = stmt.executeUpdate();
+
+                if (linhasAfetadas > 0) {
+                    funcoes.Avisos("confirmacao.png", "Produto cadastrado com sucesso!");
+                    limpar();
+                } else {
+                    funcoes.Avisos("erro.png", "Nenhum produto foi cadastrado!");
+                }
+            }
+        } catch (SQLException e) {
+            funcoes.Avisos("erro.png", "Erro no banco de dados: " + e.getMessage());
+            e.printStackTrace();
+        } catch (Exception e) {
+            funcoes.Avisos("erro.png", "Erro inesperado: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -267,10 +303,6 @@ public class CadastroProdutos extends javax.swing.JInternalFrame {
         } catch (Exception e) {
             funcoes.Avisos("erro.png", e.getMessage() + "Tente novamente mais tarde");
             dispose();
-        } finally {
-            if (conexao != null) {
-                Conexao.fecharConexao();
-            }
         }
     }
 

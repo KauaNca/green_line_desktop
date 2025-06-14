@@ -1,14 +1,23 @@
-import com.jtattoo.plaf.mcwin.McWinLookAndFeel;
+
 import java.awt.*;
 import java.awt.event.*;
-import java.util.Properties;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import com.formdev.flatlaf.FlatLightLaf;
 
 public class TelaInicial extends JFrame {
 
     // Componentes da interface
-    private final JMenuBar menuSuperior = new JMenuBar();
+    private final JMenuBar menuSuperior = new JMenuBar() {
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            Graphics2D g2d = (Graphics2D) g;
+            g2d.setPaint(new GradientPaint(0, 0, corVerde, getWidth(), getHeight(), corVerde.brighter()));
+            g2d.fillRect(0, 0, getWidth(), getHeight());
+        }
+    };
+    private final JLabel logoLabel = new JLabel("Green Line");
     private final JMenu Cadastro = new JMenu("Cadastro");
     private final JMenu Usuario = new JMenu("Usuário");
     private final JMenu Produtos = new JMenu("Produtos");
@@ -28,14 +37,15 @@ public class TelaInicial extends JFrame {
     private final JMenuItem sair = new JMenuItem("Sair");
     private final JMenuItem seusDados = new JMenuItem("Seus dados");
     private final JDesktopPane painelPrincipal = new JDesktopPane();
-    
-    // Estilos
-    private final Font fontePadrao = new Font("Arial", Font.PLAIN, 28);
-    private final Font fonteItem = new Font("Arial", Font.PLAIN, 25);
     private final JPanel linhaDeBaixo = new JPanel();
+
+    // Estilos
+    private final Font fontePadrao = new Font("Segoe UI", Font.PLAIN, 24);
+    private final Font fonteItem = new Font("Segoe UI", Font.PLAIN, 20);
+    private final Font fonteLogo = new Font("Segoe UI", Font.BOLD, 24);
     private final Color corVerde = new Color(29, 68, 53);
     private final Color corDeFundo = new Color(255, 242, 207);
-    private final EmptyBorder bordaItemMenu = new EmptyBorder(0, 20, 0, 20);
+    private final EmptyBorder bordaItemMenu = new EmptyBorder(5, 15, 5, 15);
 
     private String codigo;
     private String tipo_usuario;
@@ -49,7 +59,7 @@ public class TelaInicial extends JFrame {
     }
 
     public TelaInicial() {
-    configurarFrame();
+        configurarFrame();
     }
 
     public TelaInicial(String codigo, String tipo_usuario) {
@@ -57,33 +67,47 @@ public class TelaInicial extends JFrame {
         this.tipo_usuario = tipo_usuario;
 
         mensagemBoasVindas();
-        configurarUIManager();
         inicializarComponentes();
+        configurarUIManager();
 
-        // Verifica se usuário não forneceu dados válidos
         if (codigo.isBlank() && tipo_usuario.isBlank()) {
             dispose();
         }
 
-        // Restringe acesso ao menu de vendas para usuários do tipo "2"
         if ("2".equals(tipo_usuario)) {
-            Vendas.setEnabled(false);
+            Produtos.setEnabled(false);
+            Usuario.setEnabled(false);
+            Configuracoes.setEnabled(false);
         }
     }
 
-    // Configura aparência do UI utilizando JTattoo
     private void configurarUIManager() {
         try {
-            Properties props = new Properties();
-            props.put("logoString", ""); // Remove o texto padrão "JTattoo"
-            McWinLookAndFeel.setCurrentTheme(props);
-            UIManager.setLookAndFeel("com.jtattoo.plaf.mcwin.McWinLookAndFeel");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+            UIManager.setLookAndFeel(new FlatLightLaf());
+            UIManager.put("MenuBar.background", corVerde);
+            UIManager.put("MenuBar.foreground", Color.WHITE);
+            UIManager.put("Menu.background", corVerde);
+            UIManager.put("Menu.foreground", Color.WHITE);
+            UIManager.put("MenuItem.background", Color.WHITE);
+            UIManager.put("MenuItem.foreground", Color.BLACK);
+            UIManager.put("Menu.selectionBackground", corVerde.darker());
+            UIManager.put("Menu.selectionForeground", Color.BLACK);
 
-        UIManager.put("MenuBar.background", corVerde);
-        UIManager.put("MenuBar.foreground", Color.WHITE);
+            SwingUtilities.invokeLater(() -> {
+                SwingUtilities.updateComponentTreeUI(this);
+                menuSuperior.repaint();
+            });
+
+        } catch (Exception e) {
+            System.err.println("Erro ao configurar FlatLightLaf: ");
+            e.printStackTrace();
+            try {
+                UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+                SwingUtilities.updateComponentTreeUI(this);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
     }
 
     private void inicializarComponentes() {
@@ -95,7 +119,7 @@ public class TelaInicial extends JFrame {
     private void mensagemBoasVindas() {
         JOptionPane.showMessageDialog(
                 null,
-                "<html><h2>Bem-vindo!</h2></html>",
+                "<html><h2>Bem-vindo ao Green Line!</h2></html>",
                 "Mensagem",
                 JOptionPane.OK_OPTION,
                 new ImageIcon("imagens/notificacao.png")
@@ -103,10 +127,18 @@ public class TelaInicial extends JFrame {
     }
 
     private void configurarMenu() {
-        menuSuperior.setPreferredSize(new Dimension(1300, 90));
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        menuSuperior.setPreferredSize(new Dimension(screenSize.width, 50));
         menuSuperior.setBorderPainted(false);
+        menuSuperior.setLayout(new BoxLayout(menuSuperior, BoxLayout.X_AXIS));
 
-        // Personalizando menus e itens
+        logoLabel.setFont(fonteLogo);
+        logoLabel.setForeground(Color.WHITE);
+        logoLabel.setBorder(new EmptyBorder(0, 10, 0, 20));
+        menuSuperior.add(logoLabel);
+        menuSuperior.add(Box.createHorizontalGlue());
+
+        // Personalizar menus
         personalizacaoJMenu(Cadastro);
         personalizacaoJMenu(Usuario);
         personalizacaoJMenu(Produtos);
@@ -115,31 +147,37 @@ public class TelaInicial extends JFrame {
         personalizacaoJMenu(Configuracoes);
         personalizacaoJMenu(SuaConta);
 
+        // Personalizar itens de menu
+        personalizacaoJMenuItem(ItemVendas);
         personalizacaoJMenuItem(cadastroUsuario);
         personalizacaoJMenuItem(cadastroProdutos);
-        personalizacaoJMenuItem(cadastroCategorias);
         personalizacaoJMenuItem(pesquisarUsuario);
         personalizacaoJMenuItem(editarUsuario);
+        personalizacaoJMenuItem(cadastroCategorias);
         personalizacaoJMenuItem(pesquisarProduto);
         personalizacaoJMenuItem(editarProduto);
         personalizacaoJMenuItem(editarCategorias);
         personalizacaoJMenuItem(sair);
         personalizacaoJMenuItem(seusDados);
-        personalizacaoJMenuItem(ItemVendas);
 
-        // Adicionando itens aos menus
-        Cadastro.add(cadastroUsuario);
-        Cadastro.add(cadastroProdutos);
-        Usuario.add(pesquisarUsuario);
-        Usuario.add(editarUsuario);
-        Produtos.add(pesquisarProduto);
-        Produtos.add(editarProduto);
-        Produtos.add(cadastroCategorias);
-        SuaConta.add(seusDados);
-        SuaConta.add(sair);
+        // Adicionar itens aos menus
         Vendas.add(ItemVendas);
 
-        // Adicionando menus à barra de menus
+        Cadastro.add(cadastroUsuario);
+        Cadastro.add(cadastroProdutos);
+        Cadastro.add(cadastroCategorias);
+
+        Usuario.add(pesquisarUsuario);
+        Usuario.add(editarUsuario);
+
+        Produtos.add(pesquisarProduto);
+        Produtos.add(editarProduto);
+        Produtos.add(editarCategorias);
+
+        SuaConta.add(seusDados);
+        SuaConta.add(sair);
+
+        // Adicionar menus à barra de menu
         menuSuperior.add(Cadastro);
         menuSuperior.add(Usuario);
         menuSuperior.add(Produtos);
@@ -148,7 +186,6 @@ public class TelaInicial extends JFrame {
         menuSuperior.add(Configuracoes);
         menuSuperior.add(SuaConta);
 
-        // Adicionando o menu ao JFrame
         setJMenuBar(menuSuperior);
     }
 
@@ -156,11 +193,16 @@ public class TelaInicial extends JFrame {
         item.setFont(fontePadrao);
         item.setBorder(bordaItemMenu);
         item.setForeground(Color.WHITE);
+        item.setBackground(corVerde);
+        item.setOpaque(true);
     }
 
     private void personalizacaoJMenuItem(JMenuItem item) {
         item.setForeground(Color.BLACK);
         item.setFont(fonteItem);
+        item.setBackground(Color.WHITE);
+        item.setOpaque(true);
+        item.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
     }
 
     private void configurarFrame() {
@@ -181,7 +223,6 @@ public class TelaInicial extends JFrame {
     }
 
     private void configurarEventos() {
-        // Eventos para mudança de cor ao passar o mouse nos menus
         adicionarEventoMouse(Cadastro);
         adicionarEventoMouse(Usuario);
         adicionarEventoMouse(Produtos);
@@ -190,10 +231,9 @@ public class TelaInicial extends JFrame {
         adicionarEventoMouse(Configuracoes);
         adicionarEventoMouse(SuaConta);
 
-        // Eventos de clique nos itens do menu
         sair.addActionListener(e -> {
-            new Login();
             dispose();
+            // Adicionar código para voltar à tela de login se necessário
         });
 
         cadastroProdutos.addActionListener(e -> centralizarTela(new CadastroProdutos()));
@@ -207,8 +247,13 @@ public class TelaInicial extends JFrame {
 
     private void adicionarEventoMouse(JMenu menu) {
         menu.addMouseListener(new MouseAdapter() {
-            public void mouseEntered(MouseEvent e) { menu.setForeground(Color.BLACK); }
-            public void mouseExited(MouseEvent e) { menu.setForeground(Color.WHITE); }
+            public void mouseEntered(MouseEvent e) {
+                menu.setBackground(corVerde.brighter());
+            }
+
+            public void mouseExited(MouseEvent e) {
+                menu.setBackground(corVerde);
+            }
         });
     }
 
@@ -221,7 +266,10 @@ public class TelaInicial extends JFrame {
         tela.setVisible(true);
         tela.toFront();
     }
-    public static void main(String[] args){
-        new TelaInicial();
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            new TelaInicial().setVisible(true);
+        });
     }
 }
