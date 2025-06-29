@@ -155,6 +155,7 @@ public class PesquisarUsuario extends javax.swing.JInternalFrame {
                     LOGGER.info("Dados da pessoa física carregados com sucesso.");
                 }
             }
+            
         } catch (Exception e) {
             LOGGER.severe("Erro ao pesquisar pessoa física: " + e.getMessage());
             e.printStackTrace();
@@ -273,6 +274,11 @@ public class PesquisarUsuario extends javax.swing.JInternalFrame {
 
         codigoUsuario.setFont(new java.awt.Font("Arial", 0, 20)); // NOI18N
         codigoUsuario.setSelectedTextColor(new java.awt.Color(51, 51, 51));
+        codigoUsuario.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                codigoUsuarioActionPerformed(evt);
+            }
+        });
         codigoUsuario.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt) {
                 codigoUsuarioKeyPressed(evt);
@@ -612,6 +618,10 @@ public class PesquisarUsuario extends javax.swing.JInternalFrame {
             }
         }
     }//GEN-LAST:event_cpfKeyReleased
+
+    private void codigoUsuarioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_codigoUsuarioActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_codigoUsuarioActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
