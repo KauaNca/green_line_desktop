@@ -339,7 +339,7 @@ public class EditarUsuarios extends javax.swing.JInternalFrame {
         tabela = new javax.swing.JTable();
 
         setClosable(true);
-        setTitle("Pesquisar Usuários");
+        setTitle("Editar Usuários");
 
         tfPesquisar.setFont(new java.awt.Font("Arial", 0, 17)); // NOI18N
         tfPesquisar.addKeyListener(new java.awt.event.KeyAdapter() {
@@ -467,7 +467,7 @@ public class EditarUsuarios extends javax.swing.JInternalFrame {
             }
         });
 
-        situacao.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Qual a Situacão?", "Ativo", "Inativo", "Bloqueado" }));
+        situacao.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
         situacao.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         situacao.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -481,7 +481,7 @@ public class EditarUsuarios extends javax.swing.JInternalFrame {
         jLabel7.setFont(new java.awt.Font("Arial", 0, 19)); // NOI18N
         jLabel7.setText("Situação");
 
-        tipo.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Função?", "ADM", "Funcionario" }));
+        tipo.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
         tipo.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         tipo.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -489,6 +489,7 @@ public class EditarUsuarios extends javax.swing.JInternalFrame {
             }
         });
 
+        tabela.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
         tabela.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
@@ -522,7 +523,7 @@ public class EditarUsuarios extends javax.swing.JInternalFrame {
                     .addGroup(painelPessoaLayout.createSequentialGroup()
                         .addGap(0, 0, Short.MAX_VALUE)
                         .addComponent(btAtualizar)
-                        .addGap(82, 82, 82)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(btCancelar1)
                         .addGap(51, 51, 51))
                     .addGroup(painelPessoaLayout.createSequentialGroup()
@@ -571,19 +572,19 @@ public class EditarUsuarios extends javax.swing.JInternalFrame {
                                 .addGroup(painelPessoaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                                     .addComponent(bairro, javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(complemento, javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, painelPessoaLayout.createSequentialGroup()
+                                    .addGroup(painelPessoaLayout.createSequentialGroup()
                                         .addGroup(painelPessoaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addComponent(situacao, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
                                             .addComponent(jLabel14)
                                             .addGroup(painelPessoaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                                                 .addComponent(jLabel7)
                                                 .addComponent(jLabel11)))
-                                        .addGap(0, 0, Short.MAX_VALUE))
-                                    .addGroup(painelPessoaLayout.createSequentialGroup()
-                                        .addComponent(situacao, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                         .addGroup(painelPessoaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                            .addComponent(jLabel6)
-                                            .addComponent(tipo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))))))
+                                            .addGroup(painelPessoaLayout.createSequentialGroup()
+                                                .addComponent(jLabel6)
+                                                .addGap(0, 0, Short.MAX_VALUE))
+                                            .addComponent(tipo, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))))))
                     .addComponent(jScrollPane1))
                 .addGap(49, 49, 49))
         );
@@ -616,17 +617,15 @@ public class EditarUsuarios extends javax.swing.JInternalFrame {
                             .addGroup(painelPessoaLayout.createSequentialGroup()
                                 .addComponent(email)
                                 .addGap(1, 1, 1)))
-                        .addGroup(painelPessoaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel6)
-                            .addGroup(painelPessoaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                .addComponent(jLabel3)
-                                .addComponent(jLabel7)))
+                        .addGroup(painelPessoaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel3)
+                            .addComponent(jLabel7)
+                            .addComponent(jLabel6))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(painelPessoaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(painelPessoaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                .addComponent(tipo, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addComponent(situacao))
-                            .addComponent(cpf, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(cpf)
+                            .addComponent(situacao, javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(tipo))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(painelPessoaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(painelPessoaLayout.createSequentialGroup()

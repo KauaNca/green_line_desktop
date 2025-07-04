@@ -106,31 +106,12 @@ public class CadastroCategoria extends javax.swing.JInternalFrame {
             return this;
         }
     }
-    public void carregarCategorias() {
-        LOGGER.info("Carregando categorias do banco de dados.");
-        try (Connection con = Conexao.conexaoBanco(); PreparedStatement stmt = con.prepareStatement(SELECT_CATEGORY); ResultSet rs = stmt.executeQuery()) {
-            categorias.removeAllItems();
-            categorias.addItem("");
-            while (rs.next()) {
-                categorias.addItem(rs.getInt("id_categoria") + " " + rs.getString("categoria"));
-            }
-            LOGGER.info("Categorias carregadas com sucesso.");
-        } catch (SQLException ex) {
-            LOGGER.severe(ERROR_DB_ACCESS + ex.getMessage());
-            JOptionPane.showMessageDialog(null, ERROR_DB_ACCESS + ex.getMessage());
-        } catch (Exception e) {
-            LOGGER.severe(ERROR_GENERIC + e.getMessage());
-            JOptionPane.showMessageDialog(null, ERROR_GENERIC + e.getMessage());
-        }
-    }
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
         btCadastrar = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
-        categorias = new javax.swing.JComboBox<>();
-        jLabel3 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         tabela = new javax.swing.JTable();
         jLabel4 = new javax.swing.JLabel();
@@ -144,7 +125,6 @@ public class CadastroCategoria extends javax.swing.JInternalFrame {
         setClosable(true);
         setForeground(new java.awt.Color(0, 0, 0));
         setIconifiable(true);
-        setMaximizable(true);
 
         btCadastrar.setBackground(new java.awt.Color(43, 189, 49));
         btCadastrar.setFont(new java.awt.Font("Arial", 0, 20)); // NOI18N
@@ -165,13 +145,6 @@ public class CadastroCategoria extends javax.swing.JInternalFrame {
                 jButton2MouseClicked(evt);
             }
         });
-
-        categorias.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
-        categorias.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Selecione uma opção" }));
-
-        jLabel3.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
-        jLabel3.setLabelFor(categorias);
-        jLabel3.setText("Selecione a categoria:");
 
         tabela.setBackground(new java.awt.Color(255, 242, 207));
         tabela.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
@@ -239,14 +212,12 @@ public class CadastroCategoria extends javax.swing.JInternalFrame {
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 466, Short.MAX_VALUE)
-                            .addComponent(categorias, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(nomeCategoria)
                             .addGroup(layout.createSequentialGroup()
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(jLabel1)
-                                    .addComponent(jLabel4)
-                                    .addComponent(jLabel3))
-                                .addGap(0, 0, Short.MAX_VALUE)))
+                                    .addComponent(jLabel4))
+                                .addGap(0, 354, Short.MAX_VALUE)))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 594, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addGap(62, 62, 62))
@@ -254,21 +225,18 @@ public class CadastroCategoria extends javax.swing.JInternalFrame {
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel3)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(categorias, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(23, 23, 23)
+                        .addContainerGap()
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 350, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
                         .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(nomeCategoria, javax.swing.GroupLayout.PREFERRED_SIZE, 46, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
                         .addComponent(jLabel1)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 350, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(btCancelar, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -371,11 +339,9 @@ public class CadastroCategoria extends javax.swing.JInternalFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btCadastrar;
     private javax.swing.JButton btCancelar;
-    private javax.swing.JComboBox<String> categorias;
     private javax.swing.JTextArea descricaoArea;
     private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;

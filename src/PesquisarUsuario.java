@@ -528,7 +528,7 @@ public class PesquisarUsuario extends javax.swing.JInternalFrame {
         if (evt.getKeyChar() == KeyEvent.VK_ENTER) {
             try {
                 Connection con = Conexao.conexaoBanco();
-                PreparedStatement stmt = con.prepareStatement("SELECT * FROM pessoa WHERE id_pessoa = ?");
+                PreparedStatement stmt = con.prepareStatement("SELECT * FROM view_pessoa_endereco WHERE id_pessoa = ?");
                 stmt.setString(1, codigoUsuario.getText());
                 ResultSet rs = stmt.executeQuery();
                 if (rs.next()) {
@@ -585,7 +585,7 @@ public class PesquisarUsuario extends javax.swing.JInternalFrame {
         if (evt.getKeyChar() == KeyEvent.VK_ENTER) {
             try {
                 Connection con = Conexao.conexaoBanco();
-                PreparedStatement stmt = con.prepareStatement("SELECT * FROM pessoa WHERE cpf = ?");
+                PreparedStatement stmt = con.prepareStatement("SELECT * FROM view_pessoa_endereco WHERE cpf = ?");
                 stmt.setString(1, cpf.getText());
                 ResultSet rs = stmt.executeQuery();
                 if (rs.next()) {
@@ -594,13 +594,13 @@ public class PesquisarUsuario extends javax.swing.JInternalFrame {
                     email.setText(rs.getString("email"));
                     telefone.setText(rs.getString("telefone"));
                     cpf.setText(rs.getString("cpf"));
-                    /*
-                    estado.setText(rs.getString("uf"));
+                    
+                    estado.setText(rs.getString("uf") );
                     cep.setText(rs.getString("cep"));
                     cidade.setText(rs.getString("cidade"));
                     bairro.setText(rs.getString("bairro"));
                     endereco.setText(rs.getString("endereco"));
-                    complemento.setText(rs.getString("complemento"));*/
+                    complemento.setText(rs.getString("complemento"));
 
                     ImageIcon foto = new ImageIcon("imagens/usuarios/" + rs.getString("imagem_perfil"));
                     perfil.setIcon(redimensionamentoDeImagem(foto, 205, 227));

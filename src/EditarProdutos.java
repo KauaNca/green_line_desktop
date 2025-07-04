@@ -572,7 +572,6 @@ public class EditarProdutos extends javax.swing.JInternalFrame {
         jLabel17 = new javax.swing.JLabel();
 
         setClosable(true);
-        setMaximizable(true);
         setTitle("Cadastrar Produtos");
 
         nomeProduto.setFont(new java.awt.Font("Inter Light", 0, 16)); // NOI18N
@@ -582,30 +581,30 @@ public class EditarProdutos extends javax.swing.JInternalFrame {
             }
         });
 
-        jLabel1.setFont(new java.awt.Font("Inter Light", 1, 18)); // NOI18N
+        jLabel1.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         jLabel1.setText("Produto");
 
-        jLabel2.setFont(new java.awt.Font("Inter Light", 1, 18)); // NOI18N
+        jLabel2.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         jLabel2.setText("Descrição");
 
-        jLabel3.setFont(new java.awt.Font("Inter Light", 1, 18)); // NOI18N
+        jLabel3.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         jLabel3.setText("Descrição curta");
 
-        jLabel4.setFont(new java.awt.Font("Inter Light", 1, 18)); // NOI18N
+        jLabel4.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         jLabel4.setText("Preço");
 
         preco.setFont(new java.awt.Font("Inter Light", 0, 16)); // NOI18N
 
-        jLabel5.setFont(new java.awt.Font("Inter Light", 1, 18)); // NOI18N
+        jLabel5.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         jLabel5.setText("Preço promocional");
 
         precoPromocional.setFont(new java.awt.Font("Inter Light", 0, 16)); // NOI18N
 
-        jLabel6.setFont(new java.awt.Font("Inter Light", 1, 18)); // NOI18N
+        jLabel6.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         jLabel6.setText("Promoção");
 
         gpPromocao.add(promoSim);
-        promoSim.setFont(new java.awt.Font("Inter Light", 1, 14)); // NOI18N
+        promoSim.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
         promoSim.setText("Sim");
         promoSim.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -614,7 +613,7 @@ public class EditarProdutos extends javax.swing.JInternalFrame {
         });
 
         gpPromocao.add(promoNao);
-        promoNao.setFont(new java.awt.Font("Inter Light", 1, 14)); // NOI18N
+        promoNao.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
         promoNao.setText("Não");
         promoNao.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -622,12 +621,12 @@ public class EditarProdutos extends javax.swing.JInternalFrame {
             }
         });
 
-        jLabel7.setFont(new java.awt.Font("Inter Light", 1, 18)); // NOI18N
+        jLabel7.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         jLabel7.setText("Marca");
 
         totalAvaliacao.setFont(new java.awt.Font("Inter Light", 0, 16)); // NOI18N
 
-        jLabel8.setFont(new java.awt.Font("Inter Light", 1, 18)); // NOI18N
+        jLabel8.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         jLabel8.setText("Avaliação");
 
         avaliacao.setFont(new java.awt.Font("Inter Light", 0, 16)); // NOI18N
@@ -638,31 +637,31 @@ public class EditarProdutos extends javax.swing.JInternalFrame {
             }
         });
 
-        jLabel10.setFont(new java.awt.Font("Inter Light", 1, 18)); // NOI18N
+        jLabel10.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         jLabel10.setText("Total de avaliações");
 
         marca.setFont(new java.awt.Font("Inter Light", 0, 16)); // NOI18N
 
-        jLabel11.setFont(new java.awt.Font("Inter Light", 1, 18)); // NOI18N
+        jLabel11.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         jLabel11.setText("Estoque");
 
         estoque.setFont(new java.awt.Font("Inter Light", 0, 16)); // NOI18N
 
-        jLabel12.setFont(new java.awt.Font("Inter Light", 1, 18)); // NOI18N
+        jLabel12.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         jLabel12.setText("Peso (kg)");
 
         peso.setFont(new java.awt.Font("Inter Light", 0, 16)); // NOI18N
 
-        jLabel13.setFont(new java.awt.Font("Inter Light", 1, 18)); // NOI18N
+        jLabel13.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         jLabel13.setText("Dimensões");
 
         dimensoes.setFont(new java.awt.Font("Inter Light", 0, 16)); // NOI18N
 
-        jLabel14.setFont(new java.awt.Font("Inter Light", 1, 18)); // NOI18N
+        jLabel14.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         jLabel14.setText("Ativo");
 
         gpAtivo.add(ativoSim);
-        ativoSim.setFont(new java.awt.Font("Inter Light", 1, 14)); // NOI18N
+        ativoSim.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
         ativoSim.setText("Sim");
         ativoSim.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -671,7 +670,7 @@ public class EditarProdutos extends javax.swing.JInternalFrame {
         });
 
         gpAtivo.add(ativoNao);
-        ativoNao.setFont(new java.awt.Font("Inter Light", 1, 14)); // NOI18N
+        ativoNao.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
         ativoNao.setText("Não");
         ativoNao.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -679,7 +678,7 @@ public class EditarProdutos extends javax.swing.JInternalFrame {
             }
         });
 
-        jLabel9.setFont(new java.awt.Font("Inter Light", 1, 18)); // NOI18N
+        jLabel9.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         jLabel9.setText("Parcelas");
 
         parcelas.setFont(new java.awt.Font("Inter Light", 0, 16)); // NOI18N
@@ -690,13 +689,13 @@ public class EditarProdutos extends javax.swing.JInternalFrame {
             }
         });
 
-        jLabel15.setFont(new java.awt.Font("Inter Light", 1, 18)); // NOI18N
+        jLabel15.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         jLabel15.setText("Categorias");
 
         categorias.setFont(new java.awt.Font("Inter Light", 0, 16)); // NOI18N
         categorias.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { " " }));
 
-        jLabel16.setFont(new java.awt.Font("Inter Light", 1, 18)); // NOI18N
+        jLabel16.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         jLabel16.setText("Imagens (URL)");
 
         imagem2.setFont(new java.awt.Font("Inter Light", 0, 16)); // NOI18N
@@ -762,7 +761,7 @@ public class EditarProdutos extends javax.swing.JInternalFrame {
             }
         });
 
-        jLabel17.setFont(new java.awt.Font("Inter Light", 1, 18)); // NOI18N
+        jLabel17.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         jLabel17.setText("Cod");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -803,7 +802,7 @@ public class EditarProdutos extends javax.swing.JInternalFrame {
                                         .addComponent(jLabel12)
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                         .addComponent(peso, javax.swing.GroupLayout.PREFERRED_SIZE, 162, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addGap(652, 664, Short.MAX_VALUE))
+                                        .addGap(652, 679, Short.MAX_VALUE))
                                     .addComponent(jScrollPane3)
                                     .addComponent(jScrollPane4)
                                     .addGroup(layout.createSequentialGroup()
@@ -846,7 +845,7 @@ public class EditarProdutos extends javax.swing.JInternalFrame {
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                         .addComponent(jLabel9)
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                        .addComponent(parcelas, 0, 79, Short.MAX_VALUE)
+                                        .addComponent(parcelas, 0, 95, Short.MAX_VALUE)
                                         .addGap(18, 18, 18)
                                         .addComponent(jLabel8)
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)

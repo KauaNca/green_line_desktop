@@ -172,7 +172,7 @@ public class TelaInicial extends JFrame {
 
         Produtos.add(pesquisarProduto);
         Produtos.add(editarProduto);
-        Produtos.add(editarCategorias);
+        //Produtos.add(editarCategorias);
 
         SuaConta.add(seusDados);
         SuaConta.add(sair);
@@ -181,9 +181,9 @@ public class TelaInicial extends JFrame {
         menuSuperior.add(Cadastro);
         menuSuperior.add(Usuario);
         menuSuperior.add(Produtos);
-        menuSuperior.add(Vendas);
+        /*menuSuperior.add(Vendas);
         menuSuperior.add(Notificacoes);
-        menuSuperior.add(Configuracoes);
+        menuSuperior.add(Configuracoes);*/
         menuSuperior.add(SuaConta);
 
         setJMenuBar(menuSuperior);

@@ -232,8 +232,6 @@ public class PesquisarProdutos extends javax.swing.JInternalFrame {
         setBackground(new java.awt.Color(255, 255, 255));
         setClosable(true);
         setIconifiable(true);
-        setMaximizable(true);
-        setResizable(true);
         setTitle("Produtos");
 
         sem_imagem.setBackground(new java.awt.Color(255, 255, 255));
