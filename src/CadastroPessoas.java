@@ -214,7 +214,7 @@ public class CadastroPessoas extends javax.swing.JInternalFrame {
                         .addGap(32, 32, 32)
                         .addComponent(jLabel6)
                         .addGap(18, 18, 18)
-                        .addComponent(tipo, 0, 223, Short.MAX_VALUE)
+                        .addComponent(tipo, 0, 400, Short.MAX_VALUE)
                         .addGap(30, 30, 30)
                         .addComponent(jLabel7)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -253,7 +253,7 @@ public class CadastroPessoas extends javax.swing.JInternalFrame {
                     .addComponent(cadastrar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(Cancelar, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 199, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 301, Short.MAX_VALUE)
                 .addGap(12, 12, 12))
         );
 
