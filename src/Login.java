@@ -300,7 +300,7 @@ public class Login extends javax.swing.JFrame {
      * tela inicial se o login for bem-sucedido e registra o acesso.
      */
     private void Login() {
-        if (codigoCampo.getText().isBlank() || senha.getText().isBlank()) {
+        if (codigoCampo.getText().trim().isEmpty() || senha.getText().trim().isEmpty()) {
             LOGGER.warning("Campos de código ou senha estão vazios.");
             funcoes.Avisos("erro.png", "Preencha os campos");
             return;

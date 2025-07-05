@@ -151,70 +151,70 @@ public class CadastroProdutos extends javax.swing.JInternalFrame {
         descricao = descricaoGeral.getText();
         descricao_curta = descricaoCurta.getText();
         campoPreco = preco.getText();
-        preco_promocional = precoPromocional.getText().isBlank() ? "0.00" : precoPromocional.getText();
+        preco_promocional = precoPromocional.getText().trim().isEmpty() ? "0.00" : precoPromocional.getText();
         campoMarca = marca.getText();
         campoAvaliacao = avaliacao.getSelectedItem()==null ? "0" : String.valueOf(avaliacao.getSelectedItem());
-        campoQuantidadeAvaliacoes = totalAvaliacao.getText().isBlank() ? "0" : totalAvaliacao.getText();
-        campoEstoque = estoque.getText().isBlank() ? "1" : estoque.getText();
+        campoQuantidadeAvaliacoes = totalAvaliacao.getText().trim().isEmpty() ? "0" : totalAvaliacao.getText();
+        campoEstoque = estoque.getText().trim().isEmpty() ? "1" : estoque.getText();
         campoParcelas = parcelas.getSelectedItem() == null ? "1" : String.valueOf(parcelas.getSelectedItem());
-        campoPeso = peso.getText().isBlank() ? "0" : peso.getText();
-        campoDimensoes = dimensoes.getText().isBlank() ? "0x0x0" : dimensoes.getText();
+        campoPeso = peso.getText().trim().isEmpty() ? "0" : peso.getText();
+        campoDimensoes = dimensoes.getText().trim().isEmpty() ? "0x0x0" : dimensoes.getText();
         categoria = categorias.getSelectedItem().toString();
         campoImagem1 = imagem1.getText();
-        campoImagem2 = imagem2.getText().isBlank() ? "" : imagem2.getText();
+        campoImagem2 = imagem2.getText().trim().isEmpty() ? "" : imagem2.getText();
 
     }
 
     private boolean camposObrigatorios() {
         // Validação 1: Nome do Produto
-        if (nomeProduto.getText().isBlank()) {
+        if (nomeProduto.getText().trim().isEmpty()) {
             funcoes.Avisos("incorreto.jpg", "O campo 'Nome do Produto' é obrigatório!");
             nomeProduto.requestFocus();
             return true; // Sai no primeiro erro
         }
-        if (descricaoCurta.getText().isBlank()) {
+        if (descricaoCurta.getText().trim().isEmpty()) {
             funcoes.Avisos("incorreto.jpg", "O campo 'Nome do Produto' é obrigatório!");
             descricaoCurta.requestFocus();
             return true; // Sai no primeiro erro
         }
 
         // Validação 2: Descrição Geral
-        if (descricaoGeral.getText().isBlank()) {
+        if (descricaoGeral.getText().trim().isEmpty()) {
             funcoes.Avisos("incorreto.jpg", "O campo 'Descrição Geral' é obrigatório!");
             descricaoGeral.requestFocus();
             return true;
         }
 
         // Validação 3: Preço
-        if (preco.getText().isBlank()) {
+        if (preco.getText().trim().isEmpty()) {
             funcoes.Avisos("incorreto.jpg", "O campo 'Preço' é obrigatório!");
             preco.requestFocus();
             return true;
         }
 
         // Validação 4: Estoque
-        if (estoque.getText().isBlank()) {
+        if (estoque.getText().trim().isEmpty()) {
             funcoes.Avisos("incorreto.jpg", "O campo 'Estoque' é obrigatório!");
             estoque.requestFocus();
             return true;
         }
 
         // Validação 5: Imagem Principal
-        if (imagem1.getText().isBlank()) {
+        if (imagem1.getText().trim().isEmpty()) {
             funcoes.Avisos("incorreto.jpg", "O campo 'Imagem Principal' é obrigatório!");
             imagem1.requestFocus();
             return true;
         }
 
         // Validação 6: Categoria
-        if (categorias.getSelectedItem() == null || categorias.getSelectedItem().toString().isBlank()) {
+        if (categorias.getSelectedItem() == null || categorias.getSelectedItem().toString().trim().isEmpty()) {
             funcoes.Avisos("incorreto.jpg", "Selecione uma 'Categoria'!");
             categorias.requestFocus();
             return true;
         }
 
         // Validação 7: Preço Promocional (se promoção ativa)
-        if (promoSim.isSelected() && precoPromocional.getText().isBlank()) {
+        if (promoSim.isSelected() && precoPromocional.getText().trim().isEmpty()) {
             funcoes.Avisos("incorreto.jpg", "Com promoção ativa, o 'Preço Promocional' é obrigatório!");
             precoPromocional.requestFocus();
             return true;
@@ -816,14 +816,14 @@ public class CadastroProdutos extends javax.swing.JInternalFrame {
 
     private void excluirImagem1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_excluirImagem1MouseClicked
         imagem1.setText("");
-        if (!imagem2.getText().isBlank()) {
+        if (!imagem2.getText().trim().isEmpty()) {
             imagem1.setText(imagem2.getText());
             imagem2.setText("");
         }
     }//GEN-LAST:event_excluirImagem1MouseClicked
 
     private void excluirImagem2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_excluirImagem2MouseClicked
-        if (!imagem1.getText().isBlank()) {
+        if (!imagem1.getText().trim().isEmpty()) {
             imagem1.setText(imagem2.getText());
             imagem2.setText("");
         } else {

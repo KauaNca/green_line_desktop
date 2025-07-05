@@ -251,7 +251,7 @@ public class CadastroCategoria extends javax.swing.JInternalFrame {
 
     private void btCadastrarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btCadastrarMouseClicked
         if (nomeCategoria.getText() == null || descricaoArea.getText() == null || 
-            nomeCategoria.getText().isBlank() || descricaoArea.getText().isBlank()) {
+            nomeCategoria.getText().trim().isEmpty() || descricaoArea.getText().trim().isEmpty()) {
             funcoes.Avisos("sinal-de-aviso.png", "Campos vazios não são aceitos");
             return;
         }

@@ -1,3 +1,4 @@
+
 import java.awt.Component;
 import java.awt.Font;
 import java.awt.Image;
@@ -19,12 +20,12 @@ import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 
 public class EditarUsuarios extends javax.swing.JInternalFrame {
-    
+
     private static final Logger LOGGER = Logger.getLogger(PesquisarUsuario.class.getName());
     private static final String SELECT_PERSON_DATA = "SELECT * FROM view_pessoa_endereco WHERE nome = ?";
     private static final String SELECT_PESSOA_POR_ID = "SELECT * FROM view_pessoa_endereco WHERE id_pessoa = ?";
     Funcoes funcoes = new Funcoes();
-    
+
     private DefaultTableModel tableModel;
     private JTable table;
     private JScrollPane scrollPane;
@@ -39,6 +40,7 @@ public class EditarUsuarios extends javax.swing.JInternalFrame {
     String situacaoValor;
     int tipoUsuarioId;
     String tipoUsuario;
+
     public EditarUsuarios() {
         initComponents();
         initTable();
@@ -48,16 +50,16 @@ public class EditarUsuarios extends javax.swing.JInternalFrame {
         funcoes.aplicarMascaraCPF(cpf);
         funcoes.aplicarMascaraCEP(cep);
     }
-    
+
     private void initTable() {
-       try (Connection con = Conexao.conexaoBanco()) {
+        try (Connection con = Conexao.conexaoBanco()) {
             String sql = "SELECT * FROM pessoa ORDER BY id_pessoa DESC";
             PreparedStatement stmt = con.prepareStatement(sql);
             ResultSet rs = stmt.executeQuery();
             DefaultTableModel modeloTabela = (DefaultTableModel) tabela.getModel();
             modeloTabela.setNumRows(0);
             while (rs.next()) {
-               
+
                 Object[] dados = {
                     rs.getInt("id_pessoa"),
                     rs.getString("nome"),
@@ -76,7 +78,7 @@ public class EditarUsuarios extends javax.swing.JInternalFrame {
             Logger.getLogger(CadastroPessoas.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
+
     private void carregarUsuario(int idPessoa) {
         try (Connection con = Conexao.conexaoBanco()) {
             // Carrega dados da pessoa
@@ -90,19 +92,25 @@ public class EditarUsuarios extends javax.swing.JInternalFrame {
                 email.setText(rsPessoa.getString("email"));
                 telefone.setText(rsPessoa.getString("telefone"));
                 cpf.setText(rsPessoa.getString("cpf"));
-                
+
                 // Tipo de usuário
                 tipoUsuarioId = rsPessoa.getInt("id_tipo_usuario");
                 tipo.setSelectedItem(tipoUsuarioId == 1 ? "ADM" : "Funcionario");
-                
+
                 // Situação
                 situacaoValor = rsPessoa.getString("situacao");
-                switch(situacaoValor) {
-                    case "A": situacao.setSelectedItem("Ativo"); break;
-                    case "P": situacao.setSelectedItem("Inativo"); break;
-                    case "I": situacao.setSelectedItem("Bloqueado"); break;
+                switch (situacaoValor) {
+                    case "A":
+                        situacao.setSelectedItem("Ativo");
+                        break;
+                    case "P":
+                        situacao.setSelectedItem("Inativo");
+                        break;
+                    case "I":
+                        situacao.setSelectedItem("Bloqueado");
+                        break;
                 }
-                
+
                 // Imagem de perfil
                 String imagem = rsPessoa.getString("imagem_perfil");
                 if (imagem != null && !imagem.isEmpty()) {
@@ -110,7 +118,7 @@ public class EditarUsuarios extends javax.swing.JInternalFrame {
                     perfil.setIcon(redimensionamentoDeImagem(foto, 205, 227));
                 }
             }
-            
+
             // Carrega dados do endereço
             String sqlEndereco = "SELECT * FROM enderecos WHERE id_pessoa = ?";
             PreparedStatement psEndereco = con.prepareStatement(sqlEndereco);
@@ -133,27 +141,27 @@ public class EditarUsuarios extends javax.swing.JInternalFrame {
                 endereco.setText("");
                 complemento.setText("");
             }
-            
+
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(this, "Erro ao carregar usuário: " + e.getMessage());
             e.printStackTrace();
         }
     }
-     /**
+
+    /**
      * Pesquisa usuários no banco de dados e exibe os resultados na tabela.
      */
     private void pesquisarUsuarios() {
         String texto = tfPesquisar.getText();
         LOGGER.log(Level.INFO, "Pesquisando usu\u00e1rios com texto: {0}", texto);
-        
+
         // Limpa a tabela antes de nova pesquisa
         tableModel.setRowCount(0);
-        
-        try (Connection con = Conexao.conexaoBanco(); 
-             PreparedStatement stmt = con.prepareStatement(SELECT_PERSON_DATA)) {
-            
+
+        try (Connection con = Conexao.conexaoBanco(); PreparedStatement stmt = con.prepareStatement(SELECT_PERSON_DATA)) {
+
             stmt.setString(1, "%" + texto + "%");
-            
+
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
                     // Adiciona cada registro como uma nova linha na tabela
@@ -167,50 +175,50 @@ public class EditarUsuarios extends javax.swing.JInternalFrame {
                 }
                 LOGGER.info("Dados carregados na tabela com sucesso.");
             }
-            
+
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Erro ao pesquisar usu\u00e1rios: {0}", e.getMessage());
             JOptionPane.showMessageDialog(null, "Erro ao pesquisar usuários");
         }
     }
-    
+
     // Método para redimensionar imagem
     public ImageIcon redimensionamentoDeImagem(ImageIcon imagem, int largura, int altura) {
         Image pegarImagem = imagem.getImage();
         Image redimensionando = pegarImagem.getScaledInstance(largura, altura, Image.SCALE_SMOOTH);
         return new ImageIcon(redimensionando);
     }
-    
-     // Método para validar campos antes da atualização
+
+    // Método para validar campos antes da atualização
     private boolean validarCampos() {
-        if (nome.getText().isBlank() || email.getText().isBlank() ||
-            telefone.getText().isBlank() || cpf.getText().isBlank()) {
+        if (nome.getText().trim().isEmpty() || email.getText().trim().isEmpty()
+                || telefone.getText().trim().isEmpty() || cpf.getText().trim().isEmpty()) {
             JOptionPane.showMessageDialog(this, "Preencha todos os campos obrigatórios!");
             return false;
         }
-        
+
         if (!email.getText().matches("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$")) {
             JOptionPane.showMessageDialog(this, "E-mail inválido!");
             return false;
         }
-        
+
         if (!cpf.getText().matches("\\d{3}\\.?\\d{3}\\.?\\d{3}\\-?\\d{2}")) {
             JOptionPane.showMessageDialog(this, "CPF inválido!");
             return false;
         }
-        
-        if (estado.getText().isBlank() || cep.getText().isBlank() || 
-            cidade.getText().isBlank() || endereco.getText().isBlank()) {
-            int resposta = JOptionPane.showConfirmDialog(this, 
-                "Alguns campos de endereço estão vazios. Deseja continuar?", 
-                "Aviso", JOptionPane.YES_NO_OPTION);
+
+        if (estado.getText().trim().isEmpty() || cep.getText().trim().isEmpty()
+                || cidade.getText().trim().isEmpty() || endereco.getText().trim().isEmpty()) {
+            int resposta = JOptionPane.showConfirmDialog(this,
+                    "Alguns campos de endereço estão vazios. Deseja continuar?",
+                    "Aviso", JOptionPane.YES_NO_OPTION);
             return resposta == JOptionPane.YES_OPTION;
         }
-        
+
         return true;
     }
 
-     // Método para limpar todos os campos
+    // Método para limpar todos os campos
     private void limparCampos() {
         nome.setText("");
         email.setText("");
@@ -227,12 +235,10 @@ public class EditarUsuarios extends javax.swing.JInternalFrame {
         situacao.setSelectedIndex(0);
         perfil.setIcon(new ImageIcon("imagens/perfil.png"));
     }
-    
-     @SuppressWarnings("unchecked")
-     
 
-      
-      public void pesquisarNome() {
+    @SuppressWarnings("unchecked")
+
+    public void pesquisarNome() {
         String texto = tfPesquisar.getText();
         LOGGER.info("Pesquisando nomes com texto: " + texto);
         filtro = new ArrayList<>();
@@ -268,8 +274,8 @@ public class EditarUsuarios extends javax.swing.JInternalFrame {
             caixaDeNomes.setVisible(false);
         }
     }
-      
-          private void pesquisarPessoa() {
+
+    private void pesquisarPessoa() {
         LOGGER.info("Pesquisando pessoa física com nome: " + tfPesquisar.getText());
         try (Connection con = Conexao.conexaoBanco(); PreparedStatement stmt = con.prepareStatement(SELECT_PERSON_DATA)) {
             stmt.setString(1, tfPesquisar.getText());
@@ -294,14 +300,13 @@ public class EditarUsuarios extends javax.swing.JInternalFrame {
                     LOGGER.info("Dados da pessoa física carregados com sucesso.");
                 }
             }
-            
+
         } catch (Exception e) {
             LOGGER.severe("Erro ao pesquisar pessoa física: " + e.getMessage());
             e.printStackTrace();
             JOptionPane.showMessageDialog(null, "<html> <h3> Não foi possível encontrar este nome</h3> </html>");
         }
     }
-
 
 
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -720,7 +725,7 @@ public class EditarUsuarios extends javax.swing.JInternalFrame {
     }//GEN-LAST:event_btnProcurarActionPerformed
 
     private void campoIdKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_campoIdKeyPressed
-         if (evt.getKeyChar() == KeyEvent.VK_ENTER) {
+        if (evt.getKeyChar() == KeyEvent.VK_ENTER) {
             try {
                 Connection con = Conexao.conexaoBanco();
                 PreparedStatement stmt = con.prepareStatement("SELECT * FROM pessoa WHERE id_pessoa = ?");
@@ -732,7 +737,7 @@ public class EditarUsuarios extends javax.swing.JInternalFrame {
                     email.setText(rs.getString("email"));
                     telefone.setText(rs.getString("telefone"));
                     cpf.setText(rs.getString("cpf"));
-                    
+
                     estado.setText(rs.getString("uf"));
                     cep.setText(rs.getString("cep"));
                     cidade.setText(rs.getString("cidade"));
@@ -757,7 +762,7 @@ public class EditarUsuarios extends javax.swing.JInternalFrame {
     }//GEN-LAST:event_campoIdKeyPressed
     }
     private void btCancelar1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btCancelar1MouseClicked
-       perfil.setIcon(new ImageIcon("imagens/perfil.png"));
+        perfil.setIcon(new ImageIcon("imagens/perfil.png"));
         usuarios = new ArrayList<>();
         for (Component component : painelPessoa.getComponents()) {
             if (component instanceof JTextField) {
@@ -806,10 +811,19 @@ public class EditarUsuarios extends javax.swing.JInternalFrame {
     }//GEN-LAST:event_cpfKeyReleased
 
     private void situacaoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_situacaoActionPerformed
-         switch (situacao.getSelectedItem().toString()) {
-            case "Ativo" -> situacaoValor = "A";
-            case "Inativo" -> situacaoValor = "P";
-            case "Bloqueado" -> situacaoValor = "I";
+        switch (situacao.getSelectedItem().toString()) {
+            case "Ativo":
+                situacaoValor = "A";
+                break;
+            case "Inativo":
+                situacaoValor = "P";
+                break;
+            case "Bloqueado":
+                situacaoValor = "I";
+                break;
+            default:
+                situacaoValor = ""; // ou algum valor padrão
+                break;
         }
     }//GEN-LAST:event_situacaoActionPerformed
 
@@ -822,13 +836,14 @@ public class EditarUsuarios extends javax.swing.JInternalFrame {
     }//GEN-LAST:event_tipoActionPerformed
 
 
-    
     private void tabelaMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tabelaMouseClicked
-        if (tabela.getSelectedRow() == -1) return;
-        
+        if (tabela.getSelectedRow() == -1) {
+            return;
+        }
+
         int idPessoa = Integer.parseInt(tabela.getValueAt(tabela.getSelectedRow(), 0).toString());
         campoId.setText(String.valueOf(idPessoa));
-        
+
         // Carrega todos os dados do usuário e endereço
         carregarUsuario(idPessoa);
     }//GEN-LAST:event_tabelaMouseClicked
@@ -837,21 +852,21 @@ public class EditarUsuarios extends javax.swing.JInternalFrame {
         if (!validarCampos()) {
             return;
         }
-        
+
         Connection con = null;
         try {
             con = Conexao.conexaoBanco();
             con.setAutoCommit(false); // Inicia transação
-            
+
             int idPessoa = Integer.parseInt(campoId.getText());
-            
+
             // 1. Atualizar dados da pessoa
             String sqlPessoa = "UPDATE pessoa SET nome=?, email=?, telefone=?, cpf=?, "
                     + "id_tipo_usuario=?, situacao=? WHERE id_pessoa=?";
-            
+
             int Tipo = tipo.getSelectedItem().equals("ADM") ? 1 : 2;
-            String Situacao = situacao.getSelectedItem().equals("Ativo") ? "A" : 
-                             situacao.getSelectedItem().equals("Inativo") ? "P" : "I";
+            String Situacao = situacao.getSelectedItem().equals("Ativo") ? "A"
+                    : situacao.getSelectedItem().equals("Inativo") ? "P" : "I";
 
             PreparedStatement psPessoa = con.prepareStatement(sqlPessoa);
             psPessoa.setString(1, nome.getText());
@@ -863,7 +878,7 @@ public class EditarUsuarios extends javax.swing.JInternalFrame {
             psPessoa.setInt(7, idPessoa);
 
             int rowsPessoa = psPessoa.executeUpdate();
-            
+
             // 2. Verificar se existe endereço cadastrado
             String checkEndereco = "SELECT COUNT(*) FROM enderecos WHERE id_pessoa=?";
             PreparedStatement psCheck = con.prepareStatement(checkEndereco);
@@ -871,7 +886,7 @@ public class EditarUsuarios extends javax.swing.JInternalFrame {
             ResultSet rsCheck = psCheck.executeQuery();
             rsCheck.next();
             int count = rsCheck.getInt(1);
-            
+
             String sqlEndereco;
             if (count > 0) {
                 // Atualizar endereço existente
@@ -882,7 +897,7 @@ public class EditarUsuarios extends javax.swing.JInternalFrame {
                 sqlEndereco = "INSERT INTO enderecos (uf, cep, cidade, bairro, endereco, "
                         + "complemento, id_pessoa) VALUES (?, ?, ?, ?, ?, ?, ?)";
             }
-            
+
             PreparedStatement psEndereco = con.prepareStatement(sqlEndereco);
             psEndereco.setString(1, estado.getText());
             psEndereco.setString(2, cep.getText());
@@ -893,7 +908,7 @@ public class EditarUsuarios extends javax.swing.JInternalFrame {
             psEndereco.setInt(7, idPessoa);
 
             int rowsEndereco = psEndereco.executeUpdate();
-            
+
             // Se ambos atualizaram com sucesso, confirma a transação
             if (rowsPessoa > 0 && rowsEndereco > 0) {
                 con.commit();
@@ -902,12 +917,14 @@ public class EditarUsuarios extends javax.swing.JInternalFrame {
                 con.rollback();
                 JOptionPane.showMessageDialog(this, "Erro ao atualizar - nenhuma alteração foi salva.");
             }
-            
+
             initTable(); // Recarrega a tabela com os dados atualizados
-            
+
         } catch (SQLException e) {
             try {
-                if (con != null) con.rollback();
+                if (con != null) {
+                    con.rollback();
+                }
             } catch (SQLException ex) {
                 ex.printStackTrace();
             }
@@ -932,7 +949,7 @@ public class EditarUsuarios extends javax.swing.JInternalFrame {
     }//GEN-LAST:event_btCancelar1ActionPerformed
 
     private void campoIdActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_campoIdActionPerformed
-        
+
     }//GEN-LAST:event_campoIdActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

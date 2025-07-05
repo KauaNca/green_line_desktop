@@ -3,7 +3,6 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
 
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -25,8 +24,7 @@ public class CadastroPessoas extends javax.swing.JInternalFrame {
     private String situacaoValor;
     private String tipoUsuarioId;
     Funcoes funcoes = new Funcoes();
-   
-    
+
     public CadastroPessoas() {
         initComponents();
         try (Connection con = Conexao.conexaoBanco()) {
@@ -36,7 +34,7 @@ public class CadastroPessoas extends javax.swing.JInternalFrame {
             DefaultTableModel modeloTabela = (DefaultTableModel) tabela.getModel();
             modeloTabela.setNumRows(0);
             while (rs.next()) {
-               
+
                 Object[] dados = {
                     rs.getInt("id_pessoa"),
                     rs.getString("nome"),
@@ -59,8 +57,7 @@ public class CadastroPessoas extends javax.swing.JInternalFrame {
         funcoes.aplicarMascaraCPF(cpf);
         //funcoes.aplicarMascaraCEP(cep);
     }
-    
-    
+
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -270,10 +267,19 @@ public class CadastroPessoas extends javax.swing.JInternalFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void situacaoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_situacaoActionPerformed
-       switch (situacao.getSelectedItem().toString()) {
-            case "Ativo" -> situacaoValor = "A";
-            case "Inativo" -> situacaoValor = "P";
-            case "Bloqueado" -> situacaoValor = "I";
+        switch (situacao.getSelectedItem().toString()) {
+            case "Ativo":
+                situacaoValor = "A";
+                break;
+            case "Inativo":
+                situacaoValor = "P";
+                break;
+            case "Bloqueado":
+                situacaoValor = "I";
+                break;
+            default:
+                situacaoValor = ""; // ou algum valor padrão
+                break;
         }
         System.out.println("Situação: " + situacaoValor);
     }//GEN-LAST:event_situacaoActionPerformed
@@ -283,8 +289,6 @@ public class CadastroPessoas extends javax.swing.JInternalFrame {
             JOptionPane.showMessageDialog(this, "Preencha todos os campos obrigatórios.");
             return;
         }
-
-      
 
         try (Connection con = Conexao.conexaoBanco()) {
             String sql = "INSERT INTO pessoa (nome, email, telefone, cpf, id_tipo_usuario, senha, situacao) VALUES (?, ?, ?, ?, ?, ?, ?)";
@@ -304,11 +308,10 @@ public class CadastroPessoas extends javax.swing.JInternalFrame {
             Logger.getLogger(CadastroPessoas.class.getName()).log(Level.SEVERE, null, ex);
         }
 
-        
         //perfil.setIcon(new ImageIcon("imagens/perfil.png"));
     }//GEN-LAST:event_cadastrarActionPerformed
 
-     private void carregarTabela() {
+    private void carregarTabela() {
         try (Connection con = Conexao.conexaoBanco()) {
             String sql = "SELECT * FROM pessoa ORDER BY id_pessoa DESC";
             PreparedStatement stmt = con.prepareStatement(sql);
@@ -316,7 +319,7 @@ public class CadastroPessoas extends javax.swing.JInternalFrame {
             DefaultTableModel modeloTabela = (DefaultTableModel) tabela.getModel();
             modeloTabela.setNumRows(0);
             while (rs.next()) {
-               
+
                 Object[] dados = {
                     rs.getInt("id_pessoa"),
                     rs.getString("nome"),
@@ -335,9 +338,9 @@ public class CadastroPessoas extends javax.swing.JInternalFrame {
             Logger.getLogger(CadastroPessoas.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
+
     private void tipoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tipoActionPerformed
-         if (tipo.getSelectedItem().equals("ADM")) {
+        if (tipo.getSelectedItem().equals("ADM")) {
             tipoUsuarioId = "1";
         } else if (tipo.getSelectedItem().equals("Funcionario")) {
             tipoUsuarioId = "2";
@@ -345,16 +348,17 @@ public class CadastroPessoas extends javax.swing.JInternalFrame {
         System.out.println("Tipo ID: " + tipoUsuarioId);
     }//GEN-LAST:event_tipoActionPerformed
 
-     private void limparCampos() {
+    private void limparCampos() {
         Component[] campos = getContentPane().getComponents();
         for (Component c : campos) {
-            if (c instanceof JTextField jtf) {
+            if (c instanceof JTextField) {
+                JTextField jtf = (JTextField) c;
                 jtf.setText("");
             }
         }
         //perfil.setIcon(new ImageIcon("imagens/perfil.png"));
     }
-    
+
     private void CancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_CancelarActionPerformed
         limparCampos();
         carregarTabela();
@@ -365,17 +369,16 @@ public class CadastroPessoas extends javax.swing.JInternalFrame {
     }//GEN-LAST:event_SenhaActionPerformed
 
     private boolean validarCampos() {
-        return !nome.getText().isBlank()
-            && !email.getText().isBlank()
-            && !telefone.getText().isBlank()
-            && !cpf.getText().isBlank()
-            && !Senha.getText().isBlank()
-            && situacao.getSelectedIndex() != 0
-            && tipo.getSelectedIndex() != 0;
+        return !nome.getText().trim().isEmpty()
+                && !email.getText().trim().isEmpty()
+                && !telefone.getText().trim().isEmpty()
+                && !cpf.getText().trim().isEmpty()
+                && !Senha.getText().trim().isEmpty()
+                && situacao.getSelectedIndex() != 0
+                && tipo.getSelectedIndex() != 0;
     }
-    
-    
-    
+
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton Cancelar;
     private javax.swing.JTextField Senha;

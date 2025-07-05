@@ -70,7 +70,7 @@ public class TelaInicial extends JFrame {
         inicializarComponentes();
         configurarUIManager();
 
-        if (codigo.isBlank() && tipo_usuario.isBlank()) {
+        if (codigo.trim().isEmpty() && tipo_usuario.trim().isEmpty()) {
             dispose();
         }
 
