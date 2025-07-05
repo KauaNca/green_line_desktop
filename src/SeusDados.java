@@ -52,6 +52,10 @@ public class SeusDados extends javax.swing.JInternalFrame {
         initComponents();
         inicializarInterface();
         carregarDadosUsuario(codigoUsuario);
+        funcoes.aplicarMascaraNome(usuario);
+        funcoes.aplicarMascaraTelefone(telefone);
+        funcoes.aplicarMascaraCPF(cpf);
+        funcoes.aplicarMascaraCEP(cep);
     }
 
     /**
@@ -317,76 +321,78 @@ public class SeusDados extends javax.swing.JInternalFrame {
 
         setBackground(new java.awt.Color(255, 255, 255));
         setClosable(true);
+        setIconifiable(true);
         setTitle("Seus dados");
 
-        jLabel1.setFont(new java.awt.Font("Arial", 0, 20)); // NOI18N
+        jLabel1.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
         jLabel1.setText("Nome");
 
-        usuario.setFont(new java.awt.Font("Arial", 0, 20)); // NOI18N
+        usuario.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         usuario.setDisabledTextColor(new java.awt.Color(0, 0, 0));
 
-        jLabel2.setFont(new java.awt.Font("Arial", 0, 20)); // NOI18N
+        jLabel2.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
         jLabel2.setText("Usuário");
 
-        codigoPessoa.setFont(new java.awt.Font("Arial", 0, 20)); // NOI18N
+        codigoPessoa.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         codigoPessoa.setDisabledTextColor(new java.awt.Color(0, 0, 0));
 
-        jLabel4.setFont(new java.awt.Font("Arial", 0, 20)); // NOI18N
+        jLabel4.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
         jLabel4.setText("Email");
 
-        email.setFont(new java.awt.Font("Arial", 0, 20)); // NOI18N
+        email.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         email.setDisabledTextColor(new java.awt.Color(0, 0, 0));
 
-        jLabel5.setFont(new java.awt.Font("Arial", 0, 20)); // NOI18N
+        jLabel5.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
         jLabel5.setText("Telefone");
 
-        telefone.setFont(new java.awt.Font("Arial", 0, 20)); // NOI18N
+        telefone.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         telefone.setDisabledTextColor(new java.awt.Color(0, 0, 0));
 
-        jLabel6.setFont(new java.awt.Font("Arial", 0, 20)); // NOI18N
-        jLabel6.setText("Cadastro de Pessoa Física (CPF)");
+        jLabel6.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
+        jLabel6.setText("CPF");
 
-        cpf.setFont(new java.awt.Font("Arial", 0, 20)); // NOI18N
+        cpf.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         cpf.setDisabledTextColor(new java.awt.Color(0, 0, 0));
 
-        jLabel8.setFont(new java.awt.Font("Arial", 0, 20)); // NOI18N
+        jLabel8.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
         jLabel8.setText("UF");
 
-        uf.setFont(new java.awt.Font("Arial", 0, 16)); // NOI18N
+        uf.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         uf.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "AC", "AL", "AM", "AP", "BA", "CE", "DF", "ES", "GO", "MA", "MG", "MS", "MT", "PA", "PB", "PE", "PI", "PR", "RJ", "RN", "RO", "RR", "RS", "SC", "SE", "SP", "TO" }));
+        uf.setEnabled(false);
 
-        jLabel9.setFont(new java.awt.Font("Arial", 0, 20)); // NOI18N
+        jLabel9.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
         jLabel9.setText("Cidade");
 
-        cidade.setFont(new java.awt.Font("Arial", 0, 20)); // NOI18N
+        cidade.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         cidade.setDisabledTextColor(new java.awt.Color(0, 0, 0));
 
-        jLabel10.setFont(new java.awt.Font("Arial", 0, 20)); // NOI18N
+        jLabel10.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
         jLabel10.setText("Bairro");
 
-        bairro.setFont(new java.awt.Font("Arial", 0, 20)); // NOI18N
+        bairro.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         bairro.setDisabledTextColor(new java.awt.Color(0, 0, 0));
 
-        jLabel11.setFont(new java.awt.Font("Arial", 0, 20)); // NOI18N
+        jLabel11.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
         jLabel11.setText("Endereço");
 
-        endereco.setFont(new java.awt.Font("Arial", 0, 20)); // NOI18N
+        endereco.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         endereco.setDisabledTextColor(new java.awt.Color(0, 0, 0));
 
-        jLabel12.setFont(new java.awt.Font("Arial", 0, 20)); // NOI18N
+        jLabel12.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
         jLabel12.setText("Complemento");
 
-        complemento.setFont(new java.awt.Font("Arial", 0, 20)); // NOI18N
+        complemento.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         complemento.setDisabledTextColor(new java.awt.Color(0, 0, 0));
 
-        jLabel13.setFont(new java.awt.Font("Arial", 0, 20)); // NOI18N
+        jLabel13.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
         jLabel13.setText("Senha");
 
         senha.setFont(new java.awt.Font("Arial", 0, 20)); // NOI18N
         senha.setDisabledTextColor(new java.awt.Color(0, 0, 0));
 
         btModificar.setBackground(new java.awt.Color(255, 102, 0));
-        btModificar.setFont(new java.awt.Font("Arial", 0, 20)); // NOI18N
+        btModificar.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         btModificar.setForeground(new java.awt.Color(255, 255, 255));
         btModificar.setText("Modificar");
         btModificar.addActionListener(new java.awt.event.ActionListener() {
@@ -396,7 +402,7 @@ public class SeusDados extends javax.swing.JInternalFrame {
         });
 
         btSalvar.setBackground(new java.awt.Color(0, 204, 51));
-        btSalvar.setFont(new java.awt.Font("Arial", 0, 20)); // NOI18N
+        btSalvar.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         btSalvar.setForeground(new java.awt.Color(255, 255, 255));
         btSalvar.setText("Salvar");
         btSalvar.addActionListener(new java.awt.event.ActionListener() {
@@ -415,14 +421,14 @@ public class SeusDados extends javax.swing.JInternalFrame {
             }
         });
 
-        jLabel14.setFont(new java.awt.Font("Arial", 0, 20)); // NOI18N
+        jLabel14.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
         jLabel14.setText("CEP");
 
-        cep.setFont(new java.awt.Font("Arial", 0, 20)); // NOI18N
+        cep.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         cep.setDisabledTextColor(new java.awt.Color(0, 0, 0));
 
         btCancelar.setBackground(new java.awt.Color(255, 0, 51));
-        btCancelar.setFont(new java.awt.Font("Arial", 0, 20)); // NOI18N
+        btCancelar.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         btCancelar.setForeground(new java.awt.Color(255, 255, 255));
         btCancelar.setText("Cancelar");
         btCancelar.addActionListener(new java.awt.event.ActionListener() {

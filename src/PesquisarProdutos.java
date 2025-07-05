@@ -236,7 +236,7 @@ public class PesquisarProdutos extends javax.swing.JInternalFrame {
 
         sem_imagem.setBackground(new java.awt.Color(255, 255, 255));
 
-        pesquisar.setFont(new java.awt.Font("Inter Light", 0, 16)); // NOI18N
+        pesquisar.setFont(new java.awt.Font("Inter Light", 0, 18)); // NOI18N
         pesquisar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 pesquisarActionPerformed(evt);
@@ -254,55 +254,55 @@ public class PesquisarProdutos extends javax.swing.JInternalFrame {
             }
         });
 
-        codigo.setFont(new java.awt.Font("Inter Light", 0, 16)); // NOI18N
+        codigo.setFont(new java.awt.Font("Inter Light", 0, 18)); // NOI18N
         codigo.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyReleased(java.awt.event.KeyEvent evt) {
                 codigoKeyReleased(evt);
             }
         });
 
-        jLabel3.setFont(new java.awt.Font("Arial", 0, 21)); // NOI18N
+        jLabel3.setFont(new java.awt.Font("Inter", 0, 24)); // NOI18N
         jLabel3.setText("Código");
 
-        jLabel11.setFont(new java.awt.Font("Arial", 0, 21)); // NOI18N
+        jLabel11.setFont(new java.awt.Font("Inter", 0, 24)); // NOI18N
         jLabel11.setText("Produto");
 
-        nomeProduto.setFont(new java.awt.Font("Inter Light", 0, 16)); // NOI18N
+        nomeProduto.setFont(new java.awt.Font("Inter Light", 0, 18)); // NOI18N
         nomeProduto.setDisabledTextColor(new java.awt.Color(51, 51, 51));
 
-        jLabel5.setFont(new java.awt.Font("Arial", 0, 21)); // NOI18N
+        jLabel5.setFont(new java.awt.Font("Inter", 0, 24)); // NOI18N
         jLabel5.setText("Preço:");
 
-        preco.setFont(new java.awt.Font("Inter Light", 0, 16)); // NOI18N
+        preco.setFont(new java.awt.Font("Inter Light", 0, 18)); // NOI18N
         preco.setDisabledTextColor(new java.awt.Color(51, 51, 51));
         preco.setEnabled(false);
 
-        jLabel4.setFont(new java.awt.Font("Arial", 0, 21)); // NOI18N
+        jLabel4.setFont(new java.awt.Font("Inter", 0, 24)); // NOI18N
         jLabel4.setText("Descrição");
 
         descricao.setColumns(20);
-        descricao.setFont(new java.awt.Font("Arial", 0, 20)); // NOI18N
+        descricao.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         descricao.setRows(5);
         descricao.setDisabledTextColor(new java.awt.Color(51, 51, 51));
         descricao.setEnabled(false);
         jScrollPane1.setViewportView(descricao);
 
-        jLabel6.setFont(new java.awt.Font("Arial", 0, 21)); // NOI18N
+        jLabel6.setFont(new java.awt.Font("Inter", 0, 24)); // NOI18N
         jLabel6.setText("Marca");
 
-        marca.setFont(new java.awt.Font("Inter Light", 0, 16)); // NOI18N
+        marca.setFont(new java.awt.Font("Inter Light", 0, 18)); // NOI18N
         marca.setDisabledTextColor(new java.awt.Color(51, 51, 51));
         marca.setEnabled(false);
 
-        estoque.setFont(new java.awt.Font("Inter Light", 0, 16)); // NOI18N
+        estoque.setFont(new java.awt.Font("Inter Light", 0, 18)); // NOI18N
         estoque.setDisabledTextColor(new java.awt.Color(51, 51, 51));
         estoque.setEnabled(false);
 
-        jLabel7.setFont(new java.awt.Font("Arial", 0, 21)); // NOI18N
+        jLabel7.setFont(new java.awt.Font("Inter", 0, 24)); // NOI18N
         jLabel7.setText("Estoque");
 
         btUltimasVendas.setBackground(new java.awt.Color(204, 204, 255));
-        btUltimasVendas.setFont(new java.awt.Font("Arial", 0, 21)); // NOI18N
+        btUltimasVendas.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         btUltimasVendas.setForeground(new java.awt.Color(51, 51, 51));
         btUltimasVendas.setText("Últimas vendas");
         btUltimasVendas.addActionListener(new java.awt.event.ActionListener() {
@@ -311,15 +311,15 @@ public class PesquisarProdutos extends javax.swing.JInternalFrame {
             }
         });
 
-        jLabel9.setFont(new java.awt.Font("Arial", 0, 21)); // NOI18N
+        jLabel9.setFont(new java.awt.Font("Inter", 0, 24)); // NOI18N
         jLabel9.setText("Categoria");
 
-        categoria.setFont(new java.awt.Font("Inter Light", 0, 16)); // NOI18N
+        categoria.setFont(new java.awt.Font("Inter Light", 0, 18)); // NOI18N
         categoria.setDisabledTextColor(new java.awt.Color(51, 51, 51));
         categoria.setEnabled(false);
 
         btCancelar.setBackground(new java.awt.Color(169, 169, 169));
-        btCancelar.setFont(new java.awt.Font("Arial", 0, 20)); // NOI18N
+        btCancelar.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         btCancelar.setForeground(new java.awt.Color(255, 255, 255));
         btCancelar.setText("Cancelar");
         btCancelar.addActionListener(new java.awt.event.ActionListener() {
@@ -329,23 +329,24 @@ public class PesquisarProdutos extends javax.swing.JInternalFrame {
         });
 
         descricao_curta.setColumns(20);
-        descricao_curta.setFont(new java.awt.Font("Arial", 0, 20)); // NOI18N
+        descricao_curta.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         descricao_curta.setRows(5);
         descricao_curta.setEnabled(false);
         jScrollPane2.setViewportView(descricao_curta);
 
-        jLabel12.setFont(new java.awt.Font("Arial", 0, 20)); // NOI18N
+        jLabel12.setFont(new java.awt.Font("Inter", 0, 24)); // NOI18N
         jLabel12.setText("Descrição curta");
 
-        jLabel13.setFont(new java.awt.Font("Arial", 0, 20)); // NOI18N
+        jLabel13.setFont(new java.awt.Font("Inter", 0, 24)); // NOI18N
         jLabel13.setText("Preço promocional");
 
-        preco_promocional.setFont(new java.awt.Font("Inter Light", 0, 16)); // NOI18N
+        preco_promocional.setFont(new java.awt.Font("Inter Light", 0, 18)); // NOI18N
         preco_promocional.setEnabled(false);
 
-        jLabel8.setFont(new java.awt.Font("Arial", 0, 20)); // NOI18N
+        jLabel8.setFont(new java.awt.Font("Inter", 0, 24)); // NOI18N
         jLabel8.setText("Promoção");
 
+        prom_sim.setFont(new java.awt.Font("Inter Light", 0, 18)); // NOI18N
         prom_sim.setText("Sim");
         prom_sim.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -353,6 +354,7 @@ public class PesquisarProdutos extends javax.swing.JInternalFrame {
             }
         });
 
+        prom_nao.setFont(new java.awt.Font("Inter Light", 0, 18)); // NOI18N
         prom_nao.setText("Não");
         prom_nao.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -360,9 +362,10 @@ public class PesquisarProdutos extends javax.swing.JInternalFrame {
             }
         });
 
-        jLabel20.setFont(new java.awt.Font("Arial", 0, 20)); // NOI18N
+        jLabel20.setFont(new java.awt.Font("Inter", 0, 24)); // NOI18N
         jLabel20.setText("Ativo");
 
+        ativo_sim.setFont(new java.awt.Font("Inter Light", 0, 18)); // NOI18N
         ativo_sim.setText("Sim");
         ativo_sim.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -370,6 +373,7 @@ public class PesquisarProdutos extends javax.swing.JInternalFrame {
             }
         });
 
+        ativo_nao.setFont(new java.awt.Font("Inter Light", 0, 18)); // NOI18N
         ativo_nao.setText("Não");
         ativo_nao.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -395,7 +399,7 @@ public class PesquisarProdutos extends javax.swing.JInternalFrame {
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(jLabel11)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(nomeProduto, javax.swing.GroupLayout.DEFAULT_SIZE, 511, Short.MAX_VALUE)))
+                                .addComponent(nomeProduto)))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
@@ -408,27 +412,6 @@ public class PesquisarProdutos extends javax.swing.JInternalFrame {
                                 .addComponent(codigo, javax.swing.GroupLayout.PREFERRED_SIZE, 99, javax.swing.GroupLayout.PREFERRED_SIZE))))
                     .addComponent(jScrollPane1)
                     .addComponent(jScrollPane2, javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                        .addComponent(jLabel20)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(ativo_sim, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(ativo_nao, javax.swing.GroupLayout.PREFERRED_SIZE, 64, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jLabel8)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(prom_sim, javax.swing.GroupLayout.PREFERRED_SIZE, 53, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(prom_nao, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jLabel13)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(preco_promocional))
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jLabel4, javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel12, javax.swing.GroupLayout.Alignment.LEADING))
-                        .addGap(0, 0, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addGroup(layout.createSequentialGroup()
@@ -447,7 +430,28 @@ public class PesquisarProdutos extends javax.swing.JInternalFrame {
                                 .addComponent(estoque, javax.swing.GroupLayout.PREFERRED_SIZE, 177, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                 .addComponent(btUltimasVendas))
-                            .addComponent(btCancelar))))
+                            .addComponent(btCancelar)))
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jLabel4, javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel12, javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                                .addComponent(jLabel20)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(ativo_sim, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(ativo_nao, javax.swing.GroupLayout.PREFERRED_SIZE, 64, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(jLabel8)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(prom_sim, javax.swing.GroupLayout.PREFERRED_SIZE, 62, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(prom_nao, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(24, 24, 24)
+                                .addComponent(jLabel13)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(preco_promocional, javax.swing.GroupLayout.PREFERRED_SIZE, 154, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addGap(18, 18, 18))
         );
         layout.setVerticalGroup(
@@ -469,8 +473,8 @@ public class PesquisarProdutos extends javax.swing.JInternalFrame {
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(preco, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel11)
-                            .addComponent(nomeProduto, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel5))
+                            .addComponent(jLabel5)
+                            .addComponent(nomeProduto, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jLabel4)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)

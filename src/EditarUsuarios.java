@@ -23,6 +23,7 @@ public class EditarUsuarios extends javax.swing.JInternalFrame {
     private static final Logger LOGGER = Logger.getLogger(PesquisarUsuario.class.getName());
     private static final String SELECT_PERSON_DATA = "SELECT * FROM view_pessoa_endereco WHERE nome = ?";
     private static final String SELECT_PESSOA_POR_ID = "SELECT * FROM view_pessoa_endereco WHERE id_pessoa = ?";
+    Funcoes funcoes = new Funcoes();
     
     private DefaultTableModel tableModel;
     private JTable table;
@@ -41,6 +42,11 @@ public class EditarUsuarios extends javax.swing.JInternalFrame {
     public EditarUsuarios() {
         initComponents();
         initTable();
+        funcoes.aplicarMascaraNome(nome);
+        funcoes.aplicarMascaraInteiro(campoId);
+        funcoes.aplicarMascaraTelefone(telefone);
+        funcoes.aplicarMascaraCPF(cpf);
+        funcoes.aplicarMascaraCEP(cep);
     }
     
     private void initTable() {
@@ -339,9 +345,10 @@ public class EditarUsuarios extends javax.swing.JInternalFrame {
         tabela = new javax.swing.JTable();
 
         setClosable(true);
+        setIconifiable(true);
         setTitle("Editar Usuários");
 
-        tfPesquisar.setFont(new java.awt.Font("Arial", 0, 17)); // NOI18N
+        tfPesquisar.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         tfPesquisar.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyReleased(java.awt.event.KeyEvent evt) {
                 tfPesquisarKeyReleased(evt);
@@ -360,55 +367,55 @@ public class EditarUsuarios extends javax.swing.JInternalFrame {
 
         JCard.setLayout(new java.awt.CardLayout());
 
-        jLabel1.setFont(new java.awt.Font("Arial", 0, 19)); // NOI18N
+        jLabel1.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
         jLabel1.setText("Nome");
 
-        nome.setFont(new java.awt.Font("Arial", 0, 20)); // NOI18N
+        nome.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         nome.setSelectedTextColor(new java.awt.Color(51, 51, 51));
 
-        jLabel2.setFont(new java.awt.Font("Arial", 0, 19)); // NOI18N
+        jLabel2.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
         jLabel2.setText("E-mail");
 
-        jLabel3.setFont(new java.awt.Font("Arial", 0, 19)); // NOI18N
+        jLabel3.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
         jLabel3.setText("Cadastro de Pessoa Física (CPF)");
 
-        telefone.setFont(new java.awt.Font("Arial", 0, 20)); // NOI18N
+        telefone.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         telefone.setSelectedTextColor(new java.awt.Color(51, 51, 51));
 
-        jLabel5.setFont(new java.awt.Font("Arial", 0, 19)); // NOI18N
+        jLabel5.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
         jLabel5.setText("Telefone");
 
-        jLabel8.setFont(new java.awt.Font("Arial", 0, 19)); // NOI18N
+        jLabel8.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
         jLabel8.setText("Estado");
 
-        estado.setFont(new java.awt.Font("Arial", 0, 20)); // NOI18N
+        estado.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         estado.setSelectedTextColor(new java.awt.Color(51, 51, 51));
 
-        jLabel9.setFont(new java.awt.Font("Arial", 0, 19)); // NOI18N
+        jLabel9.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
         jLabel9.setText("CEP");
 
-        jLabel10.setFont(new java.awt.Font("Arial", 0, 19)); // NOI18N
+        jLabel10.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
         jLabel10.setText("Cidade");
 
-        cidade.setFont(new java.awt.Font("Arial", 0, 20)); // NOI18N
+        cidade.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         cidade.setSelectedTextColor(new java.awt.Color(51, 51, 51));
 
-        jLabel11.setFont(new java.awt.Font("Arial", 0, 19)); // NOI18N
+        jLabel11.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
         jLabel11.setText("Bairro");
 
-        bairro.setFont(new java.awt.Font("Arial", 0, 20)); // NOI18N
+        bairro.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         bairro.setSelectedTextColor(new java.awt.Color(51, 51, 51));
 
-        endereco.setFont(new java.awt.Font("Arial", 0, 20)); // NOI18N
+        endereco.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         endereco.setSelectedTextColor(new java.awt.Color(51, 51, 51));
 
-        jLabel12.setFont(new java.awt.Font("Arial", 0, 19)); // NOI18N
+        jLabel12.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
         jLabel12.setText("Endereço");
 
-        jLabel13.setFont(new java.awt.Font("Arial", 0, 19)); // NOI18N
+        jLabel13.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
         jLabel13.setText("Código");
 
-        campoId.setFont(new java.awt.Font("Arial", 0, 20)); // NOI18N
+        campoId.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         campoId.setSelectedTextColor(new java.awt.Color(51, 51, 51));
         campoId.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -421,10 +428,10 @@ public class EditarUsuarios extends javax.swing.JInternalFrame {
             }
         });
 
-        jLabel14.setFont(new java.awt.Font("Arial", 0, 19)); // NOI18N
+        jLabel14.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
         jLabel14.setText("Complemento");
 
-        complemento.setFont(new java.awt.Font("Arial", 0, 20)); // NOI18N
+        complemento.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         complemento.setSelectedTextColor(new java.awt.Color(51, 51, 51));
 
         btAtualizar.setBackground(new java.awt.Color(255, 165, 0));
@@ -467,7 +474,8 @@ public class EditarUsuarios extends javax.swing.JInternalFrame {
             }
         });
 
-        situacao.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
+        situacao.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
+        situacao.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Ativo", "Inativo", "Bloqueado" }));
         situacao.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         situacao.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -475,13 +483,14 @@ public class EditarUsuarios extends javax.swing.JInternalFrame {
             }
         });
 
-        jLabel6.setFont(new java.awt.Font("Arial", 0, 19)); // NOI18N
+        jLabel6.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
         jLabel6.setText("Tipo");
 
-        jLabel7.setFont(new java.awt.Font("Arial", 0, 19)); // NOI18N
+        jLabel7.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
         jLabel7.setText("Situação");
 
-        tipo.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
+        tipo.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
+        tipo.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "ADM", "Funcionario" }));
         tipo.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         tipo.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -489,7 +498,9 @@ public class EditarUsuarios extends javax.swing.JInternalFrame {
             }
         });
 
-        tabela.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
+        email.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
+
+        tabela.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         tabela.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
@@ -517,24 +528,26 @@ public class EditarUsuarios extends javax.swing.JInternalFrame {
         painelPessoa.setLayout(painelPessoaLayout);
         painelPessoaLayout.setHorizontalGroup(
             painelPessoaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(painelPessoaLayout.createSequentialGroup()
-                .addGap(48, 48, 48)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, painelPessoaLayout.createSequentialGroup()
                 .addGroup(painelPessoaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(painelPessoaLayout.createSequentialGroup()
                         .addGap(0, 0, Short.MAX_VALUE)
                         .addComponent(btAtualizar)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btCancelar1)
-                        .addGap(51, 51, 51))
+                        .addComponent(btCancelar1))
                     .addGroup(painelPessoaLayout.createSequentialGroup()
+                        .addGap(48, 48, 48)
+                        .addComponent(jScrollPane1))
+                    .addGroup(painelPessoaLayout.createSequentialGroup()
+                        .addGap(15, 15, 15)
                         .addComponent(perfil, javax.swing.GroupLayout.PREFERRED_SIZE, 205, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGap(45, 45, 45)
                         .addGroup(painelPessoaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(painelPessoaLayout.createSequentialGroup()
                                 .addGroup(painelPessoaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(jLabel2)
                                     .addComponent(email, javax.swing.GroupLayout.PREFERRED_SIZE, 465, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 37, Short.MAX_VALUE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addGroup(painelPessoaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(jLabel5)
                                     .addComponent(telefone, javax.swing.GroupLayout.PREFERRED_SIZE, 267, javax.swing.GroupLayout.PREFERRED_SIZE)))
@@ -548,44 +561,43 @@ public class EditarUsuarios extends javax.swing.JInternalFrame {
                                     .addComponent(nome)))
                             .addGroup(painelPessoaLayout.createSequentialGroup()
                                 .addGroup(painelPessoaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(painelPessoaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                        .addComponent(endereco, javax.swing.GroupLayout.Alignment.LEADING)
-                                        .addGroup(javax.swing.GroupLayout.Alignment.LEADING, painelPessoaLayout.createSequentialGroup()
-                                            .addGroup(painelPessoaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                                .addComponent(jLabel8)
-                                                .addComponent(estado, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                            .addGroup(painelPessoaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                                .addGroup(painelPessoaLayout.createSequentialGroup()
-                                                    .addComponent(jLabel9)
-                                                    .addGap(195, 195, 195))
-                                                .addGroup(painelPessoaLayout.createSequentialGroup()
-                                                    .addComponent(cep)
-                                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)))
-                                            .addGroup(painelPessoaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                                .addComponent(jLabel10)
-                                                .addComponent(cidade, javax.swing.GroupLayout.PREFERRED_SIZE, 154, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                                    .addComponent(endereco)
                                     .addComponent(jLabel12)
-                                    .addComponent(jLabel3)
-                                    .addComponent(cpf, javax.swing.GroupLayout.PREFERRED_SIZE, 401, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addGroup(painelPessoaLayout.createSequentialGroup()
+                                        .addGroup(painelPessoaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addComponent(jLabel3)
+                                            .addComponent(cpf, javax.swing.GroupLayout.PREFERRED_SIZE, 401, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addGroup(painelPessoaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addComponent(jLabel7)
+                                            .addComponent(situacao, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 175, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                    .addGroup(painelPessoaLayout.createSequentialGroup()
+                                        .addGroup(painelPessoaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addComponent(jLabel8)
+                                            .addComponent(estado, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addGroup(painelPessoaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addGroup(painelPessoaLayout.createSequentialGroup()
+                                                .addComponent(jLabel9)
+                                                .addGap(195, 195, 195))
+                                            .addComponent(cep))
+                                        .addGap(24, 24, 24)
+                                        .addGroup(painelPessoaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addComponent(jLabel10)
+                                            .addComponent(cidade, javax.swing.GroupLayout.PREFERRED_SIZE, 154, javax.swing.GroupLayout.PREFERRED_SIZE))))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addGroup(painelPessoaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                                     .addComponent(bairro, javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(complemento, javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(painelPessoaLayout.createSequentialGroup()
-                                        .addGroup(painelPessoaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                            .addComponent(situacao, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                            .addComponent(jLabel14)
-                                            .addGroup(painelPessoaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                                .addComponent(jLabel7)
-                                                .addComponent(jLabel11)))
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addGroup(painelPessoaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                            .addGroup(painelPessoaLayout.createSequentialGroup()
-                                                .addComponent(jLabel6)
-                                                .addGap(0, 0, Short.MAX_VALUE))
-                                            .addComponent(tipo, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))))))
-                    .addComponent(jScrollPane1))
+                                    .addComponent(tipo, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, painelPessoaLayout.createSequentialGroup()
+                                        .addGroup(painelPessoaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                            .addComponent(jLabel14, javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, painelPessoaLayout.createSequentialGroup()
+                                                .addGap(25, 25, 25)
+                                                .addComponent(jLabel11))
+                                            .addComponent(jLabel6, javax.swing.GroupLayout.Alignment.LEADING))
+                                        .addGap(0, 0, Short.MAX_VALUE)))))))
                 .addGap(49, 49, 49))
         );
         painelPessoaLayout.setVerticalGroup(
@@ -594,7 +606,11 @@ public class EditarUsuarios extends javax.swing.JInternalFrame {
                 .addContainerGap()
                 .addGroup(painelPessoaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, painelPessoaLayout.createSequentialGroup()
-                        .addComponent(jLabel8)
+                        .addGroup(painelPessoaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(painelPessoaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                .addComponent(jLabel8)
+                                .addComponent(jLabel9))
+                            .addComponent(perfil, javax.swing.GroupLayout.PREFERRED_SIZE, 233, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(estado, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, painelPessoaLayout.createSequentialGroup()
@@ -617,30 +633,26 @@ public class EditarUsuarios extends javax.swing.JInternalFrame {
                             .addGroup(painelPessoaLayout.createSequentialGroup()
                                 .addComponent(email)
                                 .addGap(1, 1, 1)))
-                        .addGroup(painelPessoaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addGroup(painelPessoaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel3)
-                            .addComponent(jLabel7)
-                            .addComponent(jLabel6))
+                            .addGroup(painelPessoaLayout.createSequentialGroup()
+                                .addGap(6, 6, 6)
+                                .addComponent(jLabel6))
+                            .addComponent(jLabel7))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(painelPessoaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(situacao)
                             .addComponent(cpf)
-                            .addComponent(situacao, javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(tipo))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(painelPessoaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(painelPessoaLayout.createSequentialGroup()
-                                .addGroup(painelPessoaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addComponent(jLabel9)
-                                    .addComponent(jLabel10))
-                                .addGap(35, 35, 35))
-                            .addGroup(painelPessoaLayout.createSequentialGroup()
-                                .addComponent(jLabel11)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addGroup(painelPessoaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                    .addComponent(bairro, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(cidade, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(cep)))))
-                    .addComponent(perfil, javax.swing.GroupLayout.PREFERRED_SIZE, 233, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGroup(painelPessoaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel11)
+                            .addComponent(jLabel10))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(painelPessoaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(bairro, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(cidade, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(cep))))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(painelPessoaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(painelPessoaLayout.createSequentialGroup()
@@ -656,7 +668,7 @@ public class EditarUsuarios extends javax.swing.JInternalFrame {
                     .addComponent(btAtualizar)
                     .addComponent(btCancelar1))
                 .addGap(20, 20, 20)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 197, Short.MAX_VALUE))
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 165, Short.MAX_VALUE))
         );
 
         JCard.add(painelPessoa, "painelPessoa");

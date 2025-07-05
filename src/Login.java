@@ -116,7 +116,7 @@ public class Login extends javax.swing.JFrame {
         jLabel2.setForeground(new java.awt.Color(255, 255, 255));
         jLabel2.setText("Senha");
 
-        senha.setFont(new java.awt.Font("Arial", 0, 20)); // NOI18N
+        senha.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         senha.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
 
         jLabel1.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
@@ -124,7 +124,7 @@ public class Login extends javax.swing.JFrame {
         jLabel1.setText("Usuário");
 
         btLogin.setBackground(new java.awt.Color(50, 205, 50));
-        btLogin.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
+        btLogin.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         btLogin.setForeground(new java.awt.Color(255, 255, 255));
         btLogin.setText("Entrar");
         btLogin.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -134,7 +134,7 @@ public class Login extends javax.swing.JFrame {
         });
 
         btSair.setBackground(new java.awt.Color(169, 169, 169));
-        btSair.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
+        btSair.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         btSair.setForeground(new java.awt.Color(255, 255, 255));
         btSair.setText("Sair");
         btSair.addActionListener(new java.awt.event.ActionListener() {
@@ -151,7 +151,7 @@ public class Login extends javax.swing.JFrame {
         jLabel5.setForeground(new java.awt.Color(245, 245, 245));
         jLabel5.setText("Código");
 
-        codigoCampo.setFont(new java.awt.Font("Arial", 0, 20)); // NOI18N
+        codigoCampo.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         codigoCampo.setBorder(javax.swing.BorderFactory.createEtchedBorder());
         codigoCampo.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt) {
@@ -186,7 +186,7 @@ public class Login extends javax.swing.JFrame {
             }
         });
 
-        usuario.setFont(new java.awt.Font("Arial", 0, 20)); // NOI18N
+        usuario.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         usuario.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
         usuario.setDisabledTextColor(new java.awt.Color(0, 0, 0));
 
@@ -195,14 +195,9 @@ public class Login extends javax.swing.JFrame {
         painelPrincipalLayout.setHorizontalGroup(
             painelPrincipalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(painelPrincipalLayout.createSequentialGroup()
-                .addGroup(painelPrincipalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(painelPrincipalLayout.createSequentialGroup()
-                        .addGap(135, 135, 135)
-                        .addComponent(jLabel3))
-                    .addGroup(painelPrincipalLayout.createSequentialGroup()
-                        .addGap(120, 120, 120)
-                        .addComponent(imagem, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(0, 0, Short.MAX_VALUE))
+                .addGap(120, 120, 120)
+                .addComponent(imagem, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 112, Short.MAX_VALUE))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, painelPrincipalLayout.createSequentialGroup()
                 .addContainerGap(32, Short.MAX_VALUE)
                 .addGroup(painelPrincipalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -228,6 +223,10 @@ public class Login extends javax.swing.JFrame {
                         .addComponent(btSair, javax.swing.GroupLayout.PREFERRED_SIZE, 111, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(85, 85, 85)))
                 .addGap(18, 18, 18))
+            .addGroup(painelPrincipalLayout.createSequentialGroup()
+                .addGap(108, 108, 108)
+                .addComponent(jLabel3)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         painelPrincipalLayout.setVerticalGroup(
             painelPrincipalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -260,7 +259,7 @@ public class Login extends javax.swing.JFrame {
                 .addGroup(painelPrincipalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btLogin)
                     .addComponent(btSair))
-                .addContainerGap(82, Short.MAX_VALUE))
+                .addContainerGap(88, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());

@@ -43,6 +43,34 @@ public class Funcoes {
             }
         });
     }
+    // Método para aplicar a máscara de nome (letras, acentos, espaços e números)
+
+    public static void aplicarMascaraNomeNumero(JTextField textField) {
+        PlainDocument doc = (PlainDocument) textField.getDocument();
+        doc.setDocumentFilter(new DocumentFilter() {
+            @Override
+            public void insertString(FilterBypass fb, int offset, String text, AttributeSet attr)
+                    throws BadLocationException {
+                if (text == null) {
+                    return;
+                }
+                if (text.matches("[a-zA-ZÀ-ú0-9 ]+")) { // Agora também permite números
+                    super.insertString(fb, offset, text, attr);
+                }
+            }
+
+            @Override
+            public void replace(FilterBypass fb, int offset, int length, String text, AttributeSet attrs)
+                    throws BadLocationException {
+                if (text == null) {
+                    return;
+                }
+                if (text.matches("[a-zA-ZÀ-ú0-9 ]+")) { // Agora também permite números
+                    super.replace(fb, offset, length, text, attrs);
+                }
+            }
+        });
+    }
 
     public static void aplicarMascaraPreco(JTextField textField) {
         PlainDocument doc = (PlainDocument) textField.getDocument();
@@ -72,6 +100,166 @@ public class Funcoes {
             }
         });
     }
+    public static void aplicarMascaraCPF(JTextField textField) {
+    PlainDocument doc = (PlainDocument) textField.getDocument();
+    doc.setDocumentFilter(new DocumentFilter() {
+        @Override
+        public void insertString(FilterBypass fb, int offset, String text, AttributeSet attr)
+                throws BadLocationException {
+            if (text == null || !text.matches("\\d+")) {
+                return; // Só aceita dígitos
+            }
+
+            StringBuilder sb = new StringBuilder(fb.getDocument().getText(0, fb.getDocument().getLength()));
+            sb.insert(offset, text);
+            String numeros = sb.toString().replaceAll("\\D", "");
+            String formatado = formatarCPF(numeros);
+
+            fb.remove(0, fb.getDocument().getLength());
+            super.insertString(fb, 0, formatado, attr);
+        }
+
+        @Override
+        public void replace(FilterBypass fb, int offset, int length, String text, AttributeSet attrs)
+                throws BadLocationException {
+            if (text == null || !text.matches("\\d*")) {
+                return;
+            }
+
+            StringBuilder sb = new StringBuilder(fb.getDocument().getText(0, fb.getDocument().getLength()));
+            sb.replace(offset, offset + length, text);
+            String numeros = sb.toString().replaceAll("\\D", "");
+            String formatado = formatarCPF(numeros);
+
+            fb.remove(0, fb.getDocument().getLength());
+            super.insertString(fb, 0, formatado, attrs);
+        }
+
+        private String formatarCPF(String numeros) {
+            if (numeros.length() > 11) {
+                numeros = numeros.substring(0, 11);
+            }
+
+            if (numeros.length() <= 3) {
+                return numeros;
+            } else if (numeros.length() <= 6) {
+                return numeros.substring(0, 3) + "." + numeros.substring(3);
+            } else if (numeros.length() <= 9) {
+                return numeros.substring(0, 3) + "." + 
+                       numeros.substring(3, 6) + "." + 
+                       numeros.substring(6);
+            } else {
+                return numeros.substring(0, 3) + "." +
+                       numeros.substring(3, 6) + "." +
+                       numeros.substring(6, 9) + "-" +
+                       numeros.substring(9);
+            }
+        }
+    });
+}
+    public static void aplicarMascaraCEP(JTextField textField) {
+    PlainDocument doc = (PlainDocument) textField.getDocument();
+    doc.setDocumentFilter(new DocumentFilter() {
+        @Override
+        public void insertString(FilterBypass fb, int offset, String text, AttributeSet attr)
+                throws BadLocationException {
+            if (text == null || !text.matches("\\d+")) {
+                return; // Só permite números
+            }
+
+            StringBuilder sb = new StringBuilder(fb.getDocument().getText(0, fb.getDocument().getLength()));
+            sb.insert(offset, text);
+            String numeros = sb.toString().replaceAll("\\D", "");
+            String formatado = formatarCEP(numeros);
+
+            fb.remove(0, fb.getDocument().getLength());
+            super.insertString(fb, 0, formatado, attr);
+        }
+
+        @Override
+        public void replace(FilterBypass fb, int offset, int length, String text, AttributeSet attrs)
+                throws BadLocationException {
+            if (text == null || !text.matches("\\d*")) {
+                return;
+            }
+
+            StringBuilder sb = new StringBuilder(fb.getDocument().getText(0, fb.getDocument().getLength()));
+            sb.replace(offset, offset + length, text);
+            String numeros = sb.toString().replaceAll("\\D", "");
+            String formatado = formatarCEP(numeros);
+
+            fb.remove(0, fb.getDocument().getLength());
+            super.insertString(fb, 0, formatado, attrs);
+        }
+
+        private String formatarCEP(String numeros) {
+            if (numeros.length() > 8) {
+                numeros = numeros.substring(0, 8);
+            }
+
+            if (numeros.length() <= 5) {
+                return numeros;
+            } else {
+                return numeros.substring(0, 5) + "-" + numeros.substring(5);
+            }
+        }
+    });
+}
+
+    public static void aplicarMascaraTelefone(JTextField textField) {
+    PlainDocument doc = (PlainDocument) textField.getDocument();
+    doc.setDocumentFilter(new DocumentFilter() {
+        @Override
+        public void insertString(FilterBypass fb, int offset, String text, AttributeSet attr)
+                throws BadLocationException {
+            if (text == null || !text.matches("\\d+")) {
+                return; // Só permite números
+            }
+
+            StringBuilder sb = new StringBuilder(fb.getDocument().getText(0, fb.getDocument().getLength()));
+            sb.insert(offset, text);
+            String numeros = sb.toString().replaceAll("\\D", "");
+            String formatado = formatarTelefone(numeros);
+
+            fb.remove(0, fb.getDocument().getLength());
+            super.insertString(fb, 0, formatado, attr);
+        }
+
+        @Override
+        public void replace(FilterBypass fb, int offset, int length, String text, AttributeSet attrs)
+                throws BadLocationException {
+            if (text == null || !text.matches("\\d*")) {
+                return; // Só permite números
+            }
+
+            StringBuilder sb = new StringBuilder(fb.getDocument().getText(0, fb.getDocument().getLength()));
+            sb.replace(offset, offset + length, text);
+            String numeros = sb.toString().replaceAll("\\D", "");
+            String formatado = formatarTelefone(numeros);
+
+            fb.remove(0, fb.getDocument().getLength());
+            super.insertString(fb, 0, formatado, attrs);
+        }
+
+        private String formatarTelefone(String numeros) {
+            if (numeros.length() > 11) {
+                numeros = numeros.substring(0, 11); // Limita a 11 dígitos
+            }
+
+            if (numeros.length() <= 2) {
+                return "(" + numeros;
+            } else if (numeros.length() <= 7) {
+                return "(" + numeros.substring(0, 2) + ") " + numeros.substring(2);
+            } else if (numeros.length() <= 11) {
+                return "(" + numeros.substring(0, 2) + ") " + 
+                       numeros.substring(2, 7) + "-" + 
+                       numeros.substring(7);
+            }
+            return numeros;
+        }
+    });
+}
+
 
     public static void aplicarMascaraInteiro(JTextField textField) {
         PlainDocument doc = (PlainDocument) textField.getDocument();
