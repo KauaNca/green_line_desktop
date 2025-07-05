@@ -12,10 +12,17 @@
 ---
 
 ## 📖 Sobre o Projeto
+Este projeto é parte integrante do Trabalho de Conclusão de Curso (TCC) dos alunos da turma de Análise e Desenvolvimento de Sistemas do SENAC.
 
-A **Green Line** é uma empresa fictícia criada como parte do Projeto Integrador do curso. Esta versão desktop simula um e-commerce voltado à venda de **produtos sustentáveis**, promovendo o consumo consciente através da tecnologia.
+A versão Desktop do sistema é voltada exclusivamente para administradores, sendo uma plataforma local de gerenciamento de um e-commerce com foco em produtos sustentáveis.
 
-Desenvolvido com **Java** no **NetBeans**, o sistema permite a execução local em ambientes desktop com funcionalidades essenciais de uma loja virtual.
+Objetivo:
+
+Facilitar o controle e cadastro de produtos ecológicos
+
+Oferecer uma interface administrativa intuitiva para operações CRUD
+
+Apoiar a versão Web e Mobile no gerenciamento interno do sistema
 
 ---
 
@@ -30,6 +37,50 @@ Desenvolvido com **Java** no **NetBeans**, o sistema permite a execução local 
 - **NetBeans IDE**: Ambiente de desenvolvimento
 
 ---
+## 🔐 Contas de Teste
+
+### 🛠️ Administrador (acesso exclusivo à versão Desktop)
+- **Usuário:** `Administrador`
+- **Senha:** `12GLA`
+
+Para mais informações sobre as demais versões do sistema, acesse os outros repositórios da **Green Line** nos links abaixo
+
+## 🌐 Acesso à Versão Web
+
+Acesse o site do sistema por meio do seguinte link:  
+🔗 [green_line_web](https://kauanca.github.io/green_line_web/)
+
+---
+
+## ⬇️ Downloads para Testes
+Faça o download das versões em fase de testes abaixo:
+
+- 📱 **Android** → [Download APK](https://drive.google.com/file/d/1boV4tKh74tGHVYdIwVufuM1JS_F8x4XN/view?usp=sharing)  
+- 🖥️ **Desktop** → [Download Executável](https://drive.google.com/drive/folders/1m10LnylS3dkNuxwOceKg5xuNIX2L7jxB?usp=sharing)
+
+
+## 💾 Versões  
+
+| Versão       | Descrição                          | Status            | Repositório       |  
+|--------------|-----------------------------------|-------------------|-------------------|  
+| 🌐 **Web**   | Frontend responsivo (HTML/CSS/JS) | 🟢 Funcional      | [Link](https://github.com/KauaNca/green_line_web)         |  
+| 📱 **Android**| App (JAVA)               | 🟡 Em desenvolvimento | [Link](https://github.com/KauaNca/green_line_mobile)      |  
+| 🖥️ **Desktop**| Sistema administrativo (Java)     | 🟢 Funcional      | [Link](https://github.com/KauaNca/green_line_desktop)|  
+
+---
+
+🧩 Funcionalidades
+✅ Cadastro de produtos ecológicos
+
+✅ Upload de imagens e dados
+
+✅ Consulta, atualização e exclusão (CRUD completo)
+
+✅ Máscaras de entrada (CPF, preço, etc.)
+
+✅ Integração com banco de dados MySQL
+
+✅ Foco exclusivo para uso administrativo
 
 ## 📁 Estrutura do Projeto
 
@@ -79,5 +130,5 @@ Dúvidas ou sugestões?
 
 ---
 
-<h2 align="center">🌱 Tecnologia a favor da sustentabilidade. Faça parte dessa ideia! 🌎</h2>
+<h2 align="center">🌿 A tecnologia como aliada da sustentabilidade. Administre com propósito! 🌎</h2>
 
