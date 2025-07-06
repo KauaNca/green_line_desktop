@@ -39,9 +39,10 @@ Apoiar a versão Web e Mobile no gerenciamento interno do sistema
 ---
 ## 🔐 Contas de Teste
 
-### 🛠️ Administrador (acesso exclusivo à versão Desktop)
+### 🛠️ Administrador
+- **Código:** `1` 
 - **Usuário:** `Administrador`
-- **Senha:** `12GLA`
+- **Senha:** `123`
 
 Para mais informações sobre as demais versões do sistema, acesse os outros repositórios da **Green Line** nos links abaixo
 
