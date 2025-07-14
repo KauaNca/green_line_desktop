@@ -33,6 +33,7 @@ public class CadastroCategoria extends javax.swing.JInternalFrame {
     public CadastroCategoria() {
         initComponents();
         LOGGER.info("Inicializando interface de cadastro de categorias.");
+        funcoes.aplicarMascaraNome(nomeCategoria);
         
         // Configurando a tabela
         tabela.setDefaultRenderer(Object.class, new MultiLineCellRenderer());

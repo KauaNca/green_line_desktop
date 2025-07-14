@@ -353,7 +353,7 @@ public class CadastroPessoas extends javax.swing.JInternalFrame {
         for (Component c : campos) {
             if (c instanceof JTextField) {
                 JTextField jtf = (JTextField) c;
-                jtf.setText("");
+                jtf.setText(" ");
             }
         }
         //perfil.setIcon(new ImageIcon("imagens/perfil.png"));

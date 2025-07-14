@@ -8,13 +8,16 @@ import javax.swing.ImageIcon;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JTextField;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  * JInternalFrame para pesquisa de usuários (pessoas físicas ou jurídicas) no
@@ -30,13 +33,14 @@ public class PesquisarUsuario extends javax.swing.JInternalFrame {
 
     // Constantes para queries SQL
     private static final String SELECT_PERSON_DATA = "SELECT * FROM view_pessoa_endereco WHERE nome = ?";
-
+    private static final String SELECT_USER_NAMES = "SELECT nome FROM view_pessoa_endereco WHERE LOWER(nome) LIKE ?";
+    private static final String ERROR_DB_CONNECTION = "Erro ao conectar ao banco de dados: ";
+    private static final String ERROR_GENERIC = "Erro: ";
     // Componentes e variáveis da interface
     private CardLayout card;
-    private ArrayList<String> usuarios;
-    private JPopupMenu caixaDeNomes = new JPopupMenu();
-    private ArrayList<String> filtro;
-    private final Font fonteItem = new Font("Arial", Font.PLAIN, 19);
+     private final JPopupMenu sugestoesNomes = new JPopupMenu();
+    private List<String> usuarios;
+    private final Font fonteItem = new Font("Arial", Font.PLAIN, 15);
     Funcoes funcoes = new Funcoes();
 
     /**
@@ -47,12 +51,17 @@ public class PesquisarUsuario extends javax.swing.JInternalFrame {
         initComponents();
         // Define ícones padrão para os perfis
         perfil.setIcon(new ImageIcon("imagens/perfil.png"));
-        usuarios = new ArrayList<>();
-        desativarTextField(painelPessoa); // Desativa campos do painel de pessoa
-        funcoes.aplicarMascaraNome(nome);
-        funcoes.aplicarMascaraTelefone(telefone);
+        System.out.println("Iniciando");
         funcoes.aplicarMascaraCPF(cpf);
+        funcoes.aplicarMascaraNome(nome);
+        funcoes.aplicarMascaraNome(tfPesquisar);
+        funcoes.aplicarMascaraInteiro(codigoUsuario);
+        funcoes.aplicarMascaraTelefone(telefone);
         funcoes.aplicarMascaraCEP(cep);
+        System.out.println("Iniciando");
+        usuarios = new ArrayList<>();
+        desativarTextField(painelPessoa); 
+        nomesUsuarios();
     }
 
     /**
@@ -89,46 +98,55 @@ public class PesquisarUsuario extends javax.swing.JInternalFrame {
         return new ImageIcon(redimensionando);
     }
 
+    public void nomesUsuarios() {
+        LOGGER.info("Carregando nomes com filtro: " + tfPesquisar.getText());
+        try (Connection con = Conexao.conexaoBanco(); PreparedStatement stmt = con.prepareStatement(SELECT_USER_NAMES)) {
+            stmt.setString(1, "%" + tfPesquisar.getText().toLowerCase() + "%");
+            try (ResultSet rs = stmt.executeQuery()) {
+                usuarios = new ArrayList<>();
+                while (rs.next()) {
+                    usuarios.add(rs.getString("nome"));
+                }
+                LOGGER.info("Nomes de nomes carregados: " + usuarios.size());
+            }
+        } catch (SQLException ex) {
+            LOGGER.severe("Erro ao carregar nomes: " + ex.getMessage());
+            JOptionPane.showMessageDialog(null, ERROR_DB_CONNECTION + ex.getMessage());
+        }
+    }
 
     /**
      * Filtra nomes de usuários com base no texto digitado no campo de pesquisa
      * e exibe uma lista suspensa com os resultados correspondentes.
      */
     public void pesquisarNome() {
-        String texto = tfPesquisar.getText();
-        LOGGER.info("Pesquisando nomes com texto: " + texto);
-        filtro = new ArrayList<>();
-        filtro.clear();
-        if (!texto.isEmpty()) {
-            // Filtra nomes que contêm o texto digitado
-            for (String nome : usuarios) {
-                if (nome.contains(texto)) {
-                    filtro.add(nome);
-                }
-            }
-            caixaDeNomes.removeAll();
+       String pesquisa = tfPesquisar.getText().toLowerCase();
+        LOGGER.info("Filtrando produtos com texto: " + pesquisa);
+        sugestoesNomes.setVisible(false);
+
+        if (!pesquisa.isEmpty()) {
+            // Filtra a lista usando Streams
+            List<String> filtro = usuarios.stream()
+                    .filter(produto -> produto.toLowerCase().contains(pesquisa))
+                    .collect(Collectors.toList());
+
             if (!filtro.isEmpty()) {
-                // Adiciona itens filtrados ao menu suspenso
-                for (String nome : filtro) {
-                    JMenuItem item = new JMenuItem(nome);
+                sugestoesNomes.removeAll();
+                for (String p : filtro) {
+                    JMenuItem item = new JMenuItem(p);
+                    item.setFont(fonteItem);
                     item.addActionListener(e -> {
-                        tfPesquisar.setText(nome);
-                        item.setFont(fonteItem);
-                        caixaDeNomes.setVisible(false);
+                        tfPesquisar.setText(p);
+                        sugestoesNomes.setVisible(false);
+                        LOGGER.info("Produto selecionado nas sugestões: " + p);
+                        btnProcurarActionPerformed(null); // Dispara a pesquisa automaticamente
                     });
-                    caixaDeNomes.add(item);
+                    sugestoesNomes.add(item);
                 }
-                // Exibe o menu suspenso abaixo do campo de texto
-                caixaDeNomes.setVisible(true);
-                caixaDeNomes.show(tfPesquisar, 0, tfPesquisar.getHeight());
-            } else {
-                caixaDeNomes.setVisible(false);
+                sugestoesNomes.show(tfPesquisar, 0, tfPesquisar.getHeight());
             }
-        } else {
-            // Limpa e oculta o menu se o campo de texto estiver vazio
-            caixaDeNomes.removeAll();
-            caixaDeNomes.setVisible(false);
         }
+
     }
 
     /**
@@ -160,7 +178,7 @@ public class PesquisarUsuario extends javax.swing.JInternalFrame {
                     LOGGER.info("Dados da pessoa física carregados com sucesso.");
                 }
             }
-            
+
         } catch (Exception e) {
             LOGGER.severe("Erro ao pesquisar pessoa física: " + e.getMessage());
             e.printStackTrace();
@@ -301,6 +319,11 @@ public class PesquisarUsuario extends javax.swing.JInternalFrame {
         btComprasUsuario.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         btComprasUsuario.setForeground(new java.awt.Color(255, 255, 255));
         btComprasUsuario.setText("Compras");
+        btComprasUsuario.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btComprasUsuarioActionPerformed(evt);
+            }
+        });
 
         cpf.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter()));
         cpf.setFont(new java.awt.Font("Arial", 0, 20)); // NOI18N
@@ -543,7 +566,7 @@ public class PesquisarUsuario extends javax.swing.JInternalFrame {
                     email.setText(rs.getString("email"));
                     telefone.setText(rs.getString("telefone"));
                     cpf.setText(rs.getString("cpf"));
-                    
+
                     estado.setText(rs.getString("uf"));
                     cep.setText(rs.getString("cep"));
                     cidade.setText(rs.getString("cidade"));
@@ -577,7 +600,7 @@ public class PesquisarUsuario extends javax.swing.JInternalFrame {
                 ((JTextField) component).setText("");
             }
         }
-
+        nome.setText("");
         desativarTextField(painelPessoa);
     }//GEN-LAST:event_btCancelar1MouseClicked
     /**
@@ -600,8 +623,8 @@ public class PesquisarUsuario extends javax.swing.JInternalFrame {
                     email.setText(rs.getString("email"));
                     telefone.setText(rs.getString("telefone"));
                     cpf.setText(rs.getString("cpf"));
-                    
-                    estado.setText(rs.getString("uf") );
+
+                    estado.setText(rs.getString("uf"));
                     cep.setText(rs.getString("cep"));
                     cidade.setText(rs.getString("cidade"));
                     bairro.setText(rs.getString("bairro"));
@@ -628,6 +651,11 @@ public class PesquisarUsuario extends javax.swing.JInternalFrame {
     private void codigoUsuarioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_codigoUsuarioActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_codigoUsuarioActionPerformed
+
+    private void btComprasUsuarioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btComprasUsuarioActionPerformed
+        LOGGER.info("Botão 'Compras' clicado. Aguardando implementação.");
+        funcoes.Avisos("sinal-de-aviso.png", "Lógica não implementada ainda");
+    }//GEN-LAST:event_btComprasUsuarioActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
