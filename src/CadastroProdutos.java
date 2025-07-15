@@ -74,75 +74,117 @@ public class CadastroProdutos extends javax.swing.JInternalFrame {
     }
 
     private void cadastrarProduto() {
-        //1. Verificar campos obrigatórios primeiro
-        if (camposObrigatorios()) {
+        // 1. Validar campos obrigatórios
+        if (!camposObrigatorios()) {
             funcoes.Avisos("aviso.jpg", "Preencha todos os campos obrigatórios!");
             return;
         }
-        // 2. Verificação de imagens (opcional)
-        if (verificacaoDeImagens()) { // Usuário cancelou ou escolheu a opção não 
+
+        // 2. Verificar imagens (opcional)
+        if (verificacaoDeImagens()) {
             return;
         }
+
+        Connection conexao = null;
+        PreparedStatement stmtCheck = null;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
 
         try {
             System.out.println("Iniciando cadastro...");
             pegarRespostas(); // Obter valores dos campos
 
-            // 3. Validar valores numéricos antes de inserir
+            // 3. Validar valores numéricos
             try {
                 new BigDecimal(campoPreco);
                 new BigDecimal(preco_promocional);
                 Integer.parseInt(campoEstoque);
                 Integer.parseInt(campoParcelas);
                 Double.parseDouble(campoPeso);
+                Double.parseDouble(campoAvaliacao);
+                Integer.parseInt(campoQuantidadeAvaliacoes);
             } catch (NumberFormatException e) {
-                funcoes.Avisos("erro.png", "Valores numéricos inválidos!");
+                funcoes.Avisos("erro.png", "Valores numéricos inválidos! Verifique os campos numéricos.");
                 return;
             }
 
-            // 4. Conexão e inserção
-            try (Connection conexao = Conexao.conexaoBanco(); PreparedStatement stmt = conexao.prepareStatement(cadastrarProduto)) {
-
-                if (conexao == null) {
-                    funcoes.Avisos("aviso.jpg", "Erro na conexão com o banco");
-                    return;
-                }
-
-                // Preencher parâmetros
-                stmt.setString(1, produto);
-                stmt.setString(2, descricao);
-                stmt.setString(3, descricao_curta);
-                stmt.setBigDecimal(4, new BigDecimal(campoPreco)); // Converter para BigDecimal
-                stmt.setBigDecimal(5, new BigDecimal(preco_promocional));
-                stmt.setBoolean(6, promocao);
-                stmt.setString(7, campoMarca);
-                stmt.setDouble(8, Double.parseDouble(campoAvaliacao));
-                stmt.setInt(9, Integer.parseInt(campoQuantidadeAvaliacoes));
-                stmt.setInt(10, Integer.parseInt(campoEstoque));
-                stmt.setInt(11, Integer.parseInt(campoParcelas));
-                stmt.setDouble(12, Double.parseDouble(campoPeso));
-                stmt.setString(13, campoDimensoes);
-                stmt.setBoolean(14, produtoAtivo);
-                stmt.setString(15, campoImagem1);
-                stmt.setString(16, campoImagem2);
-                stmt.setString(17, categoria);
-
-                // Executar inserção
-                int linhasAfetadas = stmt.executeUpdate();
-
-                if (linhasAfetadas > 0) {
-                    funcoes.Avisos("confirmacao.png", "Produto cadastrado com sucesso!");
-                    limpar();
-                } else {
-                    funcoes.Avisos("erro.png", "Nenhum produto foi cadastrado!");
-                }
+            // 4. Estabelecer conexão
+            conexao = Conexao.conexaoBanco();
+            if (conexao == null) {
+                funcoes.Avisos("aviso.jpg", "Erro na conexão com o banco de dados!");
+                return;
             }
+
+            // 5. Verificar duplicidade de produto e categoria
+            String sqlCheckProduto = "SELECT COUNT(*) FROM produtos WHERE produto = ?";
+            stmtCheck = conexao.prepareStatement(sqlCheckProduto);
+            stmtCheck.setString(1, produto.trim());
+            rs = stmtCheck.executeQuery();
+            rs.next();
+            int countProduto = rs.getInt(1);
+            rs.close();
+            stmtCheck.close();
+
+            if (countProduto > 0) {
+                funcoes.Avisos("sinal-de-aviso.png", "Produto ja existente. Por gentileza, insira outra");
+                return;
+
+            }
+
+            // 6. Inserir produto
+            stmt = conexao.prepareStatement(cadastrarProduto);
+            stmt.setString(1, produto.trim());
+            stmt.setString(2, descricao);
+            stmt.setString(3, descricao_curta);
+            stmt.setBigDecimal(4, new BigDecimal(campoPreco));
+            stmt.setBigDecimal(5, new BigDecimal(preco_promocional));
+            stmt.setBoolean(6, promocao);
+            stmt.setString(7, campoMarca);
+            stmt.setDouble(8, Double.parseDouble(campoAvaliacao));
+            stmt.setInt(9, Integer.parseInt(campoQuantidadeAvaliacoes));
+            stmt.setInt(10, Integer.parseInt(campoEstoque));
+            stmt.setInt(11, Integer.parseInt(campoParcelas));
+            stmt.setDouble(12, Double.parseDouble(campoPeso));
+            stmt.setString(13, campoDimensoes);
+            stmt.setBoolean(14, produtoAtivo);
+            stmt.setString(15, campoImagem1);
+            stmt.setString(16, campoImagem2);
+            stmt.setString(17, categoria.trim());
+
+            int linhasAfetadas = stmt.executeUpdate();
+
+            if (linhasAfetadas > 0) {
+                funcoes.Avisos("confirmacao.png", "Produto cadastrado com sucesso!");
+                limpar();
+            } else {
+                funcoes.Avisos("erro.png", "Nenhum produto foi cadastrado!");
+            }
+
         } catch (SQLException e) {
             funcoes.Avisos("erro.png", "Erro no banco de dados: " + e.getMessage());
             e.printStackTrace();
         } catch (Exception e) {
             funcoes.Avisos("erro.png", "Erro inesperado: " + e.getMessage());
             e.printStackTrace();
+        } finally {
+            // 7. Fechar recursos
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (stmtCheck != null) {
+                    stmtCheck.close();
+                }
+                if (stmt != null) {
+                    stmt.close();
+                }
+                if (conexao != null) {
+                    conexao.close();
+                }
+            } catch (SQLException e) {
+                funcoes.Avisos("erro.png", "Erro ao fechar recursos: " + e.getMessage());
+                e.printStackTrace();
+            }
         }
     }
 
@@ -153,7 +195,7 @@ public class CadastroProdutos extends javax.swing.JInternalFrame {
         campoPreco = preco.getText();
         preco_promocional = precoPromocional.getText().trim().isEmpty() ? "0.00" : precoPromocional.getText();
         campoMarca = marca.getText();
-        campoAvaliacao = avaliacao.getSelectedItem()==null ? "0" : String.valueOf(avaliacao.getSelectedItem());
+        campoAvaliacao = avaliacao.getSelectedItem() == null ? "0" : String.valueOf(avaliacao.getSelectedItem());
         campoQuantidadeAvaliacoes = totalAvaliacao.getText().trim().isEmpty() ? "0" : totalAvaliacao.getText();
         campoEstoque = estoque.getText().trim().isEmpty() ? "1" : estoque.getText();
         campoParcelas = parcelas.getSelectedItem() == null ? "1" : String.valueOf(parcelas.getSelectedItem());

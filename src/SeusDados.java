@@ -335,6 +335,7 @@ public class SeusDados extends javax.swing.JInternalFrame {
 
         codigoPessoa.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         codigoPessoa.setDisabledTextColor(new java.awt.Color(0, 0, 0));
+        codigoPessoa.setEnabled(false);
 
         jLabel4.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
         jLabel4.setText("Email");
@@ -353,6 +354,7 @@ public class SeusDados extends javax.swing.JInternalFrame {
 
         cpf.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         cpf.setDisabledTextColor(new java.awt.Color(0, 0, 0));
+        cpf.setEnabled(false);
 
         jLabel8.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
         jLabel8.setText("UF");

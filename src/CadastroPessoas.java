@@ -291,6 +291,24 @@ public class CadastroPessoas extends javax.swing.JInternalFrame {
         }
 
         try (Connection con = Conexao.conexaoBanco()) {
+            // Verificar duplicações
+            String sqlCheck = "SELECT COUNT(*) FROM pessoa WHERE nome = ? OR cpf = ? OR email = ?";
+            PreparedStatement stmtCheck = con.prepareStatement(sqlCheck);
+            stmtCheck.setString(1, nome.getText().trim());
+            stmtCheck.setString(2, cpf.getText().trim());
+            stmtCheck.setString(3, email.getText().trim());
+            ResultSet rs = stmtCheck.executeQuery();
+            rs.next();
+            int count = rs.getInt(1);
+            stmtCheck.close();
+            rs.close();
+
+            if (count > 0) {
+                funcoes.Avisos("sinal-de-aviso.png", "Dados idênticos: nome, email ou CPF vão ser duplicados.Por favor, insira dados corretos");
+                return;
+            }
+
+            // Prosseguir com o cadastro se não houver duplicatas
             String sql = "INSERT INTO pessoa (nome, email, telefone, cpf, id_tipo_usuario, senha, situacao) VALUES (?, ?, ?, ?, ?, ?, ?)";
             PreparedStatement stmt = con.prepareStatement(sql);
             stmt.setString(1, nome.getText());
@@ -306,6 +324,7 @@ public class CadastroPessoas extends javax.swing.JInternalFrame {
             carregarTabela();
         } catch (SQLException ex) {
             Logger.getLogger(CadastroPessoas.class.getName()).log(Level.SEVERE, null, ex);
+            JOptionPane.showMessageDialog(this, "Erro ao realizar cadastro: " + ex.getMessage());
         }
 
         //perfil.setIcon(new ImageIcon("imagens/perfil.png"));

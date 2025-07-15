@@ -256,9 +256,25 @@ public class CadastroCategoria extends javax.swing.JInternalFrame {
             funcoes.Avisos("sinal-de-aviso.png", "Campos vazios não são aceitos");
             return;
         }
+        
 
         try {
             Connection con = Conexao.conexaoBanco();
+            // Verificar duplicações
+            String sqlCheck = "SELECT COUNT(*) FROM categorias WHERE categoria = ?";
+            PreparedStatement stmtCheck = con.prepareStatement(sqlCheck);
+            stmtCheck.setString(1, nomeCategoria.getText().trim());
+            ResultSet rs = stmtCheck.executeQuery();
+            rs.next();
+            int count = rs.getInt(1);
+            stmtCheck.close();
+            rs.close();
+
+            if (count > 0) {
+                funcoes.Avisos("sinal-de-aviso.png", "Categoria repetida. Insira outra");
+                return;
+            }
+
             String sql = "INSERT INTO categorias (categoria, descricao) VALUES (?, ?);";
             PreparedStatement stmt = con.prepareStatement(sql);
 
