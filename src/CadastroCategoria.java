@@ -128,7 +128,7 @@ public class CadastroCategoria extends javax.swing.JInternalFrame {
         setIconifiable(true);
 
         btCadastrar.setBackground(new java.awt.Color(43, 189, 49));
-        btCadastrar.setFont(new java.awt.Font("Arial", 0, 20)); // NOI18N
+        btCadastrar.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
         btCadastrar.setForeground(new java.awt.Color(255, 255, 255));
         btCadastrar.setText("Cadastrar");
         btCadastrar.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -138,7 +138,7 @@ public class CadastroCategoria extends javax.swing.JInternalFrame {
         });
 
         jButton2.setBackground(new java.awt.Color(255, 153, 0));
-        jButton2.setFont(new java.awt.Font("Arial", 0, 20)); // NOI18N
+        jButton2.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
         jButton2.setForeground(new java.awt.Color(255, 255, 255));
         jButton2.setText("Alterar");
         jButton2.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -170,11 +170,11 @@ public class CadastroCategoria extends javax.swing.JInternalFrame {
             tabela.getColumnModel().getColumn(0).setMaxWidth(100);
         }
 
-        jLabel4.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
+        jLabel4.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         jLabel4.setLabelFor(nomeCategoria);
         jLabel4.setText("Nome:");
 
-        jLabel1.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
+        jLabel1.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         jLabel1.setLabelFor(descricaoArea);
         jLabel1.setText("Descrição:");
 
@@ -186,7 +186,7 @@ public class CadastroCategoria extends javax.swing.JInternalFrame {
         jScrollPane2.setViewportView(descricaoArea);
 
         btCancelar.setBackground(new java.awt.Color(255, 0, 0));
-        btCancelar.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
+        btCancelar.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
         btCancelar.setForeground(new java.awt.Color(255, 255, 255));
         btCancelar.setText("Cancelar");
         btCancelar.addActionListener(new java.awt.event.ActionListener() {
@@ -218,7 +218,7 @@ public class CadastroCategoria extends javax.swing.JInternalFrame {
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(jLabel1)
                                     .addComponent(jLabel4))
-                                .addGap(0, 354, Short.MAX_VALUE)))
+                                .addGap(0, 381, Short.MAX_VALUE)))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 594, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addGap(62, 62, 62))

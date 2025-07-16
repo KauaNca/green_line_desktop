@@ -460,26 +460,26 @@ public class CadastroProdutos extends javax.swing.JInternalFrame {
 
         nomeProduto.setFont(new java.awt.Font("Inter Light", 0, 18)); // NOI18N
 
-        jLabel1.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
+        jLabel1.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         jLabel1.setText("Produto*");
 
-        jLabel2.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
+        jLabel2.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         jLabel2.setText("Descrição*");
 
-        jLabel3.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
+        jLabel3.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         jLabel3.setText("Descrição curta*");
 
-        jLabel4.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
+        jLabel4.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         jLabel4.setText("Preço*");
 
         preco.setFont(new java.awt.Font("Inter Light", 0, 16)); // NOI18N
 
-        jLabel5.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
+        jLabel5.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         jLabel5.setText("Preço promocional*");
 
         precoPromocional.setFont(new java.awt.Font("Inter Light", 0, 16)); // NOI18N
 
-        jLabel6.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
+        jLabel6.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         jLabel6.setText("Promoção*");
 
         gpPromocao.add(promoSim);
@@ -500,12 +500,12 @@ public class CadastroProdutos extends javax.swing.JInternalFrame {
             }
         });
 
-        jLabel7.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
+        jLabel7.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         jLabel7.setText("Marca*");
 
         totalAvaliacao.setFont(new java.awt.Font("Inter Light", 0, 18)); // NOI18N
 
-        jLabel8.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
+        jLabel8.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         jLabel8.setText("Avaliação");
 
         avaliacao.setFont(new java.awt.Font("Inter Light", 0, 18)); // NOI18N
@@ -516,27 +516,27 @@ public class CadastroProdutos extends javax.swing.JInternalFrame {
             }
         });
 
-        jLabel10.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
+        jLabel10.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         jLabel10.setText("Total de avaliações");
 
         marca.setFont(new java.awt.Font("Inter Light", 0, 18)); // NOI18N
 
-        jLabel11.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
+        jLabel11.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         jLabel11.setText("Estoque*");
 
         estoque.setFont(new java.awt.Font("Inter Light", 0, 18)); // NOI18N
 
-        jLabel12.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
+        jLabel12.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         jLabel12.setText("Peso (kg)");
 
         peso.setFont(new java.awt.Font("Inter Light", 0, 18)); // NOI18N
 
-        jLabel13.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
+        jLabel13.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         jLabel13.setText("Dimensões");
 
         dimensoes.setFont(new java.awt.Font("Inter Light", 0, 18)); // NOI18N
 
-        jLabel14.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
+        jLabel14.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         jLabel14.setText("Ativo*");
 
         gpAtivo.add(ativoSim);
@@ -557,7 +557,7 @@ public class CadastroProdutos extends javax.swing.JInternalFrame {
             }
         });
 
-        jLabel9.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
+        jLabel9.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         jLabel9.setText("Parcelas*");
 
         parcelas.setFont(new java.awt.Font("Inter Light", 0, 18)); // NOI18N
@@ -568,13 +568,13 @@ public class CadastroProdutos extends javax.swing.JInternalFrame {
             }
         });
 
-        jLabel15.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
+        jLabel15.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         jLabel15.setText("Categoria*");
 
         categorias.setFont(new java.awt.Font("Inter Light", 0, 16)); // NOI18N
         categorias.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { " " }));
 
-        jLabel16.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
+        jLabel16.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         jLabel16.setText("Imagens (URL)*");
 
         imagem2.setFont(new java.awt.Font("Inter Light", 0, 18)); // NOI18N
@@ -666,7 +666,7 @@ public class CadastroProdutos extends javax.swing.JInternalFrame {
                         .addGap(28, 28, 28)
                         .addComponent(jLabel5)
                         .addGap(18, 18, 18)
-                        .addComponent(precoPromocional, javax.swing.GroupLayout.DEFAULT_SIZE, 243, Short.MAX_VALUE)
+                        .addComponent(precoPromocional)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jLabel15)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -680,7 +680,7 @@ public class CadastroProdutos extends javax.swing.JInternalFrame {
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(jLabel9)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(parcelas, 0, 172, Short.MAX_VALUE)
+                                .addComponent(parcelas, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addGap(12, 12, 12))
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(jLabel11)

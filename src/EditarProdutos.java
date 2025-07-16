@@ -603,26 +603,26 @@ public class EditarProdutos extends javax.swing.JInternalFrame {
             }
         });
 
-        jLabel1.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
+        jLabel1.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         jLabel1.setText("Produto");
 
-        jLabel2.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
+        jLabel2.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         jLabel2.setText("Descrição");
 
-        jLabel3.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
+        jLabel3.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         jLabel3.setText("Descrição curta");
 
-        jLabel4.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
+        jLabel4.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         jLabel4.setText("Preço");
 
         preco.setFont(new java.awt.Font("Inter Light", 0, 18)); // NOI18N
 
-        jLabel5.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
+        jLabel5.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         jLabel5.setText("Preço promocional");
 
         precoPromocional.setFont(new java.awt.Font("Inter Light", 0, 18)); // NOI18N
 
-        jLabel6.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
+        jLabel6.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         jLabel6.setText("Promoção");
 
         gpPromocao.add(promoSim);
@@ -643,12 +643,12 @@ public class EditarProdutos extends javax.swing.JInternalFrame {
             }
         });
 
-        jLabel7.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
+        jLabel7.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         jLabel7.setText("Marca");
 
         totalAvaliacao.setFont(new java.awt.Font("Inter Light", 0, 16)); // NOI18N
 
-        jLabel8.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
+        jLabel8.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         jLabel8.setText("Avaliação");
 
         avaliacao.setFont(new java.awt.Font("Inter Light", 0, 18)); // NOI18N
@@ -659,27 +659,27 @@ public class EditarProdutos extends javax.swing.JInternalFrame {
             }
         });
 
-        jLabel10.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
+        jLabel10.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         jLabel10.setText("Total de avaliações");
 
         marca.setFont(new java.awt.Font("Inter Light", 0, 18)); // NOI18N
 
-        jLabel11.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
+        jLabel11.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         jLabel11.setText("Estoque");
 
         estoque.setFont(new java.awt.Font("Inter Light", 0, 18)); // NOI18N
 
-        jLabel12.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
+        jLabel12.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         jLabel12.setText("Peso (kg)");
 
         peso.setFont(new java.awt.Font("Inter Light", 0, 18)); // NOI18N
 
-        jLabel13.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
+        jLabel13.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         jLabel13.setText("Dimensões");
 
         dimensoes.setFont(new java.awt.Font("Inter Light", 0, 18)); // NOI18N
 
-        jLabel14.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
+        jLabel14.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         jLabel14.setText("Ativo");
 
         gpAtivo.add(ativoSim);
@@ -700,7 +700,7 @@ public class EditarProdutos extends javax.swing.JInternalFrame {
             }
         });
 
-        jLabel9.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
+        jLabel9.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         jLabel9.setText("Parcelas");
 
         parcelas.setFont(new java.awt.Font("Inter Light", 0, 18)); // NOI18N
@@ -711,13 +711,13 @@ public class EditarProdutos extends javax.swing.JInternalFrame {
             }
         });
 
-        jLabel15.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
+        jLabel15.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         jLabel15.setText("Categorias");
 
         categorias.setFont(new java.awt.Font("Inter Light", 0, 18)); // NOI18N
         categorias.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { " " }));
 
-        jLabel16.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
+        jLabel16.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         jLabel16.setText("Imagens (URL)");
 
         imagem2.setFont(new java.awt.Font("Inter Light", 0, 18)); // NOI18N
@@ -783,7 +783,7 @@ public class EditarProdutos extends javax.swing.JInternalFrame {
             }
         });
 
-        jLabel17.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
+        jLabel17.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         jLabel17.setText("Cod");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -928,7 +928,7 @@ public class EditarProdutos extends javax.swing.JInternalFrame {
                             .addComponent(promoNao, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(categorias, javax.swing.GroupLayout.PREFERRED_SIZE, 47, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(0, 19, Short.MAX_VALUE))
+                                .addGap(0, 20, Short.MAX_VALUE))
                             .addComponent(promoSim, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
@@ -949,20 +949,19 @@ public class EditarProdutos extends javax.swing.JInternalFrame {
                                     .addComponent(ativoSim, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE))
                                 .addGap(12, 12, 12)))
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                    .addComponent(jLabel8, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(avaliacao, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                    .addComponent(totalAvaliacao, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(jLabel10, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                .addComponent(jLabel8, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(avaliacao, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                .addComponent(totalAvaliacao, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(jLabel10, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addComponent(parcelas, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel9, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(layout.createSequentialGroup()
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                                     .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addComponent(marca, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED, 21, Short.MAX_VALUE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED, 22, Short.MAX_VALUE)
                                 .addComponent(jLabel16, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(imagem1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)

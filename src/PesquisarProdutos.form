@@ -234,7 +234,7 @@
     <Component class="javax.swing.JLabel" name="jLabel3">
       <Properties>
         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-          <Font name="Inter" size="24" style="0"/>
+          <Font name="Inter" size="18" style="0"/>
         </Property>
         <Property name="text" type="java.lang.String" value="C&#xf3;digo"/>
       </Properties>
@@ -242,7 +242,7 @@
     <Component class="javax.swing.JLabel" name="jLabel11">
       <Properties>
         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-          <Font name="Inter" size="24" style="0"/>
+          <Font name="Inter" size="18" style="0"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Produto"/>
       </Properties>
@@ -260,7 +260,7 @@
     <Component class="javax.swing.JLabel" name="jLabel5">
       <Properties>
         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-          <Font name="Inter" size="24" style="0"/>
+          <Font name="Inter" size="18" style="0"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Pre&#xe7;o:"/>
       </Properties>
@@ -279,7 +279,7 @@
     <Component class="javax.swing.JLabel" name="jLabel4">
       <Properties>
         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-          <Font name="Inter" size="24" style="0"/>
+          <Font name="Inter" size="18" style="0"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Descri&#xe7;&#xe3;o"/>
       </Properties>
@@ -309,7 +309,7 @@
     <Component class="javax.swing.JLabel" name="jLabel6">
       <Properties>
         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-          <Font name="Inter" size="24" style="0"/>
+          <Font name="Inter" size="18" style="0"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Marca"/>
       </Properties>
@@ -339,7 +339,7 @@
     <Component class="javax.swing.JLabel" name="jLabel7">
       <Properties>
         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-          <Font name="Inter" size="24" style="0"/>
+          <Font name="Inter" size="18" style="0"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Estoque"/>
       </Properties>
@@ -364,7 +364,7 @@
     <Component class="javax.swing.JLabel" name="jLabel9">
       <Properties>
         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-          <Font name="Inter" size="24" style="0"/>
+          <Font name="Inter" size="18" style="0"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Categoria"/>
       </Properties>
@@ -419,7 +419,7 @@
     <Component class="javax.swing.JLabel" name="jLabel12">
       <Properties>
         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-          <Font name="Inter" size="24" style="0"/>
+          <Font name="Inter" size="18" style="0"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Descri&#xe7;&#xe3;o curta"/>
       </Properties>
@@ -427,7 +427,7 @@
     <Component class="javax.swing.JLabel" name="jLabel13">
       <Properties>
         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-          <Font name="Inter" size="24" style="0"/>
+          <Font name="Inter" size="18" style="0"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Pre&#xe7;o promocional"/>
       </Properties>
@@ -443,7 +443,7 @@
     <Component class="javax.swing.JLabel" name="jLabel8">
       <Properties>
         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-          <Font name="Inter" size="24" style="0"/>
+          <Font name="Inter" size="18" style="0"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Promo&#xe7;&#xe3;o"/>
       </Properties>
@@ -473,7 +473,7 @@
     <Component class="javax.swing.JLabel" name="jLabel20">
       <Properties>
         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-          <Font name="Inter" size="24" style="0"/>
+          <Font name="Inter" size="18" style="0"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Ativo"/>
       </Properties>

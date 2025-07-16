@@ -261,23 +261,23 @@ public class PesquisarProdutos extends javax.swing.JInternalFrame {
             }
         });
 
-        jLabel3.setFont(new java.awt.Font("Inter", 0, 24)); // NOI18N
+        jLabel3.setFont(new java.awt.Font("Inter", 0, 18)); // NOI18N
         jLabel3.setText("Código");
 
-        jLabel11.setFont(new java.awt.Font("Inter", 0, 24)); // NOI18N
+        jLabel11.setFont(new java.awt.Font("Inter", 0, 18)); // NOI18N
         jLabel11.setText("Produto");
 
         nomeProduto.setFont(new java.awt.Font("Inter Light", 0, 18)); // NOI18N
         nomeProduto.setDisabledTextColor(new java.awt.Color(51, 51, 51));
 
-        jLabel5.setFont(new java.awt.Font("Inter", 0, 24)); // NOI18N
+        jLabel5.setFont(new java.awt.Font("Inter", 0, 18)); // NOI18N
         jLabel5.setText("Preço:");
 
         preco.setFont(new java.awt.Font("Inter Light", 0, 18)); // NOI18N
         preco.setDisabledTextColor(new java.awt.Color(51, 51, 51));
         preco.setEnabled(false);
 
-        jLabel4.setFont(new java.awt.Font("Inter", 0, 24)); // NOI18N
+        jLabel4.setFont(new java.awt.Font("Inter", 0, 18)); // NOI18N
         jLabel4.setText("Descrição");
 
         descricao.setColumns(20);
@@ -287,7 +287,7 @@ public class PesquisarProdutos extends javax.swing.JInternalFrame {
         descricao.setEnabled(false);
         jScrollPane1.setViewportView(descricao);
 
-        jLabel6.setFont(new java.awt.Font("Inter", 0, 24)); // NOI18N
+        jLabel6.setFont(new java.awt.Font("Inter", 0, 18)); // NOI18N
         jLabel6.setText("Marca");
 
         marca.setFont(new java.awt.Font("Inter Light", 0, 18)); // NOI18N
@@ -298,7 +298,7 @@ public class PesquisarProdutos extends javax.swing.JInternalFrame {
         estoque.setDisabledTextColor(new java.awt.Color(51, 51, 51));
         estoque.setEnabled(false);
 
-        jLabel7.setFont(new java.awt.Font("Inter", 0, 24)); // NOI18N
+        jLabel7.setFont(new java.awt.Font("Inter", 0, 18)); // NOI18N
         jLabel7.setText("Estoque");
 
         btUltimasVendas.setBackground(new java.awt.Color(204, 204, 255));
@@ -311,7 +311,7 @@ public class PesquisarProdutos extends javax.swing.JInternalFrame {
             }
         });
 
-        jLabel9.setFont(new java.awt.Font("Inter", 0, 24)); // NOI18N
+        jLabel9.setFont(new java.awt.Font("Inter", 0, 18)); // NOI18N
         jLabel9.setText("Categoria");
 
         categoria.setFont(new java.awt.Font("Inter Light", 0, 18)); // NOI18N
@@ -334,16 +334,16 @@ public class PesquisarProdutos extends javax.swing.JInternalFrame {
         descricao_curta.setEnabled(false);
         jScrollPane2.setViewportView(descricao_curta);
 
-        jLabel12.setFont(new java.awt.Font("Inter", 0, 24)); // NOI18N
+        jLabel12.setFont(new java.awt.Font("Inter", 0, 18)); // NOI18N
         jLabel12.setText("Descrição curta");
 
-        jLabel13.setFont(new java.awt.Font("Inter", 0, 24)); // NOI18N
+        jLabel13.setFont(new java.awt.Font("Inter", 0, 18)); // NOI18N
         jLabel13.setText("Preço promocional");
 
         preco_promocional.setFont(new java.awt.Font("Inter Light", 0, 18)); // NOI18N
         preco_promocional.setEnabled(false);
 
-        jLabel8.setFont(new java.awt.Font("Inter", 0, 24)); // NOI18N
+        jLabel8.setFont(new java.awt.Font("Inter", 0, 18)); // NOI18N
         jLabel8.setText("Promoção");
 
         prom_sim.setFont(new java.awt.Font("Inter Light", 0, 18)); // NOI18N
@@ -362,7 +362,7 @@ public class PesquisarProdutos extends javax.swing.JInternalFrame {
             }
         });
 
-        jLabel20.setFont(new java.awt.Font("Inter", 0, 24)); // NOI18N
+        jLabel20.setFont(new java.awt.Font("Inter", 0, 18)); // NOI18N
         jLabel20.setText("Ativo");
 
         ativo_sim.setFont(new java.awt.Font("Inter Light", 0, 18)); // NOI18N

@@ -77,7 +77,7 @@
           <Color blue="32" green="cd" red="32" type="rgb"/>
         </Property>
         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-          <Font name="Arial" size="17" style="0"/>
+          <Font name="Arial" size="17" style="1"/>
         </Property>
         <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -125,9 +125,12 @@
                                           <Component id="email" min="-2" pref="465" max="-2" attributes="0"/>
                                       </Group>
                                       <EmptySpace max="32767" attributes="0"/>
-                                      <Group type="103" groupAlignment="0" attributes="0">
-                                          <Component id="jLabel5" min="-2" max="-2" attributes="0"/>
-                                          <Component id="telefone" min="-2" pref="267" max="-2" attributes="0"/>
+                                      <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                                          <Group type="102" attributes="0">
+                                              <Component id="jLabel5" min="-2" max="-2" attributes="0"/>
+                                              <EmptySpace min="-2" pref="196" max="-2" attributes="0"/>
+                                          </Group>
+                                          <Component id="telefone" max="32767" attributes="0"/>
                                       </Group>
                                   </Group>
                                   <Group type="102" attributes="0">
@@ -147,10 +150,10 @@
                                           <Component id="jLabel12" alignment="0" min="-2" max="-2" attributes="0"/>
                                           <Group type="102" attributes="0">
                                               <Group type="103" groupAlignment="0" attributes="0">
-                                                  <Component id="jLabel3" alignment="0" min="-2" max="-2" attributes="0"/>
-                                                  <Component id="cpf" alignment="0" min="-2" pref="401" max="-2" attributes="0"/>
+                                                  <Component id="jLabel3" min="-2" max="-2" attributes="0"/>
+                                                  <Component id="cpf" min="-2" pref="389" max="-2" attributes="0"/>
                                               </Group>
-                                              <EmptySpace max="-2" attributes="0"/>
+                                              <EmptySpace type="separate" max="-2" attributes="0"/>
                                               <Group type="103" groupAlignment="0" attributes="0">
                                                   <Component id="jLabel7" alignment="0" min="-2" max="-2" attributes="0"/>
                                                   <Component id="situacao" alignment="1" min="-2" pref="175" max="-2" attributes="0"/>
@@ -165,11 +168,14 @@
                                               <Group type="103" groupAlignment="0" attributes="0">
                                                   <Group type="102" attributes="0">
                                                       <Component id="jLabel9" min="-2" max="-2" attributes="0"/>
-                                                      <EmptySpace min="-2" pref="195" max="-2" attributes="0"/>
+                                                      <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                                                   </Group>
-                                                  <Component id="cep" alignment="0" max="32767" attributes="0"/>
+                                                  <Group type="102" attributes="0">
+                                                      <EmptySpace min="6" pref="6" max="-2" attributes="0"/>
+                                                      <Component id="cep" max="32767" attributes="0"/>
+                                                  </Group>
                                               </Group>
-                                              <EmptySpace min="-2" pref="24" max="-2" attributes="0"/>
+                                              <EmptySpace type="unrelated" max="-2" attributes="0"/>
                                               <Group type="103" groupAlignment="0" attributes="0">
                                                   <Component id="jLabel10" min="-2" max="-2" attributes="0"/>
                                                   <Component id="cidade" min="-2" pref="154" max="-2" attributes="0"/>
@@ -215,7 +221,10 @@
                                   <Component id="perfil" min="-2" pref="233" max="-2" attributes="0"/>
                               </Group>
                               <EmptySpace max="-2" attributes="0"/>
-                              <Component id="estado" min="-2" pref="29" max="-2" attributes="0"/>
+                              <Group type="103" groupAlignment="3" attributes="0">
+                                  <Component id="estado" alignment="3" min="-2" pref="29" max="-2" attributes="0"/>
+                                  <Component id="cep" alignment="3" min="-2" pref="29" max="-2" attributes="0"/>
+                              </Group>
                           </Group>
                           <Group type="102" alignment="1" attributes="0">
                               <Group type="103" groupAlignment="0" attributes="0">
@@ -236,13 +245,11 @@
                                   <Component id="jLabel5" min="-2" max="-2" attributes="0"/>
                               </Group>
                               <EmptySpace max="-2" attributes="0"/>
-                              <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                                  <Component id="telefone" min="-2" pref="29" max="-2" attributes="0"/>
-                                  <Group type="102" attributes="0">
-                                      <Component id="email" max="32767" attributes="0"/>
-                                      <EmptySpace min="1" pref="1" max="-2" attributes="0"/>
-                                  </Group>
+                              <Group type="103" groupAlignment="3" attributes="0">
+                                  <Component id="email" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="telefone" alignment="3" min="-2" pref="29" max="-2" attributes="0"/>
                               </Group>
+                              <EmptySpace min="1" pref="1" max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="0" attributes="0">
                                   <Component id="jLabel3" min="-2" max="-2" attributes="0"/>
                                   <Group type="102" alignment="0" attributes="0">
@@ -253,8 +260,10 @@
                               </Group>
                               <EmptySpace max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="0" attributes="0">
-                                  <Component id="situacao" max="32767" attributes="0"/>
-                                  <Component id="cpf" max="32767" attributes="0"/>
+                                  <Group type="103" groupAlignment="3" attributes="0">
+                                      <Component id="situacao" alignment="3" max="32767" attributes="0"/>
+                                      <Component id="cpf" alignment="3" min="-2" pref="35" max="-2" attributes="0"/>
+                                  </Group>
                                   <Component id="tipo" max="32767" attributes="0"/>
                               </Group>
                               <EmptySpace max="-2" attributes="0"/>
@@ -266,7 +275,6 @@
                               <Group type="103" groupAlignment="3" attributes="0">
                                   <Component id="bairro" alignment="3" min="-2" pref="29" max="-2" attributes="0"/>
                                   <Component id="cidade" alignment="3" min="-2" pref="29" max="-2" attributes="0"/>
-                                  <Component id="cep" alignment="3" max="32767" attributes="0"/>
                               </Group>
                           </Group>
                       </Group>
@@ -289,7 +297,7 @@
                           <Component id="btCancelar1" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace min="-2" pref="20" max="-2" attributes="0"/>
-                      <Component id="jScrollPane1" pref="165" max="32767" attributes="0"/>
+                      <Component id="jScrollPane1" pref="190" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -300,7 +308,7 @@
             <Component class="javax.swing.JLabel" name="jLabel1">
               <Properties>
                 <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-                  <Font name="Arial" size="24" style="0"/>
+                  <Font name="Arial" size="18" style="0"/>
                 </Property>
                 <Property name="text" type="java.lang.String" value="Nome"/>
               </Properties>
@@ -318,7 +326,7 @@
             <Component class="javax.swing.JLabel" name="jLabel2">
               <Properties>
                 <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-                  <Font name="Arial" size="24" style="0"/>
+                  <Font name="Arial" size="18" style="0"/>
                 </Property>
                 <Property name="text" type="java.lang.String" value="E-mail"/>
               </Properties>
@@ -326,25 +334,15 @@
             <Component class="javax.swing.JLabel" name="jLabel3">
               <Properties>
                 <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-                  <Font name="Arial" size="24" style="0"/>
-                </Property>
-                <Property name="text" type="java.lang.String" value="Cadastro de Pessoa F&#xed;sica (CPF)"/>
-              </Properties>
-            </Component>
-            <Component class="javax.swing.JTextField" name="telefone">
-              <Properties>
-                <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
                   <Font name="Arial" size="18" style="0"/>
                 </Property>
-                <Property name="selectedTextColor" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-                  <Color blue="33" green="33" red="33" type="rgb"/>
-                </Property>
+                <Property name="text" type="java.lang.String" value="Cadastro de Pessoa F&#xed;sica (CPF)"/>
               </Properties>
             </Component>
             <Component class="javax.swing.JLabel" name="jLabel5">
               <Properties>
                 <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-                  <Font name="Arial" size="24" style="0"/>
+                  <Font name="Arial" size="18" style="0"/>
                 </Property>
                 <Property name="text" type="java.lang.String" value="Telefone"/>
               </Properties>
@@ -352,7 +350,7 @@
             <Component class="javax.swing.JLabel" name="jLabel8">
               <Properties>
                 <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-                  <Font name="Arial" size="24" style="0"/>
+                  <Font name="Arial" size="18" style="0"/>
                 </Property>
                 <Property name="text" type="java.lang.String" value="Estado"/>
               </Properties>
@@ -370,7 +368,7 @@
             <Component class="javax.swing.JLabel" name="jLabel9">
               <Properties>
                 <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-                  <Font name="Arial" size="24" style="0"/>
+                  <Font name="Arial" size="18" style="0"/>
                 </Property>
                 <Property name="text" type="java.lang.String" value="CEP"/>
               </Properties>
@@ -378,7 +376,7 @@
             <Component class="javax.swing.JLabel" name="jLabel10">
               <Properties>
                 <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-                  <Font name="Arial" size="24" style="0"/>
+                  <Font name="Arial" size="18" style="0"/>
                 </Property>
                 <Property name="text" type="java.lang.String" value="Cidade"/>
               </Properties>
@@ -396,7 +394,7 @@
             <Component class="javax.swing.JLabel" name="jLabel11">
               <Properties>
                 <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-                  <Font name="Arial" size="24" style="0"/>
+                  <Font name="Arial" size="18" style="0"/>
                 </Property>
                 <Property name="text" type="java.lang.String" value="Bairro"/>
               </Properties>
@@ -424,7 +422,7 @@
             <Component class="javax.swing.JLabel" name="jLabel12">
               <Properties>
                 <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-                  <Font name="Arial" size="24" style="0"/>
+                  <Font name="Arial" size="18" style="0"/>
                 </Property>
                 <Property name="text" type="java.lang.String" value="Endere&#xe7;o"/>
               </Properties>
@@ -432,7 +430,7 @@
             <Component class="javax.swing.JLabel" name="jLabel13">
               <Properties>
                 <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-                  <Font name="Arial" size="24" style="0"/>
+                  <Font name="Arial" size="18" style="0"/>
                 </Property>
                 <Property name="text" type="java.lang.String" value="C&#xf3;digo"/>
               </Properties>
@@ -454,7 +452,7 @@
             <Component class="javax.swing.JLabel" name="jLabel14">
               <Properties>
                 <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-                  <Font name="Arial" size="24" style="0"/>
+                  <Font name="Arial" size="18" style="0"/>
                 </Property>
                 <Property name="text" type="java.lang.String" value="Complemento"/>
               </Properties>
@@ -475,7 +473,7 @@
                   <Color blue="0" green="a5" red="ff" type="rgb"/>
                 </Property>
                 <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-                  <Font name="Arial" size="18" style="0"/>
+                  <Font name="Arial" size="18" style="1"/>
                 </Property>
                 <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
                   <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -486,36 +484,13 @@
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btAtualizarActionPerformed"/>
               </Events>
             </Component>
-            <Component class="javax.swing.JFormattedTextField" name="cpf">
-              <Properties>
-                <Property name="formatterFactory" type="javax.swing.JFormattedTextField$AbstractFormatterFactory" editor="org.netbeans.modules.form.editors.AbstractFormatterFactoryEditor">
-                  <Format subtype="0" type="0"/>
-                </Property>
-                <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-                  <Font name="Arial" size="20" style="0"/>
-                </Property>
-              </Properties>
-              <Events>
-                <EventHandler event="keyReleased" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="cpfKeyReleased"/>
-              </Events>
-            </Component>
-            <Component class="javax.swing.JFormattedTextField" name="cep">
-              <Properties>
-                <Property name="formatterFactory" type="javax.swing.JFormattedTextField$AbstractFormatterFactory" editor="org.netbeans.modules.form.editors.AbstractFormatterFactoryEditor" preCode="try {" postCode="} catch (java.text.ParseException ex) {&#xa;ex.printStackTrace();&#xa;}">
-                  <Format format="#####-###" subtype="-1" type="5"/>
-                </Property>
-                <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-                  <Font name="Arial" size="20" style="0"/>
-                </Property>
-              </Properties>
-            </Component>
             <Component class="javax.swing.JButton" name="btCancelar1">
               <Properties>
                 <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
                   <Color blue="0" green="0" red="ff" type="rgb"/>
                 </Property>
                 <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-                  <Font name="Arial" size="18" style="0"/>
+                  <Font name="Arial" size="18" style="1"/>
                 </Property>
                 <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
                   <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -540,7 +515,7 @@
                   </StringArray>
                 </Property>
                 <Property name="cursor" type="java.awt.Cursor" editor="org.netbeans.modules.form.editors2.CursorEditor">
-                  <Color id="Default Cursor"/>
+                  <Color id="Cursor Padr&#xe3;o"/>
                 </Property>
               </Properties>
               <Events>
@@ -553,7 +528,7 @@
             <Component class="javax.swing.JLabel" name="jLabel6">
               <Properties>
                 <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-                  <Font name="Arial" size="24" style="0"/>
+                  <Font name="Arial" size="18" style="0"/>
                 </Property>
                 <Property name="text" type="java.lang.String" value="Tipo"/>
               </Properties>
@@ -561,7 +536,7 @@
             <Component class="javax.swing.JLabel" name="jLabel7">
               <Properties>
                 <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-                  <Font name="Arial" size="24" style="0"/>
+                  <Font name="Arial" size="18" style="0"/>
                 </Property>
                 <Property name="text" type="java.lang.String" value="Situa&#xe7;&#xe3;o"/>
               </Properties>
@@ -578,7 +553,7 @@
                   </StringArray>
                 </Property>
                 <Property name="cursor" type="java.awt.Cursor" editor="org.netbeans.modules.form.editors2.CursorEditor">
-                  <Color id="Default Cursor"/>
+                  <Color id="Cursor Padr&#xe3;o"/>
                 </Property>
               </Properties>
               <Events>
@@ -625,6 +600,36 @@
                 </Component>
               </SubComponents>
             </Container>
+            <Component class="javax.swing.JTextField" name="cpf">
+              <Properties>
+                <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                  <Font name="Arial" size="18" style="0"/>
+                </Property>
+                <Property name="selectedTextColor" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+                  <Color blue="33" green="33" red="33" type="rgb"/>
+                </Property>
+              </Properties>
+            </Component>
+            <Component class="javax.swing.JTextField" name="telefone">
+              <Properties>
+                <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                  <Font name="Arial" size="18" style="0"/>
+                </Property>
+                <Property name="selectedTextColor" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+                  <Color blue="33" green="33" red="33" type="rgb"/>
+                </Property>
+              </Properties>
+            </Component>
+            <Component class="javax.swing.JTextField" name="cep">
+              <Properties>
+                <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                  <Font name="Arial" size="18" style="0"/>
+                </Property>
+                <Property name="selectedTextColor" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+                  <Color blue="33" green="33" red="33" type="rgb"/>
+                </Property>
+              </Properties>
+            </Component>
           </SubComponents>
         </Container>
       </SubComponents>

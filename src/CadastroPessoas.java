@@ -95,7 +95,7 @@ public class CadastroPessoas extends javax.swing.JInternalFrame {
         });
 
         cadastrar.setBackground(new java.awt.Color(50, 205, 50));
-        cadastrar.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
+        cadastrar.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
         cadastrar.setForeground(new java.awt.Color(255, 255, 255));
         cadastrar.setText("Cadastrar");
         cadastrar.addActionListener(new java.awt.event.ActionListener() {
@@ -123,16 +123,16 @@ public class CadastroPessoas extends javax.swing.JInternalFrame {
         });
         jScrollPane1.setViewportView(tabela);
 
-        jLabel1.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
+        jLabel1.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         jLabel1.setText("Nome:");
 
-        jLabel2.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
+        jLabel2.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         jLabel2.setText("Email:");
 
-        jLabel3.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
+        jLabel3.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         jLabel3.setText("CPF:");
 
-        jLabel4.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
+        jLabel4.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         jLabel4.setText("Situação:");
 
         cpf.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
@@ -141,7 +141,7 @@ public class CadastroPessoas extends javax.swing.JInternalFrame {
 
         email.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
 
-        jLabel5.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
+        jLabel5.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         jLabel5.setText("Senha:");
 
         Senha.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
@@ -151,7 +151,7 @@ public class CadastroPessoas extends javax.swing.JInternalFrame {
             }
         });
 
-        jLabel6.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
+        jLabel6.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         jLabel6.setText("Tipo:");
 
         tipo.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
@@ -163,13 +163,13 @@ public class CadastroPessoas extends javax.swing.JInternalFrame {
             }
         });
 
-        jLabel7.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
+        jLabel7.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         jLabel7.setText("Telefone:");
 
         telefone.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
 
         Cancelar.setBackground(new java.awt.Color(255, 51, 51));
-        Cancelar.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
+        Cancelar.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
         Cancelar.setForeground(new java.awt.Color(255, 255, 255));
         Cancelar.setText("Cancelar");
         Cancelar.addActionListener(new java.awt.event.ActionListener() {
@@ -186,8 +186,8 @@ public class CadastroPessoas extends javax.swing.JInternalFrame {
                 .addGap(41, 41, 41)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(491, 803, Short.MAX_VALUE)
-                        .addComponent(cadastrar, javax.swing.GroupLayout.PREFERRED_SIZE, 109, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(cadastrar)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(Cancelar, javax.swing.GroupLayout.PREFERRED_SIZE, 108, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
@@ -220,7 +220,7 @@ public class CadastroPessoas extends javax.swing.JInternalFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jLabel7)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(telefone)))
+                        .addComponent(telefone, javax.swing.GroupLayout.DEFAULT_SIZE, 224, Short.MAX_VALUE)))
                 .addGap(30, 30, 30))
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
@@ -232,7 +232,7 @@ public class CadastroPessoas extends javax.swing.JInternalFrame {
             .addGroup(layout.createSequentialGroup()
                 .addGap(20, 20, 20)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(Senha, javax.swing.GroupLayout.DEFAULT_SIZE, 36, Short.MAX_VALUE)
+                    .addComponent(Senha, javax.swing.GroupLayout.DEFAULT_SIZE, 37, Short.MAX_VALUE)
                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                         .addComponent(jLabel1)
                         .addComponent(nome, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -248,7 +248,7 @@ public class CadastroPessoas extends javax.swing.JInternalFrame {
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(situacao, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel6, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 40, Short.MAX_VALUE)
+                    .addComponent(jLabel6, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 41, Short.MAX_VALUE)
                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                         .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addComponent(tipo, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -259,7 +259,7 @@ public class CadastroPessoas extends javax.swing.JInternalFrame {
                     .addComponent(cadastrar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(Cancelar, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 297, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 298, Short.MAX_VALUE)
                 .addGap(12, 12, 12))
         );
 

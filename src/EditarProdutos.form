@@ -199,7 +199,7 @@
                           <Component id="promoNao" alignment="1" max="32767" attributes="0"/>
                           <Group type="102" attributes="0">
                               <Component id="categorias" min="-2" pref="47" max="-2" attributes="0"/>
-                              <EmptySpace min="0" pref="19" max="32767" attributes="0"/>
+                              <EmptySpace min="0" pref="20" max="32767" attributes="0"/>
                           </Group>
                           <Component id="promoSim" max="32767" attributes="0"/>
                       </Group>
@@ -244,7 +244,7 @@
                                   <Component id="jLabel7" alignment="3" min="-2" pref="44" max="-2" attributes="0"/>
                                   <Component id="marca" alignment="3" min="-2" pref="44" max="-2" attributes="0"/>
                               </Group>
-                              <EmptySpace type="unrelated" pref="21" max="32767" attributes="0"/>
+                              <EmptySpace type="unrelated" pref="22" max="32767" attributes="0"/>
                               <Component id="jLabel16" min="-2" pref="40" max="-2" attributes="0"/>
                           </Group>
                       </Group>
@@ -285,7 +285,7 @@
     <Component class="javax.swing.JLabel" name="jLabel1">
       <Properties>
         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-          <Font name="Arial" size="24" style="0"/>
+          <Font name="Arial" size="18" style="0"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Produto"/>
       </Properties>
@@ -293,7 +293,7 @@
     <Component class="javax.swing.JLabel" name="jLabel2">
       <Properties>
         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-          <Font name="Arial" size="24" style="0"/>
+          <Font name="Arial" size="18" style="0"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Descri&#xe7;&#xe3;o"/>
       </Properties>
@@ -301,7 +301,7 @@
     <Component class="javax.swing.JLabel" name="jLabel3">
       <Properties>
         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-          <Font name="Arial" size="24" style="0"/>
+          <Font name="Arial" size="18" style="0"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Descri&#xe7;&#xe3;o curta"/>
       </Properties>
@@ -309,7 +309,7 @@
     <Component class="javax.swing.JLabel" name="jLabel4">
       <Properties>
         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-          <Font name="Arial" size="24" style="0"/>
+          <Font name="Arial" size="18" style="0"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Pre&#xe7;o"/>
       </Properties>
@@ -324,7 +324,7 @@
     <Component class="javax.swing.JLabel" name="jLabel5">
       <Properties>
         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-          <Font name="Arial" size="24" style="0"/>
+          <Font name="Arial" size="18" style="0"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Pre&#xe7;o promocional"/>
       </Properties>
@@ -339,7 +339,7 @@
     <Component class="javax.swing.JLabel" name="jLabel6">
       <Properties>
         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-          <Font name="Arial" size="24" style="0"/>
+          <Font name="Arial" size="18" style="0"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Promo&#xe7;&#xe3;o"/>
       </Properties>
@@ -375,7 +375,7 @@
     <Component class="javax.swing.JLabel" name="jLabel7">
       <Properties>
         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-          <Font name="Arial" size="24" style="0"/>
+          <Font name="Arial" size="18" style="0"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Marca"/>
       </Properties>
@@ -390,7 +390,7 @@
     <Component class="javax.swing.JLabel" name="jLabel8">
       <Properties>
         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-          <Font name="Arial" size="24" style="0"/>
+          <Font name="Arial" size="18" style="0"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Avalia&#xe7;&#xe3;o"/>
       </Properties>
@@ -426,7 +426,7 @@
     <Component class="javax.swing.JLabel" name="jLabel10">
       <Properties>
         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-          <Font name="Arial" size="24" style="0"/>
+          <Font name="Arial" size="18" style="0"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Total de avalia&#xe7;&#xf5;es"/>
       </Properties>
@@ -441,7 +441,7 @@
     <Component class="javax.swing.JLabel" name="jLabel11">
       <Properties>
         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-          <Font name="Arial" size="24" style="0"/>
+          <Font name="Arial" size="18" style="0"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Estoque"/>
       </Properties>
@@ -456,7 +456,7 @@
     <Component class="javax.swing.JLabel" name="jLabel12">
       <Properties>
         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-          <Font name="Arial" size="24" style="0"/>
+          <Font name="Arial" size="18" style="0"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Peso (kg)"/>
       </Properties>
@@ -471,7 +471,7 @@
     <Component class="javax.swing.JLabel" name="jLabel13">
       <Properties>
         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-          <Font name="Arial" size="24" style="0"/>
+          <Font name="Arial" size="18" style="0"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Dimens&#xf5;es"/>
       </Properties>
@@ -486,7 +486,7 @@
     <Component class="javax.swing.JLabel" name="jLabel14">
       <Properties>
         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-          <Font name="Arial" size="24" style="0"/>
+          <Font name="Arial" size="18" style="0"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Ativo"/>
       </Properties>
@@ -522,7 +522,7 @@
     <Component class="javax.swing.JLabel" name="jLabel9">
       <Properties>
         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-          <Font name="Arial" size="24" style="0"/>
+          <Font name="Arial" size="18" style="0"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Parcelas"/>
       </Properties>
@@ -560,7 +560,7 @@
     <Component class="javax.swing.JLabel" name="jLabel15">
       <Properties>
         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-          <Font name="Arial" size="24" style="0"/>
+          <Font name="Arial" size="18" style="0"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Categorias"/>
       </Properties>
@@ -583,7 +583,7 @@
     <Component class="javax.swing.JLabel" name="jLabel16">
       <Properties>
         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-          <Font name="Arial" size="24" style="0"/>
+          <Font name="Arial" size="18" style="0"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Imagens (URL)"/>
       </Properties>
@@ -701,7 +701,7 @@
     <Component class="javax.swing.JLabel" name="jLabel17">
       <Properties>
         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-          <Font name="Arial" size="24" style="0"/>
+          <Font name="Arial" size="18" style="0"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Cod"/>
       </Properties>

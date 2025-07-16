@@ -322,7 +322,6 @@ public class EditarUsuarios extends javax.swing.JInternalFrame {
         nome = new javax.swing.JTextField();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
-        telefone = new javax.swing.JTextField();
         jLabel5 = new javax.swing.JLabel();
         jLabel8 = new javax.swing.JLabel();
         estado = new javax.swing.JTextField();
@@ -338,8 +337,6 @@ public class EditarUsuarios extends javax.swing.JInternalFrame {
         jLabel14 = new javax.swing.JLabel();
         complemento = new javax.swing.JTextField();
         btAtualizar = new javax.swing.JButton();
-        cpf = new javax.swing.JFormattedTextField();
-        cep = new javax.swing.JFormattedTextField();
         btCancelar1 = new javax.swing.JButton();
         situacao = new javax.swing.JComboBox<>();
         jLabel6 = new javax.swing.JLabel();
@@ -348,6 +345,9 @@ public class EditarUsuarios extends javax.swing.JInternalFrame {
         email = new javax.swing.JTextField();
         jScrollPane1 = new javax.swing.JScrollPane();
         tabela = new javax.swing.JTable();
+        cpf = new javax.swing.JTextField();
+        telefone = new javax.swing.JTextField();
+        cep = new javax.swing.JTextField();
 
         setClosable(true);
         setIconifiable(true);
@@ -361,7 +361,7 @@ public class EditarUsuarios extends javax.swing.JInternalFrame {
         });
 
         btnProcurar.setBackground(new java.awt.Color(50, 205, 50));
-        btnProcurar.setFont(new java.awt.Font("Arial", 0, 17)); // NOI18N
+        btnProcurar.setFont(new java.awt.Font("Arial", 1, 17)); // NOI18N
         btnProcurar.setForeground(new java.awt.Color(255, 255, 255));
         btnProcurar.setText("Procurar");
         btnProcurar.addActionListener(new java.awt.event.ActionListener() {
@@ -372,40 +372,37 @@ public class EditarUsuarios extends javax.swing.JInternalFrame {
 
         JCard.setLayout(new java.awt.CardLayout());
 
-        jLabel1.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
+        jLabel1.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         jLabel1.setText("Nome");
 
         nome.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         nome.setSelectedTextColor(new java.awt.Color(51, 51, 51));
 
-        jLabel2.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
+        jLabel2.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         jLabel2.setText("E-mail");
 
-        jLabel3.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
+        jLabel3.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         jLabel3.setText("Cadastro de Pessoa Física (CPF)");
 
-        telefone.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
-        telefone.setSelectedTextColor(new java.awt.Color(51, 51, 51));
-
-        jLabel5.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
+        jLabel5.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         jLabel5.setText("Telefone");
 
-        jLabel8.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
+        jLabel8.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         jLabel8.setText("Estado");
 
         estado.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         estado.setSelectedTextColor(new java.awt.Color(51, 51, 51));
 
-        jLabel9.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
+        jLabel9.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         jLabel9.setText("CEP");
 
-        jLabel10.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
+        jLabel10.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         jLabel10.setText("Cidade");
 
         cidade.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         cidade.setSelectedTextColor(new java.awt.Color(51, 51, 51));
 
-        jLabel11.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
+        jLabel11.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         jLabel11.setText("Bairro");
 
         bairro.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
@@ -414,10 +411,10 @@ public class EditarUsuarios extends javax.swing.JInternalFrame {
         endereco.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         endereco.setSelectedTextColor(new java.awt.Color(51, 51, 51));
 
-        jLabel12.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
+        jLabel12.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         jLabel12.setText("Endereço");
 
-        jLabel13.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
+        jLabel13.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         jLabel13.setText("Código");
 
         campoId.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
@@ -433,14 +430,14 @@ public class EditarUsuarios extends javax.swing.JInternalFrame {
             }
         });
 
-        jLabel14.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
+        jLabel14.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         jLabel14.setText("Complemento");
 
         complemento.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         complemento.setSelectedTextColor(new java.awt.Color(51, 51, 51));
 
         btAtualizar.setBackground(new java.awt.Color(255, 165, 0));
-        btAtualizar.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
+        btAtualizar.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
         btAtualizar.setForeground(new java.awt.Color(255, 255, 255));
         btAtualizar.setText("Atualizar");
         btAtualizar.addActionListener(new java.awt.event.ActionListener() {
@@ -449,23 +446,8 @@ public class EditarUsuarios extends javax.swing.JInternalFrame {
             }
         });
 
-        cpf.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter()));
-        cpf.setFont(new java.awt.Font("Arial", 0, 20)); // NOI18N
-        cpf.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyReleased(java.awt.event.KeyEvent evt) {
-                cpfKeyReleased(evt);
-            }
-        });
-
-        try {
-            cep.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.MaskFormatter("#####-###")));
-        } catch (java.text.ParseException ex) {
-            ex.printStackTrace();
-        }
-        cep.setFont(new java.awt.Font("Arial", 0, 20)); // NOI18N
-
         btCancelar1.setBackground(new java.awt.Color(255, 0, 0));
-        btCancelar1.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
+        btCancelar1.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
         btCancelar1.setForeground(new java.awt.Color(255, 255, 255));
         btCancelar1.setText("Cancelar");
         btCancelar1.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -488,10 +470,10 @@ public class EditarUsuarios extends javax.swing.JInternalFrame {
             }
         });
 
-        jLabel6.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
+        jLabel6.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         jLabel6.setText("Tipo");
 
-        jLabel7.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
+        jLabel7.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         jLabel7.setText("Situação");
 
         tipo.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
@@ -529,6 +511,15 @@ public class EditarUsuarios extends javax.swing.JInternalFrame {
         });
         jScrollPane1.setViewportView(tabela);
 
+        cpf.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
+        cpf.setSelectedTextColor(new java.awt.Color(51, 51, 51));
+
+        telefone.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
+        telefone.setSelectedTextColor(new java.awt.Color(51, 51, 51));
+
+        cep.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
+        cep.setSelectedTextColor(new java.awt.Color(51, 51, 51));
+
         javax.swing.GroupLayout painelPessoaLayout = new javax.swing.GroupLayout(painelPessoa);
         painelPessoa.setLayout(painelPessoaLayout);
         painelPessoaLayout.setHorizontalGroup(
@@ -553,9 +544,11 @@ public class EditarUsuarios extends javax.swing.JInternalFrame {
                                     .addComponent(jLabel2)
                                     .addComponent(email, javax.swing.GroupLayout.PREFERRED_SIZE, 465, javax.swing.GroupLayout.PREFERRED_SIZE))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addGroup(painelPessoaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jLabel5)
-                                    .addComponent(telefone, javax.swing.GroupLayout.PREFERRED_SIZE, 267, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                .addGroup(painelPessoaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addGroup(painelPessoaLayout.createSequentialGroup()
+                                        .addComponent(jLabel5)
+                                        .addGap(196, 196, 196))
+                                    .addComponent(telefone)))
                             .addGroup(painelPessoaLayout.createSequentialGroup()
                                 .addGroup(painelPessoaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(jLabel13)
@@ -571,8 +564,8 @@ public class EditarUsuarios extends javax.swing.JInternalFrame {
                                     .addGroup(painelPessoaLayout.createSequentialGroup()
                                         .addGroup(painelPessoaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                             .addComponent(jLabel3)
-                                            .addComponent(cpf, javax.swing.GroupLayout.PREFERRED_SIZE, 401, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                            .addComponent(cpf, javax.swing.GroupLayout.PREFERRED_SIZE, 389, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                        .addGap(18, 18, 18)
                                         .addGroup(painelPessoaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                             .addComponent(jLabel7)
                                             .addComponent(situacao, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 175, javax.swing.GroupLayout.PREFERRED_SIZE)))
@@ -584,9 +577,11 @@ public class EditarUsuarios extends javax.swing.JInternalFrame {
                                         .addGroup(painelPessoaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                             .addGroup(painelPessoaLayout.createSequentialGroup()
                                                 .addComponent(jLabel9)
-                                                .addGap(195, 195, 195))
-                                            .addComponent(cep))
-                                        .addGap(24, 24, 24)
+                                                .addGap(0, 0, Short.MAX_VALUE))
+                                            .addGroup(painelPessoaLayout.createSequentialGroup()
+                                                .addGap(6, 6, 6)
+                                                .addComponent(cep)))
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                         .addGroup(painelPessoaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                             .addComponent(jLabel10)
                                             .addComponent(cidade, javax.swing.GroupLayout.PREFERRED_SIZE, 154, javax.swing.GroupLayout.PREFERRED_SIZE))))
@@ -617,7 +612,9 @@ public class EditarUsuarios extends javax.swing.JInternalFrame {
                                 .addComponent(jLabel9))
                             .addComponent(perfil, javax.swing.GroupLayout.PREFERRED_SIZE, 233, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(estado, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGroup(painelPessoaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(estado, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(cep, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, painelPessoaLayout.createSequentialGroup()
                         .addGroup(painelPessoaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(painelPessoaLayout.createSequentialGroup()
@@ -633,11 +630,10 @@ public class EditarUsuarios extends javax.swing.JInternalFrame {
                             .addComponent(jLabel2)
                             .addComponent(jLabel5))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(painelPessoaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(telefone, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(painelPessoaLayout.createSequentialGroup()
-                                .addComponent(email)
-                                .addGap(1, 1, 1)))
+                        .addGroup(painelPessoaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(email, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(telefone, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(1, 1, 1)
                         .addGroup(painelPessoaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel3)
                             .addGroup(painelPessoaLayout.createSequentialGroup()
@@ -646,8 +642,9 @@ public class EditarUsuarios extends javax.swing.JInternalFrame {
                             .addComponent(jLabel7))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(painelPessoaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(situacao)
-                            .addComponent(cpf)
+                            .addGroup(painelPessoaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                .addComponent(situacao)
+                                .addComponent(cpf, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addComponent(tipo))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(painelPessoaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -656,8 +653,7 @@ public class EditarUsuarios extends javax.swing.JInternalFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(painelPessoaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(bairro, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(cidade, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(cep))))
+                            .addComponent(cidade, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(painelPessoaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(painelPessoaLayout.createSequentialGroup()
@@ -673,7 +669,7 @@ public class EditarUsuarios extends javax.swing.JInternalFrame {
                     .addComponent(btAtualizar)
                     .addComponent(btCancelar1))
                 .addGap(20, 20, 20)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 165, Short.MAX_VALUE))
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 190, Short.MAX_VALUE))
         );
 
         JCard.add(painelPessoa, "painelPessoa");
@@ -771,44 +767,6 @@ public class EditarUsuarios extends javax.swing.JInternalFrame {
         }
     }//GEN-LAST:event_btCancelar1MouseClicked
 
-
-    private void cpfKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_cpfKeyReleased
-        if (evt.getKeyChar() == KeyEvent.VK_ENTER) {
-            try {
-                Connection con = Conexao.conexaoBanco();
-                PreparedStatement stmt = con.prepareStatement("SELECT * FROM pessoa WHERE cpf = ?");
-                stmt.setString(1, cpf.getText());
-                ResultSet rs = stmt.executeQuery();
-                if (rs.next()) {
-                    campoId.setText(rs.getString("id_pessoa"));
-                    nome.setText(rs.getString("nome"));
-                    email.setText(rs.getString("email"));
-                    telefone.setText(rs.getString("telefone"));
-                    cpf.setText(rs.getString("cpf"));
-                    /*
-                    estado.setText(rs.getString("uf"));
-                    cep.setText(rs.getString("cep"));
-                    cidade.setText(rs.getString("cidade"));
-                    bairro.setText(rs.getString("bairro"));
-                    endereco.setText(rs.getString("endereco"));
-                    complemento.setText(rs.getString("complemento"));*/
-
-                    ImageIcon foto = new ImageIcon("imagens/usuarios/" + rs.getString("imagem_perfil"));
-                    perfil.setIcon(redimensionamentoDeImagem(foto, 205, 227));
-
-                } else {
-                    JOptionPane.showMessageDialog(null, "CPF não encontrado");
-                }
-                rs.close();
-                stmt.close();
-                con.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-                JOptionPane.showMessageDialog(null, "<html> <h3> Não foi possível encontrar este nome</h3> </html>");
-
-            }
-        }
-    }//GEN-LAST:event_cpfKeyReleased
 
     private void situacaoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_situacaoActionPerformed
         switch (situacao.getSelectedItem().toString()) {
@@ -959,10 +917,10 @@ public class EditarUsuarios extends javax.swing.JInternalFrame {
     private javax.swing.JButton btCancelar1;
     private javax.swing.JButton btnProcurar;
     private javax.swing.JTextField campoId;
-    private javax.swing.JFormattedTextField cep;
+    private javax.swing.JTextField cep;
     private javax.swing.JTextField cidade;
     private javax.swing.JTextField complemento;
-    private javax.swing.JFormattedTextField cpf;
+    private javax.swing.JTextField cpf;
     private javax.swing.JTextField email;
     private javax.swing.JTextField endereco;
     private javax.swing.JTextField estado;

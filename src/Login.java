@@ -31,7 +31,7 @@ public class Login extends javax.swing.JFrame {
     private static final Color GREEN_COLOR = new Color(29, 68, 53);
     private static final EmptyBorder FIELD_BORDER = new EmptyBorder(5, 5, 0, 0);
     private static final String INSERT_ACCESS = "INSERT INTO acessos(id_pessoa,usuario,local) VALUES (?,?,?)";
-    private static final String SELECT_USER_LOGIN = "SELECT id_pessoa, nome,id_tipo_usuario, senha, situacao, imagem_perfil FROM pessoa WHERE nome = ? AND senha = ?"; 
+    private static final String SELECT_USER_LOGIN = "SELECT id_pessoa, nome,id_tipo_usuario, senha, situacao, imagem_perfil FROM pessoa WHERE nome = ? AND senha = ?";
     private static final String SELECT_USER_BY_ID = "SELECT * FROM pessoa WHERE id_pessoa = ?";
     private static final String ERROR_GENERIC = "Erro: ";
     Funcoes funcoes = new Funcoes();
@@ -195,11 +195,6 @@ public class Login extends javax.swing.JFrame {
 
         usuario.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         usuario.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-        usuario.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyPressed(java.awt.event.KeyEvent evt) {
-                usuarioKeyPressed(evt);
-            }
-        });
 
         senha.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         senha.setBorder(javax.swing.BorderFactory.createEtchedBorder());
@@ -298,13 +293,12 @@ public class Login extends javax.swing.JFrame {
      * Registra o acesso do usuário no banco de dados, inserindo o ID e nome do
      * usuário na tabela de acessos.
      */
-    
     public void numeroAcesso() {
         LOGGER.info("Registrando acesso do usuário: " + codigo);
         try (Connection con = Conexao.conexaoBanco(); PreparedStatement stmt = con.prepareStatement(INSERT_ACCESS)) {
             stmt.setString(1, codigo);
             stmt.setString(2, usuario.getText());
-            stmt.setString(3,"Desktop");
+            stmt.setString(3, "Desktop");
             stmt.execute();
             LOGGER.info("Acesso registrado com sucesso.");
         } catch (Exception ex) {
@@ -318,7 +312,7 @@ public class Login extends javax.swing.JFrame {
      * tela inicial se o login for bem-sucedido e registra o acesso.
      */
     private void Login() {
-        if (codigoCampo.getText().trim().isEmpty() || senha.getText().trim().isEmpty()) {
+        if (codigoCampo.getText().trim().isEmpty() && usuario.getText().trim().isEmpty() && senha.getText().trim().isEmpty()) {
             LOGGER.warning("Campos de código ou senha estão vazios.");
             funcoes.Avisos("erro.png", "Preencha os campos");
             return;
@@ -428,7 +422,12 @@ public class Login extends javax.swing.JFrame {
 
     private void codigoCampoKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_codigoCampoKeyPressed
         codigoCampo.setFocusTraversalKeysEnabled(false);
-        if (evt.getKeyCode() == KeyEvent.VK_ENTER || evt.getKeyCode() == KeyEvent.VK_TAB) {
+        if (evt.getKeyCode() == KeyEvent.VK_TAB) {
+            if (codigoCampo.getText().trim().isEmpty() && usuario.getText().trim().isEmpty() && senha.getText().trim().isEmpty()) {
+                LOGGER.warning("Campos de código ou senha estão vazios.");
+                funcoes.Avisos("erro.png", "Preencha os campos");
+                return;
+            }
             LOGGER.info("Buscando usuário pelo código: " + codigoCampo.getText());
             try (Connection con = Conexao.conexaoBanco(); PreparedStatement stmt = con.prepareStatement(SELECT_USER_BY_ID)) {
                 stmt.setString(1, codigoCampo.getText());
@@ -475,19 +474,20 @@ public class Login extends javax.swing.JFrame {
      * @param evt Evento de tecla pressionada.
      */
     private void formKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_formKeyPressed
-        if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
-            LOGGER.info("Tecla Enter pressionada no formulário. Iniciando login.");
-            Login();
-        }
+
 
     }//GEN-LAST:event_formKeyPressed
 
-    private void usuarioKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_usuarioKeyPressed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_usuarioKeyPressed
-
     private void senhaKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_senhaKeyPressed
-        // TODO add your handling code here:
+        if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
+            if (codigoCampo.getText().trim().isEmpty() || usuario.getText().trim().isEmpty() || senha.getText().trim().isEmpty()) {
+                LOGGER.warning("Campos de código ou senha estão vazios.");
+                funcoes.Avisos("erro.png", "Preencha os campos");
+                return;
+            }
+            LOGGER.info("Tecla Enter pressionada no formulário. Iniciando login.");
+            Login();
+        }
     }//GEN-LAST:event_senhaKeyPressed
     /**
      * Método principal para inicializar a aplicação com o Look and Feel

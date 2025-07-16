@@ -229,7 +229,7 @@ public class PesquisarUsuario extends javax.swing.JInternalFrame {
         });
 
         btnProcurar.setBackground(new java.awt.Color(50, 205, 50));
-        btnProcurar.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
+        btnProcurar.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
         btnProcurar.setForeground(new java.awt.Color(255, 255, 255));
         btnProcurar.setText("Procurar");
         btnProcurar.addActionListener(new java.awt.event.ActionListener() {
@@ -240,45 +240,45 @@ public class PesquisarUsuario extends javax.swing.JInternalFrame {
 
         JCard.setLayout(new java.awt.CardLayout());
 
-        jLabel1.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
+        jLabel1.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         jLabel1.setText("Nome");
 
         nome.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         nome.setSelectedTextColor(new java.awt.Color(51, 51, 51));
 
-        jLabel2.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
+        jLabel2.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         jLabel2.setText("E-mail");
 
         email.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         email.setEnabled(false);
         email.setSelectedTextColor(new java.awt.Color(51, 51, 51));
 
-        jLabel3.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
+        jLabel3.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         jLabel3.setText("Cadastro de Pessoa Física (CPF)");
 
         telefone.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         telefone.setEnabled(false);
         telefone.setSelectedTextColor(new java.awt.Color(51, 51, 51));
 
-        jLabel5.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
+        jLabel5.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         jLabel5.setText("Telefone");
 
-        jLabel8.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
+        jLabel8.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         jLabel8.setText("Estado");
 
         estado.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         estado.setSelectedTextColor(new java.awt.Color(51, 51, 51));
 
-        jLabel9.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
+        jLabel9.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         jLabel9.setText("CEP");
 
-        jLabel10.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
+        jLabel10.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         jLabel10.setText("Cidade");
 
         cidade.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         cidade.setSelectedTextColor(new java.awt.Color(51, 51, 51));
 
-        jLabel11.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
+        jLabel11.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         jLabel11.setText("Bairro");
 
         bairro.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
@@ -287,10 +287,10 @@ public class PesquisarUsuario extends javax.swing.JInternalFrame {
         endereco.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         endereco.setSelectedTextColor(new java.awt.Color(51, 51, 51));
 
-        jLabel12.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
+        jLabel12.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         jLabel12.setText("Endereço");
 
-        jLabel13.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
+        jLabel13.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         jLabel13.setText("Código");
 
         codigoUsuario.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
@@ -306,14 +306,14 @@ public class PesquisarUsuario extends javax.swing.JInternalFrame {
             }
         });
 
-        jLabel14.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
+        jLabel14.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         jLabel14.setText("Complemento");
 
         complemento.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         complemento.setSelectedTextColor(new java.awt.Color(51, 51, 51));
 
         btComprasUsuario.setBackground(new java.awt.Color(255, 165, 0));
-        btComprasUsuario.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
+        btComprasUsuario.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
         btComprasUsuario.setForeground(new java.awt.Color(255, 255, 255));
         btComprasUsuario.setText("Compras");
         btComprasUsuario.addActionListener(new java.awt.event.ActionListener() {
@@ -339,7 +339,7 @@ public class PesquisarUsuario extends javax.swing.JInternalFrame {
         cep.setFont(new java.awt.Font("Arial", 0, 20)); // NOI18N
 
         btCancelar1.setBackground(new java.awt.Color(255, 0, 0));
-        btCancelar1.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
+        btCancelar1.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
         btCancelar1.setForeground(new java.awt.Color(255, 255, 255));
         btCancelar1.setText("Cancelar");
         btCancelar1.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -391,7 +391,7 @@ public class PesquisarUsuario extends javax.swing.JInternalFrame {
                                         .addGroup(painelPessoaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                             .addComponent(jLabel11)
                                             .addComponent(jLabel14))
-                                        .addGap(0, 150, Short.MAX_VALUE))))
+                                        .addGap(0, 169, Short.MAX_VALUE))))
                             .addGroup(painelPessoaLayout.createSequentialGroup()
                                 .addGroup(painelPessoaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(jLabel2)
@@ -478,7 +478,7 @@ public class PesquisarUsuario extends javax.swing.JInternalFrame {
                 .addGroup(painelPessoaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btComprasUsuario)
                     .addComponent(btCancelar1))
-                .addContainerGap(10, Short.MAX_VALUE))
+                .addContainerGap(45, Short.MAX_VALUE))
         );
 
         JCard.add(painelPessoa, "painelPessoa");
