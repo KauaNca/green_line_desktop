@@ -56,8 +56,8 @@ Acesse o site do sistema por meio do seguinte link:
 ## ⬇️ Downloads para Testes
 Faça o download das versões em fase de testes abaixo:
 
-- 📱 **Android** → [Download APK](https://drive.google.com/file/d/1boV4tKh74tGHVYdIwVufuM1JS_F8x4XN/view?usp=sharing)  
-- 🖥️ **Desktop** → [Download Executável](https://drive.google.com/drive/folders/1m10LnylS3dkNuxwOceKg5xuNIX2L7jxB?usp=sharing)
+- 📱 **Android** → [Download APK](https://www.mediafire.com/file/xcz7vvo07msbygj/green-line.apk/file)  
+- 🖥️ **Desktop** → [Download Executável](https://www.mediafire.com/folder/mkfu7dd01xroc/Green_Line_Desktop)
 
 
 ## 💾 Versões  
