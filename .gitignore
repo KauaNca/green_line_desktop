@@ -16,3 +16,4 @@ dist/
 # Arquivos específicos do sistema operacional
 .DS_Store
 Thumbs.db
+/green-line/target/
