@@ -114,6 +114,8 @@ public static void testHashCompatibilidade() {
      * tela inicial se o login for bem-sucedido e registra o acesso.
      */
     private void Login() {
+  
+                        
         // Validação de campos vazios (OR em vez de AND)
         if (codigoCampo.getText().trim().isEmpty() || usuario.getText().trim().isEmpty() || senha.getText().trim().isEmpty()) {
             LOGGER.warning("Campos de login estão vazios.");

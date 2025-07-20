@@ -59,7 +59,7 @@ public class CadastroPessoas extends javax.swing.JInternalFrame {
         funcoes.aplicarMascaraCPF(cpf);
         funcoes.aplicarMascaraSenha(Senha);
         funcoes.aplicarValidacaoEmail(email);
-       
+
     }
 
     @SuppressWarnings("unchecked")
@@ -313,7 +313,7 @@ public class CadastroPessoas extends javax.swing.JInternalFrame {
             try {
                 senhaHash = BCrypt.hashpw(Senha.getText(), BCrypt.gensalt());
             } catch (Exception e) {
-                System.out.println("Erro: " + e.getMessage()); 
+                System.out.println("Erro: " + e.getMessage());
                 senhaHash = "12345";
             }
 
@@ -329,9 +329,27 @@ public class CadastroPessoas extends javax.swing.JInternalFrame {
             stmt.setString(7, situacaoValor);
             stmt.executeUpdate();
             stmt.close();
+
+            // Obter o ID da pessoa recém-inserida
+            String sqlLastId = "SELECT LAST_INSERT_ID()";
+            PreparedStatement stmtLastId = con.prepareStatement(sqlLastId);
+            ResultSet rsLastId = stmtLastId.executeQuery();
+            rsLastId.next();
+            int idPessoa = rsLastId.getInt(1);
+            stmtLastId.close();
+            rsLastId.close();
+
+            // Inserir endereço com valores NULL
+            String sqlEndereco = "INSERT INTO enderecos (uf, cep, cidade, bairro, endereco, complemento, id_pessoa) VALUES (NULL, NULL, NULL, NULL, NULL, NULL, ?)";
+            PreparedStatement stmtEndereco = con.prepareStatement(sqlEndereco);
+            stmtEndereco.setInt(1, idPessoa);
+            stmtEndereco.executeUpdate();
+            stmtEndereco.close();
+
             JOptionPane.showMessageDialog(this, "Cadastro realizado com sucesso!");
             carregarTabela();
             limparCampos();
+
         } catch (SQLException ex) {
             Logger.getLogger(CadastroPessoas.class.getName()).log(Level.SEVERE, null, ex);
             JOptionPane.showMessageDialog(this, "Erro ao realizar cadastro: " + ex.getMessage());
