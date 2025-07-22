@@ -1,6 +1,5 @@
 package com.mycompany.green.line;
 
-
 import java.awt.Component;
 import java.awt.Font;
 import java.awt.Image;
@@ -23,18 +22,81 @@ import javax.swing.table.DefaultTableModel;
 
 public class EditarUsuarios extends javax.swing.JInternalFrame {
 
-    private static final Logger LOGGER = Logger.getLogger(PesquisarUsuario.class.getName());
-    private static final String SELECT_PERSON_DATA = "SELECT * FROM view_pessoa_endereco WHERE nome = ?";
-    private static final String SELECT_PESSOA_POR_ID = "SELECT * FROM view_pessoa_endereco WHERE id_pessoa = ?";
-    Funcoes funcoes = new Funcoes();
+    private static final Logger LOGGER = Logger.getLogger(EditarUsuarios.class.getName());
+    private static final String PATH_IMAGES = "imagens/usuarios/";
+    private static final String DEFAULT_PROFILE_IMAGE = "imagens/perfil.png";
 
-    private DefaultTableModel tableModel;
-    private JTable table;
-    private JScrollPane scrollPane;
-    private ArrayList<String> usuarios;
-    private JPopupMenu caixaDeNomes = new JPopupMenu();
-    private ArrayList<String> filtro;
-    private final Font fonteItem = new Font("Arial", Font.PLAIN, 19);
+    // SQL Queries
+    private static final String SELECT_ALL_PERSONS = "SELECT * FROM pessoa ORDER BY id_pessoa DESC";
+    private static final String SELECT_PERSON_BY_NAME = "SELECT * FROM view_pessoa_endereco WHERE nome LIKE ? LIMIT 100";
+    private static final String SELECT_PERSON_BY_ID = "SELECT * FROM pessoa WHERE id_pessoa = ?";
+    private static final String SELECT_ADDRESS_BY_PERSON_ID = "SELECT * FROM enderecos WHERE id_pessoa = ?";
+    private static final String UPDATE_PERSON = "UPDATE pessoa SET nome = ?, email = ?, telefone = ?, cpf = ?, id_tipo_usuario = ?, situacao = ? WHERE id_pessoa = ?";
+    private static final String CHECK_ADDRESS_EXISTS = "SELECT COUNT(*) FROM enderecos WHERE id_pessoa = ?";
+    private static final String UPDATE_ADDRESS = "UPDATE enderecos SET uf = ?, cep = ?, cidade = ?, bairro = ?, endereco = ?, complemento = ? WHERE id_pessoa = ?";
+    private static final String INSERT_ADDRESS = "INSERT INTO enderecos (uf, cep, cidade, bairro, endereco, complemento, id_pessoa) VALUES (?, ?, ?, ?, ?, ?, ?)";
+
+    private final Funcoes funcoes = new Funcoes();
+    private final DefaultTableModel tableModel;
+    private final JPopupMenu nameSuggestionsPopup = new JPopupMenu();
+    private final ArrayList<String> userNames = new ArrayList<>();
+    private final Font suggestionFont = new Font("Arial", Font.PLAIN, 19);
+
+    private enum UserStatus {
+        ATIVO("A", "Ativo"),
+        INATIVO("P", "Inativo"),
+        BLOQUEADO("I", "Bloqueado");
+
+        private final String code;
+        private final String displayName;
+
+        UserStatus(String code, String displayName) {
+            this.code = code;
+            this.displayName = displayName;
+        }
+
+        public String getCode() {
+            return code;
+        }
+
+        public static UserStatus fromDisplayName(String displayName) {
+            for (UserStatus status : values()) {
+                if (status.displayName.equals(displayName)) {
+                    return status;
+                }
+            }
+            return ATIVO; // Default
+        }
+    }
+
+    /**
+     * Enum for user type.
+     */
+    private enum UserType {
+        ADM(1, "ADM"),
+        FUNCIONARIO(2, "Funcionario");
+
+        private final int id;
+        private final String displayName;
+
+        UserType(int id, String displayName) {
+            this.id = id;
+            this.displayName = displayName;
+        }
+
+        public int getId() {
+            return id;
+        }
+
+        public static UserType fromDisplayName(String displayName) {
+            for (UserType type : values()) {
+                if (type.displayName.equals(displayName)) {
+                    return type;
+                }
+            }
+            return FUNCIONARIO; // Default
+        }
+    }
 
     /**
      * Construtor da classe PesquisarUsuario.
@@ -45,7 +107,16 @@ public class EditarUsuarios extends javax.swing.JInternalFrame {
 
     public EditarUsuarios() {
         initComponents();
+        tableModel = (DefaultTableModel) tabela.getModel();
+        setupFieldMasks();
         initTable();
+        disableNonEditableFields();
+    }
+
+    /**
+     * Applies input masks to text fields.
+     */
+    private void setupFieldMasks() {
         funcoes.aplicarMascaraNome(nome);
         funcoes.aplicarMascaraInteiro(campoId);
         funcoes.aplicarMascaraTelefone(telefone);
@@ -53,16 +124,20 @@ public class EditarUsuarios extends javax.swing.JInternalFrame {
         funcoes.aplicarMascaraCEP(cep);
     }
 
-    private void initTable() {
-        try (Connection con = Conexao.conexaoBanco()) {
-            String sql = "SELECT * FROM pessoa ORDER BY id_pessoa DESC";
-            PreparedStatement stmt = con.prepareStatement(sql);
-            ResultSet rs = stmt.executeQuery();
-            DefaultTableModel modeloTabela = (DefaultTableModel) tabela.getModel();
-            modeloTabela.setNumRows(0);
-            while (rs.next()) {
+    /**
+     * Disables fields that should not be edited.
+     */
+    private void disableNonEditableFields() {
+        campoId.setEnabled(false);
+        email.setEnabled(false);
+        cpf.setEnabled(false);
+    }
 
-                Object[] dados = {
+    private void initTable() {
+        tableModel.setRowCount(0);
+        try (Connection con = Conexao.conexaoBanco(); PreparedStatement stmt = con.prepareStatement(SELECT_ALL_PERSONS); ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                tableModel.addRow(new Object[]{
                     rs.getInt("id_pessoa"),
                     rs.getString("nome"),
                     rs.getString("email"),
@@ -70,129 +145,96 @@ public class EditarUsuarios extends javax.swing.JInternalFrame {
                     rs.getString("cpf"),
                     rs.getInt("id_tipo_usuario"),
                     rs.getString("situacao")
-                };
-                modeloTabela.addRow(dados);
+                });
+                userNames.add(rs.getString("nome")); // Cache names for autocomplete
             }
-
-            stmt.close();
-            rs.close();
-        } catch (SQLException ex) {
-            Logger.getLogger(CadastroPessoas.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Failed to load table data", e);
+            JOptionPane.showMessageDialog(this, "Erro ao carregar tabela: " + e.getMessage());
         }
     }
 
-    private void carregarUsuario(int idPessoa) {
+    private void loadUserData(int idPessoa) {
         try (Connection con = Conexao.conexaoBanco()) {
-            // Carrega dados da pessoa
-            String sqlPessoa = "SELECT * FROM pessoa WHERE id_pessoa = ?";
-            PreparedStatement psPessoa = con.prepareStatement(sqlPessoa);
-            psPessoa.setInt(1, idPessoa);
-            ResultSet rsPessoa = psPessoa.executeQuery();
+            // Load person data
+            try (PreparedStatement psPessoa = con.prepareStatement(SELECT_PERSON_BY_ID)) {
+                psPessoa.setInt(1, idPessoa);
+                try (ResultSet rsPessoa = psPessoa.executeQuery()) {
+                    if (rsPessoa.next()) {
+                        nome.setText(rsPessoa.getString("nome"));
+                        email.setText(rsPessoa.getString("email"));
+                        telefone.setText(rsPessoa.getString("telefone"));
+                        cpf.setText(rsPessoa.getString("cpf"));
+                        tipo.setSelectedItem(rsPessoa.getInt("id_tipo_usuario") == 1 ? "ADM" : "Funcionario");
+                        situacao.setSelectedItem(getStatusDisplayName(rsPessoa.getString("situacao")));
 
-            if (rsPessoa.next()) {
-                nome.setText(rsPessoa.getString("nome"));
-                email.setText(rsPessoa.getString("email"));
-                telefone.setText(rsPessoa.getString("telefone"));
-                cpf.setText(rsPessoa.getString("cpf"));
-
-                // Tipo de usuário
-                tipoUsuarioId = rsPessoa.getInt("id_tipo_usuario");
-                tipo.setSelectedItem(tipoUsuarioId == 1 ? "ADM" : "Funcionario");
-
-                // Situação
-                situacaoValor = rsPessoa.getString("situacao");
-                switch (situacaoValor) {
-                    case "A":
-                        situacao.setSelectedItem("Ativo");
-                        break;
-                    case "P":
-                        situacao.setSelectedItem("Inativo");
-                        break;
-                    case "I":
-                        situacao.setSelectedItem("Bloqueado");
-                        break;
-                }
-
-                // Imagem de perfil
-                String imagem = rsPessoa.getString("imagem_perfil");
-                if (imagem != null && !imagem.isEmpty()) {
-                    ImageIcon foto = new ImageIcon("imagens/usuarios/" + imagem);
-                    perfil.setIcon(redimensionamentoDeImagem(foto, 205, 227));
+                        String imagem = rsPessoa.getString("imagem_perfil");
+                        if (imagem != null && !imagem.isEmpty()) {
+                            perfil.setIcon(resizeImage(new ImageIcon(PATH_IMAGES + imagem), 205, 227));
+                        } else {
+                            perfil.setIcon(new ImageIcon(DEFAULT_PROFILE_IMAGE));
+                        }
+                    }
                 }
             }
 
-            // Carrega dados do endereço
-            String sqlEndereco = "SELECT * FROM enderecos WHERE id_pessoa = ?";
-            PreparedStatement psEndereco = con.prepareStatement(sqlEndereco);
-            psEndereco.setInt(1, idPessoa);
-            ResultSet rsEndereco = psEndereco.executeQuery();
-
-            if (rsEndereco.next()) {
-                estado.setText(rsEndereco.getString("uf"));
-                cep.setText(rsEndereco.getString("cep"));
-                cidade.setText(rsEndereco.getString("cidade"));
-                bairro.setText(rsEndereco.getString("bairro"));
-                endereco.setText(rsEndereco.getString("endereco"));
-                complemento.setText(rsEndereco.getString("complemento"));
-            } else {
-                // Limpa campos se não houver endereço cadastrado
-                estado.setText("");
-                cep.setText("");
-                cidade.setText("");
-                bairro.setText("");
-                endereco.setText("");
-                complemento.setText("");
+            // Load address data
+            try (PreparedStatement psEndereco = con.prepareStatement(SELECT_ADDRESS_BY_PERSON_ID)) {
+                psEndereco.setInt(1, idPessoa);
+                try (ResultSet rsEndereco = psEndereco.executeQuery()) {
+                    if (rsEndereco.next()) {
+                        estado.setText(rsEndereco.getString("uf"));
+                        cep.setText(rsEndereco.getString("cep"));
+                        cidade.setText(rsEndereco.getString("cidade"));
+                        bairro.setText(rsEndereco.getString("bairro"));
+                        endereco.setText(rsEndereco.getString("endereco"));
+                        complemento.setText(rsEndereco.getString("complemento"));
+                    } else {
+                        clearAddressFields();
+                    }
+                }
             }
-
         } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Failed to load user data for ID: " + idPessoa, e);
             JOptionPane.showMessageDialog(this, "Erro ao carregar usuário: " + e.getMessage());
-            e.printStackTrace();
         }
     }
 
     /**
-     * Pesquisa usuários no banco de dados e exibe os resultados na tabela.
+     * Converts database status code to display name.
      */
-    private void pesquisarUsuarios() {
-        String texto = tfPesquisar.getText();
-        LOGGER.log(Level.INFO, "Pesquisando usu\u00e1rios com texto: {0}", texto);
-
-        // Limpa a tabela antes de nova pesquisa
-        tableModel.setRowCount(0);
-
-        try (Connection con = Conexao.conexaoBanco(); PreparedStatement stmt = con.prepareStatement(SELECT_PERSON_DATA)) {
-
-            stmt.setString(1, "%" + texto + "%");
-
-            try (ResultSet rs = stmt.executeQuery()) {
-                while (rs.next()) {
-                    // Adiciona cada registro como uma nova linha na tabela
-                    tableModel.addRow(new Object[]{
-                        rs.getString("id_pessoa"),
-                        rs.getString("nome"),
-                        rs.getString("email"),
-                        rs.getString("telefone"),
-                        rs.getString("cpf")
-                    });
-                }
-                LOGGER.info("Dados carregados na tabela com sucesso.");
+    private String getStatusDisplayName(String code) {
+        for (UserStatus status : UserStatus.values()) {
+            if (status.getCode().equals(code)) {
+                return status.displayName;
             }
-
-        } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Erro ao pesquisar usu\u00e1rios: {0}", e.getMessage());
-            JOptionPane.showMessageDialog(null, "Erro ao pesquisar usuários");
         }
+        return UserStatus.ATIVO.displayName;
     }
 
-    // Método para redimensionar imagem
-    public ImageIcon redimensionamentoDeImagem(ImageIcon imagem, int largura, int altura) {
-        Image pegarImagem = imagem.getImage();
-        Image redimensionando = pegarImagem.getScaledInstance(largura, altura, Image.SCALE_SMOOTH);
-        return new ImageIcon(redimensionando);
+    /**
+     * Clears address-related fields.
+     */
+    private void clearAddressFields() {
+        estado.setText("");
+        cep.setText("");
+        cidade.setText("");
+        bairro.setText("");
+        endereco.setText("");
+        complemento.setText("");
     }
 
-    // Método para validar campos antes da atualização
-    private boolean validarCampos() {
+    /**
+     * Resizes an image to the specified dimensions.
+     */
+    private ImageIcon resizeImage(ImageIcon image, int width, int height) {
+        return new ImageIcon(image.getImage().getScaledInstance(width, height, Image.SCALE_SMOOTH));
+    }
+
+    /**
+     * Validates form fields before updating.
+     */
+    private boolean validateFields() {
         if (nome.getText().trim().isEmpty() || email.getText().trim().isEmpty()
                 || telefone.getText().trim().isEmpty() || cpf.getText().trim().isEmpty()) {
             JOptionPane.showMessageDialog(this, "Preencha todos os campos obrigatórios!");
@@ -204,109 +246,87 @@ public class EditarUsuarios extends javax.swing.JInternalFrame {
             return false;
         }
 
-        if (!cpf.getText().matches("\\d{3}\\.?\\d{3}\\.?\\d{3}\\-?\\d{2}")) {
-            JOptionPane.showMessageDialog(this, "CPF inválido!");
-            return false;
-        }
-
         if (estado.getText().trim().isEmpty() || cep.getText().trim().isEmpty()
                 || cidade.getText().trim().isEmpty() || endereco.getText().trim().isEmpty()) {
-            int resposta = JOptionPane.showConfirmDialog(this,
+            return JOptionPane.showConfirmDialog(this,
                     "Alguns campos de endereço estão vazios. Deseja continuar?",
-                    "Aviso", JOptionPane.YES_NO_OPTION);
-            return resposta == JOptionPane.YES_OPTION;
+                    "Aviso", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION;
         }
 
         return true;
     }
 
-    // Método para limpar todos os campos
-    private void limparCampos() {
+    /**
+     * Clears all form fields.
+     */
+    private void clearFields() {
         nome.setText("");
         email.setText("");
         telefone.setText("");
         cpf.setText("");
-        estado.setText("");
-        cep.setText("");
-        cidade.setText("");
-        bairro.setText("");
-        endereco.setText("");
-        complemento.setText("");
+        clearAddressFields();
         campoId.setText("");
         tipo.setSelectedIndex(0);
         situacao.setSelectedIndex(0);
-        perfil.setIcon(new ImageIcon("imagens/perfil.png"));
+        perfil.setIcon(new ImageIcon(DEFAULT_PROFILE_IMAGE));
     }
 
     @SuppressWarnings("unchecked")
 
-    public void pesquisarNome() {
-        String texto = tfPesquisar.getText();
-        LOGGER.info("Pesquisando nomes com texto: " + texto);
-        filtro = new ArrayList<>();
-        filtro.clear();
-        if (!texto.isEmpty()) {
-            // Filtra nomes que contêm o texto digitado
-            for (String nome : usuarios) {
-                if (nome.contains(texto)) {
-                    filtro.add(nome);
+    /**
+     * Displays name suggestions in a popup menu based on the search text.
+     */
+    private void showNameSuggestions() {
+        String searchText = tfPesquisar.getText().trim();
+        nameSuggestionsPopup.removeAll();
+        if (!searchText.isEmpty()) {
+            ArrayList<String> filteredNames = new ArrayList<>();
+            for (String name : userNames) {
+                if (name.toLowerCase().contains(searchText.toLowerCase())) {
+                    filteredNames.add(name);
                 }
             }
-            caixaDeNomes.removeAll();
-            if (!filtro.isEmpty()) {
-                // Adiciona itens filtrados ao menu suspenso
-                for (String nome : filtro) {
-                    JMenuItem item = new JMenuItem(nome);
-                    item.addActionListener(e -> {
-                        tfPesquisar.setText(nome);
-                        item.setFont(fonteItem);
-                        caixaDeNomes.setVisible(false);
-                    });
-                    caixaDeNomes.add(item);
-                }
-                // Exibe o menu suspenso abaixo do campo de texto
-                caixaDeNomes.setVisible(true);
-                caixaDeNomes.show(tfPesquisar, 0, tfPesquisar.getHeight());
+
+            for (String name : filteredNames) {
+                JMenuItem item = new JMenuItem(name);
+                item.setFont(suggestionFont);
+                item.addActionListener(e -> {
+                    tfPesquisar.setText(name);
+                    nameSuggestionsPopup.setVisible(false);
+                    searchUserByName(name);
+                });
+                nameSuggestionsPopup.add(item);
+            }
+
+            if (!filteredNames.isEmpty()) {
+                nameSuggestionsPopup.show(tfPesquisar, 0, tfPesquisar.getHeight());
             } else {
-                caixaDeNomes.setVisible(false);
+                nameSuggestionsPopup.setVisible(false);
             }
         } else {
-            // Limpa e oculta o menu se o campo de texto estiver vazio
-            caixaDeNomes.removeAll();
-            caixaDeNomes.setVisible(false);
+            nameSuggestionsPopup.setVisible(false);
         }
     }
 
-    private void pesquisarPessoa() {
-        LOGGER.info("Pesquisando pessoa física com nome: " + tfPesquisar.getText());
-        try (Connection con = Conexao.conexaoBanco(); PreparedStatement stmt = con.prepareStatement(SELECT_PERSON_DATA)) {
-            stmt.setString(1, tfPesquisar.getText());
+    /**
+     * Searches for a user by name and populates the form.
+     */
+    private void searchUserByName(String name) {
+        try (Connection con = Conexao.conexaoBanco(); PreparedStatement stmt = con.prepareStatement(SELECT_PERSON_BY_NAME)) {
+            stmt.setString(1, "%" + name + "%");
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
-                    // Preenche os campos com os dados da pessoa
                     campoId.setText(rs.getString("id_pessoa"));
-                    nome.setText(rs.getString("nome"));
-                    email.setText(rs.getString("email"));
-                    telefone.setText(rs.getString("telefone"));
-                    cpf.setText(rs.getString("cpf"));
-                    estado.setText(rs.getString("uf"));
-                    cep.setText(rs.getString("cep"));
-                    cidade.setText(rs.getString("cidade"));
-                    bairro.setText(rs.getString("bairro"));
-                    endereco.setText(rs.getString("endereco"));
-                    complemento.setText(rs.getString("complemento"));
-
-                    // Carrega e redimensiona a imagem do perfil
-                    ImageIcon foto = new ImageIcon("imagens/usuarios/" + rs.getString("imagem_perfil"));
-                    perfil.setIcon(redimensionamentoDeImagem(foto, 205, 227));
-                    LOGGER.info("Dados da pessoa física carregados com sucesso.");
+                    loadUserData(Integer.parseInt(rs.getString("id_pessoa")));
+                    LOGGER.info("User found: " + name);
+                } else {
+                    JOptionPane.showMessageDialog(this, "Usuário não encontrado: " + name);
+                    LOGGER.warning("No user found for name: " + name);
                 }
             }
-
-        } catch (Exception e) {
-            LOGGER.severe("Erro ao pesquisar pessoa física: " + e.getMessage());
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(null, "<html> <h3> Não foi possível encontrar este nome</h3> </html>");
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Failed to search user by name: " + name, e);
+            JOptionPane.showMessageDialog(this, "Erro ao pesquisar usuário: " + e.getMessage());
         }
     }
 
@@ -709,64 +729,32 @@ public class EditarUsuarios extends javax.swing.JInternalFrame {
 
     private void tfPesquisarKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tfPesquisarKeyReleased
         if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
-            pesquisarUsuarios();
+            searchUserByName(tfPesquisar.getText());
+        } else {
+            showNameSuggestions();
         }
     }//GEN-LAST:event_tfPesquisarKeyReleased
     private void btnProcurarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnProcurarActionPerformed
-        LOGGER.info("Iniciando pesquisa de usuário.");
-        // Desativa campos que não devem ser editados
-        campoId.setEnabled(false);
-        email.setEnabled(false);
-        cpf.setEnabled(false);
-        pesquisarPessoa();
-        tfPesquisar.setText(""); // Limpa o campo de pesquisa
+        searchUserByName(tfPesquisar.getText());
+        tfPesquisar.setText("");
     }//GEN-LAST:event_btnProcurarActionPerformed
 
     private void campoIdKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_campoIdKeyPressed
-        if (evt.getKeyChar() == KeyEvent.VK_ENTER) {
+        if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
             try {
-                Connection con = Conexao.conexaoBanco();
-                PreparedStatement stmt = con.prepareStatement("SELECT * FROM pessoa WHERE id_pessoa = ?");
-                stmt.setString(1, campoId.getText());
-                ResultSet rs = stmt.executeQuery();
-                if (rs.next()) {
-                    campoId.setText(rs.getString("id_pessoa"));
-                    nome.setText(rs.getString("nome"));
-                    email.setText(rs.getString("email"));
-                    telefone.setText(rs.getString("telefone"));
-                    cpf.setText(rs.getString("cpf"));
-
-                    estado.setText(rs.getString("uf"));
-                    cep.setText(rs.getString("cep"));
-                    cidade.setText(rs.getString("cidade"));
-                    bairro.setText(rs.getString("bairro"));
-                    endereco.setText(rs.getString("endereco"));
-                    complemento.setText(rs.getString("complemento"));
-
-                    ImageIcon foto = new ImageIcon("imagens/usuarios/" + rs.getString("imagem_perfil"));
-                    perfil.setIcon(redimensionamentoDeImagem(foto, 205, 227));
-
-                } else {
-                    JOptionPane.showMessageDialog(null, "Código de usuário não encontrado");
-                }
-                rs.close();
-                stmt.close();
-                con.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-                JOptionPane.showMessageDialog(null, "<html> <h3> Não foi possível encontrar este nome</h3> </html>");
-
-            }
-    }//GEN-LAST:event_campoIdKeyPressed
-    }
-    private void btCancelar1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btCancelar1MouseClicked
-        perfil.setIcon(new ImageIcon("imagens/perfil.png"));
-        usuarios = new ArrayList<>();
-        for (Component component : painelPessoa.getComponents()) {
-            if (component instanceof JTextField) {
-                ((JTextField) component).setText("");
+                int id = Integer.parseInt(campoId.getText());
+                loadUserData(id);
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(this, "Código inválido!");
+                LOGGER.warning("Invalid ID entered: " + campoId.getText());
             }
         }
+   
+            
+    }//GEN-LAST:event_campoIdKeyPressed
+ 
+    private void btCancelar1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btCancelar1MouseClicked
+       clearFields();
     }//GEN-LAST:event_btCancelar1MouseClicked
 
 
@@ -797,115 +785,79 @@ public class EditarUsuarios extends javax.swing.JInternalFrame {
 
 
     private void tabelaMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tabelaMouseClicked
-        if (tabela.getSelectedRow() == -1) {
-            return;
+        int selectedRow = tabela.getSelectedRow();
+        if (selectedRow != -1) {
+            int idPessoa = Integer.parseInt(tabela.getValueAt(selectedRow, 0).toString());
+            campoId.setText(String.valueOf(idPessoa));
+            loadUserData(idPessoa);
         }
-
-        int idPessoa = Integer.parseInt(tabela.getValueAt(tabela.getSelectedRow(), 0).toString());
-        campoId.setText(String.valueOf(idPessoa));
-
-        // Carrega todos os dados do usuário e endereço
-        carregarUsuario(idPessoa);
     }//GEN-LAST:event_tabelaMouseClicked
 
     private void btAtualizarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btAtualizarActionPerformed
-        if (!validarCampos()) {
+         if (!validateFields()) {
             return;
         }
 
-        Connection con = null;
-        try {
-            con = Conexao.conexaoBanco();
-            con.setAutoCommit(false); // Inicia transação
-
+        try (Connection con = Conexao.conexaoBanco()) {
+            con.setAutoCommit(false);
             int idPessoa = Integer.parseInt(campoId.getText());
+            String cpfFormatado = funcoes.removePontuacaoEEspacos(cpf.getText().trim());
+            String telefoneFormatado = funcoes.removePontuacaoEEspacos(telefone.getText().trim());
+            String cepFormatado = funcoes.removePontuacaoEEspacos(cep.getText().trim());
 
-            // 1. Atualizar dados da pessoa
-            String sqlPessoa = "UPDATE pessoa SET nome=?, email=?, telefone=?, cpf=?, "
-                    + "id_tipo_usuario=?, situacao=? WHERE id_pessoa=?";
+            // Update person
+            try (PreparedStatement psPessoa = con.prepareStatement(UPDATE_PERSON)) {
+                psPessoa.setString(1, nome.getText());
+                psPessoa.setString(2, email.getText());
+                psPessoa.setString(3, telefoneFormatado);
+                psPessoa.setString(4, cpfFormatado);
+                psPessoa.setInt(5, UserType.fromDisplayName(tipo.getSelectedItem().toString()).getId());
+                psPessoa.setString(6, UserStatus.fromDisplayName(situacao.getSelectedItem().toString()).getCode());
+                psPessoa.setInt(7, idPessoa);
+                int rowsPessoa = psPessoa.executeUpdate();
 
-            int Tipo = tipo.getSelectedItem().equals("ADM") ? 1 : 2;
-            String Situacao = situacao.getSelectedItem().equals("Ativo") ? "A"
-                    : situacao.getSelectedItem().equals("Inativo") ? "P" : "I";
+                // Update or insert address
+                try (PreparedStatement psCheck = con.prepareStatement(CHECK_ADDRESS_EXISTS)) {
+                    psCheck.setInt(1, idPessoa);
+                    try (ResultSet rsCheck = psCheck.executeQuery()) {
+                        rsCheck.next();
+                        boolean addressExists = rsCheck.getInt(1) > 0;
+                        String sqlEndereco = addressExists ? UPDATE_ADDRESS : INSERT_ADDRESS;
 
-            PreparedStatement psPessoa = con.prepareStatement(sqlPessoa);
-            psPessoa.setString(1, nome.getText());
-            psPessoa.setString(2, email.getText());
-            psPessoa.setString(3, telefone.getText());
-            psPessoa.setString(4, cpf.getText());
-            psPessoa.setInt(5, Tipo);
-            psPessoa.setString(6, Situacao);
-            psPessoa.setInt(7, idPessoa);
+                        try (PreparedStatement psEndereco = con.prepareStatement(sqlEndereco)) {
+                            psEndereco.setString(1, estado.getText());
+                            psEndereco.setString(2, cepFormatado);
+                            psEndereco.setString(3, cidade.getText());
+                            psEndereco.setString(4, bairro.getText());
+                            psEndereco.setString(5, endereco.getText());
+                            psEndereco.setString(6, complemento.getText());
+                            psEndereco.setInt(7, idPessoa);
+                            int rowsEndereco = psEndereco.executeUpdate();
 
-            int rowsPessoa = psPessoa.executeUpdate();
-
-            // 2. Verificar se existe endereço cadastrado
-            String checkEndereco = "SELECT COUNT(*) FROM enderecos WHERE id_pessoa=?";
-            PreparedStatement psCheck = con.prepareStatement(checkEndereco);
-            psCheck.setInt(1, idPessoa);
-            ResultSet rsCheck = psCheck.executeQuery();
-            rsCheck.next();
-            int count = rsCheck.getInt(1);
-
-            String sqlEndereco;
-            if (count > 0) {
-                // Atualizar endereço existente
-                sqlEndereco = "UPDATE enderecos SET uf=?, cep=?, cidade=?, bairro=?, "
-                        + "endereco=?, complemento=? WHERE id_pessoa=?";
-            } else {
-                // Inserir novo endereço
-                sqlEndereco = "INSERT INTO enderecos (uf, cep, cidade, bairro, endereco, "
-                        + "complemento, id_pessoa) VALUES (?, ?, ?, ?, ?, ?, ?)";
-            }
-
-            PreparedStatement psEndereco = con.prepareStatement(sqlEndereco);
-            psEndereco.setString(1, estado.getText());
-            psEndereco.setString(2, cep.getText());
-            psEndereco.setString(3, cidade.getText());
-            psEndereco.setString(4, bairro.getText());
-            psEndereco.setString(5, endereco.getText());
-            psEndereco.setString(6, complemento.getText());
-            psEndereco.setInt(7, idPessoa);
-
-            int rowsEndereco = psEndereco.executeUpdate();
-
-            // Se ambos atualizaram com sucesso, confirma a transação
-            if (rowsPessoa > 0 && rowsEndereco > 0) {
-                con.commit();
-                JOptionPane.showMessageDialog(this, "Usuário e endereço atualizados com sucesso!");
-            } else {
-                con.rollback();
-                JOptionPane.showMessageDialog(this, "Erro ao atualizar - nenhuma alteração foi salva.");
-            }
-
-            initTable(); // Recarrega a tabela com os dados atualizados
-
-        } catch (SQLException e) {
-            try {
-                if (con != null) {
-                    con.rollback();
+                            if (rowsPessoa > 0 && rowsEndereco > 0) {
+                                con.commit();
+                                JOptionPane.showMessageDialog(this, "Usuário atualizado com sucesso!");
+                                initTable();
+                                clearFields();
+                            } else {
+                                con.rollback();
+                                JOptionPane.showMessageDialog(this, "Nenhuma alteração foi salva.");
+                            }
+                        }
+                    }
                 }
-            } catch (SQLException ex) {
-                ex.printStackTrace();
             }
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Failed to update user", e);
             JOptionPane.showMessageDialog(this, "Erro ao atualizar: " + e.getMessage());
-            e.printStackTrace();
         } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(this, "ID inválido!");
-        } finally {
-            try {
-                if (con != null) {
-                    con.setAutoCommit(true);
-                    con.close();
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+            LOGGER.warning("Invalid ID for update: " + campoId.getText());
         }
     }//GEN-LAST:event_btAtualizarActionPerformed
 
     private void btCancelar1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btCancelar1ActionPerformed
-        limparCampos();
+       
     }//GEN-LAST:event_btCancelar1ActionPerformed
 
     private void campoIdActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_campoIdActionPerformed

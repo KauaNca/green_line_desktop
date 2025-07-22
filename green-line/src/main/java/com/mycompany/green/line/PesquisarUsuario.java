@@ -49,9 +49,7 @@ public class PesquisarUsuario extends javax.swing.JInternalFrame {
         initComponents();
         perfil.setIcon(new ImageIcon("imagens/perfil.png"));
         LOGGER.info("Inicializando PesquisarUsuario");
-        funcoes.aplicarMascaraNome(nome);
-        funcoes.aplicarMascaraNome(tfPesquisar);
-        funcoes.aplicarMascaraInteiro(codigoUsuario);
+        setupFieldMasks();
         usuarios = new ArrayList<>();
         desativarTextField(painelPessoa);
         nomesUsuarios();
@@ -67,7 +65,13 @@ public class PesquisarUsuario extends javax.swing.JInternalFrame {
         codigoUsuario.setEnabled(true);
         cpf.setEnabled(true);
     }
-
+    private void setupFieldMasks() {
+        funcoes.aplicarMascaraNome(nome);
+        funcoes.aplicarMascaraInteiro(codigoUsuario);
+        funcoes.aplicarMascaraTelefone(telefone);
+        funcoes.aplicarMascaraCPF(cpf);
+        funcoes.aplicarMascaraCEP(cep);
+    }
     public ImageIcon redimensionamentoDeImagem(ImageIcon imagem, int largura, int altura) {
         LOGGER.info("Redimensionando imagem para " + largura + "x" + altura);
         try {
