@@ -16,6 +16,7 @@ import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 import java.util.logging.Logger;
 import org.mindrot.jbcrypt.BCrypt;
+import com.mycompany.green.line.TelaComImagem;
 
 /**
  * JFrame para a tela de login do sistema. Configura a interface gráfica para
@@ -59,7 +60,14 @@ public class Login extends javax.swing.JFrame {
         frame();
         inicio();
         testHashCompatibilidade();
+        ImageIcon originalIcon = new ImageIcon(TelaComImagem.class.getResource("/imagens/logo.png"));
+Image img = originalIcon.getImage();
+Image resizedImg = img.getScaledInstance(64, 64, Image.SCALE_SMOOTH);
 
+setIconImage(resizedImg);
+
+        
+     
     }
 
     /*MÉTODOS*/
@@ -557,6 +565,7 @@ public static void testHashCompatibilidade() {
         public static String hashPassword(String password) {
             return BCrypt.hashpw(password, BCrypt.gensalt());
         }
+        
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

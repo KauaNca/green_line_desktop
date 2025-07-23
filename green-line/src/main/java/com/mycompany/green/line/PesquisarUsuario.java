@@ -55,6 +55,14 @@ public class PesquisarUsuario extends javax.swing.JInternalFrame {
         usuarios = new ArrayList<>();
         desativarTextField(painelPessoa);
         nomesUsuarios();
+        ImageIcon originalIcon = new ImageIcon(TelaComImagem.class.getResource("/imagens/logo.png"));
+Image img = originalIcon.getImage();
+Image resizedImg = img.getScaledInstance(32, 32, Image.SCALE_SMOOTH);
+ImageIcon resizedIcon = new ImageIcon(resizedImg);
+setFrameIcon(resizedIcon);
+
+setVisible(true);
+
     }
 
     public void desativarTextField(JPanel painel) {

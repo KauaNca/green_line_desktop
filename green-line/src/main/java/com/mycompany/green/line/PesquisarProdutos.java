@@ -30,6 +30,7 @@ import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.swing.JMenuItem;
 import javax.swing.JTextField;
+import com.mycompany.green.line.TelaComImagem;
 
 /**
  * JInternalFrame para pesquisa de produtos no sistema. Permite buscar produtos
@@ -42,7 +43,6 @@ public class PesquisarProdutos extends javax.swing.JInternalFrame {
 
     // Logger para rastreamento de eventos e erros
     private static final Logger LOGGER = Logger.getLogger(PesquisarProdutos.class.getName());
-
     // Constantes para query SQL e caminhos de imagens
     private static final String SELECT_PRODUCT_NAMES = "SELECT produto FROM produto WHERE LOWER(produto) LIKE ? AND ativo = TRUE";
     private static final String DEFAULT_IMAGE_PATH = "imagens/sem_imagem.jpg";
@@ -83,6 +83,15 @@ public class PesquisarProdutos extends javax.swing.JInternalFrame {
         initComponents();
         Inicio();
         nomesProdutos();
+       ImageIcon originalIcon = new ImageIcon(TelaComImagem.class.getResource("/imagens/logo.png"));
+Image img = originalIcon.getImage();
+Image resizedImg = img.getScaledInstance(32, 32, Image.SCALE_SMOOTH);
+ImageIcon resizedIcon = new ImageIcon(resizedImg);
+setFrameIcon(resizedIcon);
+
+setVisible(true);
+
+
 
     }
 

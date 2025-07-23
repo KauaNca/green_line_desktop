@@ -14,6 +14,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 import java.awt.Component;
+import java.awt.Image;
 import javax.swing.table.DefaultTableModel;
 import org.mindrot.jbcrypt.BCrypt;
 
@@ -51,6 +52,14 @@ public class CadastroPessoas extends javax.swing.JInternalFrame {
 
             stmt.close();
             rs.close();
+            ImageIcon originalIcon = new ImageIcon(TelaComImagem.class.getResource("/imagens/logo.png"));
+Image img = originalIcon.getImage();
+Image resizedImg = img.getScaledInstance(32, 32, Image.SCALE_SMOOTH);
+ImageIcon resizedIcon = new ImageIcon(resizedImg);
+setFrameIcon(resizedIcon);
+
+setVisible(true);
+
         } catch (SQLException ex) {
             Logger.getLogger(CadastroPessoas.class.getName()).log(Level.SEVERE, null, ex);
         }

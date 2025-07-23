@@ -2,10 +2,23 @@ package com.mycompany.green.line;
 
 //telaVendas
 
+import java.awt.Image;
+import javax.swing.ImageIcon;
+
+
 public class TelaVendas extends javax.swing.JInternalFrame {
 
     public TelaVendas() {
         initComponents();
+        ImageIcon originalIcon = new ImageIcon(TelaComImagem.class.getResource("/imagens/logo.png"));
+Image img = originalIcon.getImage();
+Image resizedImg = img.getScaledInstance(32, 32, Image.SCALE_SMOOTH);
+ImageIcon resizedIcon = new ImageIcon(resizedImg);
+setFrameIcon(resizedIcon);
+
+setVisible(true);
+
+        
     }
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents

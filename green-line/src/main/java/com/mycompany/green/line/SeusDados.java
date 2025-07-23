@@ -58,6 +58,14 @@ public class SeusDados extends javax.swing.JInternalFrame {
         funcoes.aplicarMascaraTelefone(telefone);
         funcoes.aplicarMascaraCPF(cpf);
         funcoes.aplicarMascaraCEP(cep);
+       ImageIcon originalIcon = new ImageIcon(TelaComImagem.class.getResource("/imagens/logo.png"));
+Image img = originalIcon.getImage();
+Image resizedImg = img.getScaledInstance(32, 32, Image.SCALE_SMOOTH);
+ImageIcon resizedIcon = new ImageIcon(resizedImg);
+setFrameIcon(resizedIcon);
+
+setVisible(true);
+
     }
 
     /**

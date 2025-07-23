@@ -62,26 +62,32 @@ public class TelaInicial extends JFrame {
 
     public TelaInicial() {
         configurarFrame();
+         ImageIcon originalIcon = new ImageIcon(TelaComImagem.class.getResource("/imagens/logo.png"));
+    Image img = originalIcon.getImage();
+    Image resizedImg = img.getScaledInstance(32, 32, Image.SCALE_SMOOTH);
+    setIconImage(resizedImg);
+
     }
 
     public TelaInicial(String codigo, String tipo_usuario) {
-        this.codigo = codigo;
-        this.tipo_usuario = tipo_usuario;
+    this(); // chama o construtor padrão, que configura frame e ícone
+    this.codigo = codigo;
+    this.tipo_usuario = tipo_usuario;
 
-        mensagemBoasVindas();
-        inicializarComponentes();
-        configurarUIManager();
+    mensagemBoasVindas();
+    inicializarComponentes();
+    configurarUIManager();
 
-        if (codigo.trim().isEmpty() && tipo_usuario.trim().isEmpty()) {
-            dispose();
-        }
-
-        if ("2".equals(tipo_usuario)) {
-            Produtos.setEnabled(false);
-            Usuario.setEnabled(false);
-            Configuracoes.setEnabled(false);
-        }
+    if (codigo.trim().isEmpty() && tipo_usuario.trim().isEmpty()) {
+        dispose();
     }
+
+    if ("2".equals(tipo_usuario)) {
+        Produtos.setEnabled(false);
+        Usuario.setEnabled(false);
+        Configuracoes.setEnabled(false);
+    }
+}
 
     private void configurarUIManager() {
         try {

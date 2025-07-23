@@ -14,6 +14,9 @@ import javax.swing.JTextArea;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
+import com.mycompany.green.line.TelaComImagem;
+import java.awt.Image;
+import javax.swing.ImageIcon;
 
 public class CadastroCategoria extends javax.swing.JInternalFrame {
 
@@ -36,13 +39,21 @@ public class CadastroCategoria extends javax.swing.JInternalFrame {
         initComponents();
         LOGGER.info("Inicializando interface de cadastro de categorias.");
         funcoes.aplicarMascaraNome(nomeCategoria);
-        
+
         // Configurando a tabela
         tabela.setDefaultRenderer(Object.class, new MultiLineCellRenderer());
         modeloTabela = (DefaultTableModel) tabela.getModel();
         tabela.setFont(font);
         carregarDadosTabela();
         setResizable(false);
+        ImageIcon originalIcon = new ImageIcon(TelaComImagem.class.getResource("/imagens/logo.png"));
+        Image img = originalIcon.getImage();
+        Image resizedImg = img.getScaledInstance(32, 32, Image.SCALE_SMOOTH);
+        ImageIcon resizedIcon = new ImageIcon(resizedImg);
+        setFrameIcon(resizedIcon);
+
+        setVisible(true);
+
 
         // Configurando o cabeçalho da tabela
         JTableHeader header = tabela.getTableHeader();
@@ -50,6 +61,8 @@ public class CadastroCategoria extends javax.swing.JInternalFrame {
 
         // Aplicando filtro de entrada ao campo nomeCategoria
         //funcoes).applyTextAndNumberFilter(nomeCategoria);
+        
+
     }
 
     public void Apagar() {
