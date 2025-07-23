@@ -1,15 +1,18 @@
 package com.mycompany.green.line;
 
-
 import java.awt.Component;
 import java.awt.Image;
+import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
+import java.net.URL;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Objects;
 import java.util.logging.Logger;
+import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
@@ -30,7 +33,7 @@ public class SeusDados extends javax.swing.JInternalFrame {
     // Constantes para queries SQL
     private static final String SELECT_USER_DATA = "SELECT * FROM view_pessoa_endereco WHERE id_pessoa = ?";
     private static final String SELECT_PERSON_ID = "SELECT id_pessoa FROM pessoa WHERE cpf = ?";
-    private static final String UPDATE_PERSON = "UPDATE pessoa SET nome = ?, email = ?, telefone = ?, cpf = ? WHERE id_pessoa = ?";
+    private static final String UPDATE_PERSON = "UPDATE pessoa SET nome = ?, email = ?, telefone = ?, cpf = ?, imagem_perfil = ? WHERE id_pessoa = ?";
     private static final String UPDATE_ADDRESS = "UPDATE enderecos SET uf = ?, cep = ?, cidade = ?, bairro = ?, endereco = ?, complemento = ? WHERE id_pessoa = ?";
     private static final String UPDATE_IMAGE = "UPDATE pessoa SET imagem_perfil = ? WHERE id_pessoa = ?";
 
@@ -42,6 +45,7 @@ public class SeusDados extends javax.swing.JInternalFrame {
     private String[] novosDados;
     private String arquivoEscolhido;
     Funcoes funcoes = new Funcoes();
+    int contadorMensagem = 0;
 
     /**
      * Construtor da classe SeusDados.
@@ -52,19 +56,20 @@ public class SeusDados extends javax.swing.JInternalFrame {
         this.tela = null; // Considere inicializar adequadamente se for usado
         this.codigoUsuario = codigo;
         initComponents();
+        Funcoes.aplicarMascaraNome(usuario);
+        Funcoes.aplicarMascaraTelefone(telefone);
+        Funcoes.aplicarMascaraCPF(cpf);
+        Funcoes.aplicarMascaraCEP(cep);
         inicializarInterface();
         carregarDadosUsuario(codigoUsuario);
-        funcoes.aplicarMascaraNome(usuario);
-        funcoes.aplicarMascaraTelefone(telefone);
-        funcoes.aplicarMascaraCPF(cpf);
-        funcoes.aplicarMascaraCEP(cep);
-       ImageIcon originalIcon = new ImageIcon(TelaComImagem.class.getResource("/imagens/logo.png"));
-Image img = originalIcon.getImage();
-Image resizedImg = img.getScaledInstance(32, 32, Image.SCALE_SMOOTH);
-ImageIcon resizedIcon = new ImageIcon(resizedImg);
-setFrameIcon(resizedIcon);
 
-setVisible(true);
+        ImageIcon originalIcon = new ImageIcon(TelaComImagem.class.getResource("/imagens/logo.png"));
+        Image img = originalIcon.getImage();
+        Image resizedImg = img.getScaledInstance(32, 32, Image.SCALE_SMOOTH);
+        ImageIcon resizedIcon = new ImageIcon(resizedImg);
+        setFrameIcon(resizedIcon);
+
+        setVisible(true);
 
     }
 
@@ -78,7 +83,6 @@ setVisible(true);
                 ((JTextField) component).setEnabled(false);
             }
         }
-        btSelecionar.setVisible(false);
         btSalvar.setVisible(false);
         btCancelar.setVisible(false);
     }
@@ -106,8 +110,11 @@ setVisible(true);
                         rs.getString("cidade"),
                         rs.getString("bairro"),
                         rs.getString("endereco"),
-                        rs.getString("complemento")
+                        rs.getString("complemento"),
+                        rs.getString("imagem_perfil")
                     };
+
+                    imagemUsuario.setText(rs.getString("imagem_perfil"));
 
                     // Preenche os campos da interface
                     usuario.setText(Objects.toString(rs.getString("nome"), ""));
@@ -129,19 +136,8 @@ setVisible(true);
                     bairro.setText(Objects.toString(rs.getString("bairro"), ""));
                     endereco.setText(Objects.toString(rs.getString("endereco"), ""));
                     complemento.setText(Objects.toString(rs.getString("complemento"), ""));
+                    carregarImagemURL(imagemUsuario);
 
-                    // Carrega a imagem do usuário, se existir
-                    caminhoImagem = rs.getString("imagem_perfil");
-                    if (caminhoImagem != null && !caminhoImagem.isEmpty()) {
-                        ImageIcon imagemUsuario = new ImageIcon("imagens/usuarios/" + caminhoImagem);
-                        if (imagemUsuario.getIconWidth() == -1) {
-                            LOGGER.warning("Imagem não encontrada: " + caminhoImagem);
-                        } else {
-                            imagem.setIcon(redimensionarImagem(imagemUsuario, 204, 227));
-                        }
-                    } else {
-                        LOGGER.info("Nenhuma imagem associada ao usuário.");
-                    }
                 } else {
                     LOGGER.warning("Nenhum dado encontrado para o código: " + codigo);
                 }
@@ -166,34 +162,24 @@ setVisible(true);
         return new ImageIcon(imagemRedimensionada);
     }
 
-    /**
-     * Abre um diálogo para selecionar uma imagem do usuário.
-     */
-    public void selecionarImagens() {
-        if (imageSelectionCount == 0) {
-            funcoes.Avisos("sinal-de-aviso.png",
-                    "Escolha imagens com largura acima de 250px e altura de 216px");
-            imageSelectionCount++;
+    public void carregarImagemURL(JTextField campo) {
+
+        String imageUrl = campo.getText().trim();
+        if (imageUrl.isEmpty() || !imageUrl.contains("http")) {
+            return;
         }
-
-        JFileChooser selecionar = new JFileChooser();
-        selecionar.setCurrentDirectory(new File("imagens"));
-        selecionar.setDialogTitle("Escolha a imagem do usuário");
-        selecionar.setFileSelectionMode(JFileChooser.FILES_ONLY);
-        selecionar.setMultiSelectionEnabled(false);
-        selecionar.setApproveButtonText("Selecionar");
-        selecionar.setAcceptAllFileFilterUsed(false);
-        selecionar.setDialogType(JFileChooser.OPEN_DIALOG);
-
-        FileNameExtensionFilter filtro = new FileNameExtensionFilter("Imagens", "jpg", "png", "jpeg");
-        selecionar.setFileFilter(filtro);
-
-        int retorno = selecionar.showOpenDialog(this);
-        if (retorno == JFileChooser.APPROVE_OPTION) {
-            File arquivo = selecionar.getSelectedFile();
-            arquivoEscolhido = arquivo.getName();
-            imagem.setIcon(redimensionarImagem(new ImageIcon("imagens/usuarios/" + arquivoEscolhido), 202, 227));
-            LOGGER.info("Imagem selecionada: " + arquivoEscolhido);
+        try {
+            URL url = new URL(imageUrl);
+            BufferedImage image = ImageIO.read(url);
+            if (image != null) {
+                imagem.setIcon(redimensionarImagem(new ImageIcon(image), 221, 271));
+            } else {
+                funcoes.Avisos("aviso.jpg", "Imagem inválida. Tente outra URL.");
+                campo.setText("");
+            }
+        } catch (IOException e) {
+            funcoes.Avisos("erro.png", "Falha ao carregar URL. Tente novamente.");
+            campo.setText("");
         }
     }
 
@@ -213,7 +199,8 @@ setVisible(true);
             cidade.getText(),
             bairro.getText(),
             endereco.getText(),
-            complemento.getText()
+            complemento.getText(),
+            imagemUsuario.getText()
         };
 
         for (int i = 0; i < novosDados.length; i++) {
@@ -252,14 +239,18 @@ setVisible(true);
                     }
                 }
             }
+            String cpfFormatado = funcoes.removePontuacaoEEspacos(cpf.getText().trim());
+            String telefoneFormatado = funcoes.removePontuacaoEEspacos(telefone.getText().trim());
+            String cepFormatado = funcoes.removePontuacaoEEspacos(cep.getText().trim());
 
             // Atualiza tabela "pessoa"
             try (PreparedStatement stmt = con.prepareStatement(UPDATE_PERSON)) {
                 stmt.setString(1, usuario.getText());
                 stmt.setString(2, email.getText());
-                stmt.setString(3, telefone.getText());
-                stmt.setString(4, cpf.getText());
-                stmt.setString(5, idPessoa);
+                stmt.setString(3, telefoneFormatado);
+                stmt.setString(4, cpfFormatado);
+                stmt.setString(5, imagemUsuario.getText());
+                stmt.setString(6, idPessoa);
                 stmt.executeUpdate();
                 LOGGER.info("Tabela 'pessoa' atualizada com sucesso.");
             }
@@ -267,7 +258,7 @@ setVisible(true);
             // Atualiza tabela "enderecos"
             try (PreparedStatement stmt = con.prepareStatement(UPDATE_ADDRESS)) {
                 stmt.setString(1, uf.getSelectedItem().toString());
-                stmt.setString(2, cep.getText());
+                stmt.setString(2, cepFormatado);
                 stmt.setString(3, cidade.getText());
                 stmt.setString(4, bairro.getText());
                 stmt.setString(5, endereco.getText());
@@ -275,15 +266,6 @@ setVisible(true);
                 stmt.setString(7, idPessoa);
                 stmt.executeUpdate();
                 LOGGER.info("Tabela 'enderecos' atualizada com sucesso.");
-            }
-
-            // Atualiza tabela "ImagensUsuarios"
-            try (PreparedStatement stmt = con.prepareStatement(UPDATE_IMAGE)) {
-                String caminhoAtualizar = (arquivoEscolhido == null) ? caminhoImagem : arquivoEscolhido;
-                stmt.setString(1, caminhoAtualizar);
-                stmt.setString(2, codigoPessoa.getText());
-                stmt.executeUpdate();
-                LOGGER.info("Tabela 'ImagensUsuarios' atualizada com sucesso.");
             }
 
             con.commit();
@@ -324,10 +306,11 @@ setVisible(true);
         senha = new javax.swing.JTextField();
         btModificar = new javax.swing.JButton();
         btSalvar = new javax.swing.JButton();
-        btSelecionar = new javax.swing.JButton();
         jLabel14 = new javax.swing.JLabel();
         cep = new javax.swing.JTextField();
         btCancelar = new javax.swing.JButton();
+        imagemURL = new javax.swing.JLabel();
+        imagemUsuario = new javax.swing.JTextField();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setClosable(true);
@@ -351,8 +334,10 @@ setVisible(true);
         jLabel4.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         jLabel4.setText("Email");
 
+        email.setEditable(false);
         email.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         email.setDisabledTextColor(new java.awt.Color(0, 0, 0));
+        email.setEnabled(false);
 
         jLabel5.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         jLabel5.setText("Telefone");
@@ -363,6 +348,7 @@ setVisible(true);
         jLabel6.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         jLabel6.setText("CPF");
 
+        cpf.setEditable(false);
         cpf.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         cpf.setDisabledTextColor(new java.awt.Color(0, 0, 0));
         cpf.setEnabled(false);
@@ -418,19 +404,12 @@ setVisible(true);
         btSalvar.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
         btSalvar.setForeground(new java.awt.Color(255, 255, 255));
         btSalvar.setText("Salvar");
+        btSalvar.setMaximumSize(new java.awt.Dimension(104, 34));
+        btSalvar.setMinimumSize(new java.awt.Dimension(104, 34));
+        btSalvar.setPreferredSize(new java.awt.Dimension(104, 34));
         btSalvar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btSalvarActionPerformed(evt);
-            }
-        });
-
-        btSelecionar.setBackground(new java.awt.Color(51, 51, 255));
-        btSelecionar.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
-        btSelecionar.setForeground(new java.awt.Color(255, 255, 255));
-        btSelecionar.setText("Selecionar foto");
-        btSelecionar.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                btSelecionarMouseClicked(evt);
             }
         });
 
@@ -450,15 +429,31 @@ setVisible(true);
             }
         });
 
+        imagemURL.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
+        imagemURL.setText("Imagem (URL)");
+
+        imagemUsuario.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
+        imagemUsuario.setDisabledTextColor(new java.awt.Color(0, 0, 0));
+        imagemUsuario.setEnabled(false);
+        imagemUsuario.setMaximumSize(new java.awt.Dimension(64, 28));
+        imagemUsuario.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusGained(java.awt.event.FocusEvent evt) {
+                imagemUsuarioFocusGained(evt);
+            }
+        });
+        imagemUsuario.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                imagemUsuarioKeyReleased(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(36, 36, 36)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(btSelecionar, javax.swing.GroupLayout.DEFAULT_SIZE, 202, Short.MAX_VALUE)
-                    .addComponent(imagem, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(17, 17, 17)
+                .addComponent(imagem, javax.swing.GroupLayout.PREFERRED_SIZE, 221, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
@@ -486,31 +481,29 @@ setVisible(true);
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(jLabel9)
                                     .addComponent(cidade)))
+                            .addComponent(imagemUsuario, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addGroup(layout.createSequentialGroup()
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(jLabel6)
                                     .addComponent(jLabel4)
                                     .addComponent(jLabel11)
-                                    .addComponent(jLabel13))
+                                    .addComponent(jLabel13)
+                                    .addComponent(imagemURL))
                                 .addGap(0, 0, Short.MAX_VALUE)))
                         .addGap(30, 30, 30)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jLabel5)
-                                    .addComponent(telefone, javax.swing.GroupLayout.PREFERRED_SIZE, 221, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(jLabel10)
-                                    .addComponent(bairro, javax.swing.GroupLayout.PREFERRED_SIZE, 221, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(jLabel12)
-                                    .addComponent(complemento, javax.swing.GroupLayout.PREFERRED_SIZE, 221, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGap(2, 2, 2))
-                            .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel5)
+                            .addComponent(telefone, javax.swing.GroupLayout.PREFERRED_SIZE, 221, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel10)
+                            .addComponent(bairro, javax.swing.GroupLayout.PREFERRED_SIZE, 221, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel12)
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                .addComponent(complemento, javax.swing.GroupLayout.PREFERRED_SIZE, 221, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addComponent(btModificar)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                    .addComponent(btSalvar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(btCancelar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
-                        .addGap(51, 51, 51))
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(btSalvar, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(btCancelar, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                        .addGap(53, 53, 53))
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(cpf, javax.swing.GroupLayout.PREFERRED_SIZE, 932, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addContainerGap(51, Short.MAX_VALUE))))
@@ -518,14 +511,7 @@ setVisible(true);
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(41, 41, 41)
-                        .addComponent(imagem, javax.swing.GroupLayout.PREFERRED_SIZE, 227, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(cpf, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(btSelecionar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                     .addGroup(layout.createSequentialGroup()
                         .addGap(36, 36, 36)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
@@ -548,7 +534,12 @@ setVisible(true);
                                 .addComponent(telefone, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(44, 44, 44)))
+                        .addGap(44, 44, 44))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(41, 41, 41)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(cpf, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(imagem, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
@@ -572,9 +563,7 @@ setVisible(true);
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(complemento, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel13, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(btCancelar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                        .addComponent(jLabel13, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel8, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -583,16 +572,20 @@ setVisible(true);
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(uf, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(cidade, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(senha, javax.swing.GroupLayout.DEFAULT_SIZE, 38, Short.MAX_VALUE)
+                    .addComponent(btCancelar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(15, 15, 15)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(btSalvar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(btModificar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        .addContainerGap())
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(senha, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(15, 15, 15))))
+                        .addComponent(btSalvar, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(btModificar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(imagemURL, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(imagemUsuario, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(35, 35, 35))
         );
 
         pack();
@@ -623,9 +616,9 @@ setVisible(true);
             codigoPessoa.setEnabled(false);
             // Controla visibilidade dos botões
             btCancelar.setVisible(true);
-            btSelecionar.setVisible(true);
             btSalvar.setVisible(true);
             btModificar.setVisible(false);
+            imagemUsuario.setEnabled(true);
         } else {
             LOGGER.info("Alteração de dados cancelada pelo usuário.");
         }
@@ -652,18 +645,7 @@ setVisible(true);
         }
 
     }//GEN-LAST:event_btCancelarActionPerformed
-    /**
-     * Ação executada ao clicar no botão "Selecionar". Abre o diálogo para
-     * escolher uma nova imagem.
-     *
-     * @param evt Evento de clique do mouse.
-     */
 
-    private void btSelecionarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btSelecionarMouseClicked
-        LOGGER.info("Iniciando seleção de imagem.");
-        selecionarImagens();
-
-    }//GEN-LAST:event_btSelecionarMouseClicked
     /**
      * Ação executada ao clicar no botão "Salvar". Verifica se houve alterações
      * nos dados, atualiza o banco de dados e restaura a interface ao estado
@@ -680,10 +662,6 @@ setVisible(true);
                 inicializarInterface();
                 btModificar.setVisible(true);
                 carregarDadosUsuario(codigoUsuario); // Recarrega os dados atualizados
-                JOptionPane.showMessageDialog(this,
-                        "Dados atualizados com sucesso!",
-                        "Sucesso",
-                        JOptionPane.INFORMATION_MESSAGE);
             } catch (SQLException ex) {
                 LOGGER.severe("Erro ao atualizar dados no banco: " + ex.getMessage());
                 JOptionPane.showMessageDialog(this,
@@ -704,13 +682,23 @@ setVisible(true);
 
     }//GEN-LAST:event_btSalvarActionPerformed
 
+    private void imagemUsuarioKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_imagemUsuarioKeyReleased
+        carregarImagemURL(imagemUsuario);
+    }//GEN-LAST:event_imagemUsuarioKeyReleased
+
+    private void imagemUsuarioFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_imagemUsuarioFocusGained
+        if (contadorMensagem == 0) {
+            contadorMensagem += 1;
+            funcoes.Avisos("aviso.png", "Atenção: Para imagens, você deve fornecer URLs válidos de imagens da internet.\nExemplo: https://www.exemplo.com/imagem.jpg");
+        }
+    }//GEN-LAST:event_imagemUsuarioFocusGained
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextField bairro;
     private javax.swing.JButton btCancelar;
     private javax.swing.JButton btModificar;
     private javax.swing.JButton btSalvar;
-    private javax.swing.JButton btSelecionar;
     private javax.swing.JTextField cep;
     private javax.swing.JTextField cidade;
     private javax.swing.JTextField codigoPessoa;
@@ -719,6 +707,8 @@ setVisible(true);
     private javax.swing.JTextField email;
     private javax.swing.JTextField endereco;
     private javax.swing.JLabel imagem;
+    private javax.swing.JLabel imagemURL;
+    private javax.swing.JTextField imagemUsuario;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;

@@ -33,6 +33,7 @@ public class CadastroProdutos extends javax.swing.JInternalFrame {
     private final String semImagemEndereco = "imagens/sem_imagem.jpg";
     Funcoes funcoes = new Funcoes();
     Connection conexao = null;
+    int contadorMensagem = 0;
 
     //Campos
     private String produto;
@@ -284,7 +285,7 @@ setVisible(true);
     }
 
     public void carregarImagemURL(JTextField campo) {
-
+        
         String imageUrl = campo.getText().trim();
         if (imageUrl.isEmpty() || !imageUrl.contains("http")) {
             return;
@@ -591,6 +592,9 @@ setVisible(true);
 
         imagem2.setFont(new java.awt.Font("Inter Light", 0, 18)); // NOI18N
         imagem2.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusGained(java.awt.event.FocusEvent evt) {
+                imagem2FocusGained(evt);
+            }
             public void focusLost(java.awt.event.FocusEvent evt) {
                 imagem2FocusLost(evt);
             }
@@ -598,6 +602,9 @@ setVisible(true);
 
         imagem1.setFont(new java.awt.Font("Inter Light", 0, 18)); // NOI18N
         imagem1.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusGained(java.awt.event.FocusEvent evt) {
+                imagem1FocusGained(evt);
+            }
             public void focusLost(java.awt.event.FocusEvent evt) {
                 imagem1FocusLost(evt);
             }
@@ -892,6 +899,20 @@ setVisible(true);
     private void btCancelarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btCancelarMouseClicked
         limpar();
     }//GEN-LAST:event_btCancelarMouseClicked
+
+    private void imagem1FocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_imagem1FocusGained
+        if (contadorMensagem == 0) {
+            contadorMensagem +=1;
+            funcoes.Avisos("aviso.png", "Atenção: Para imagens, você deve fornecer URLs válidos de imagens da internet.\nExemplo: https://www.exemplo.com/imagem.jpg");
+        }
+    }//GEN-LAST:event_imagem1FocusGained
+
+    private void imagem2FocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_imagem2FocusGained
+        if (contadorMensagem == 0) {
+            contadorMensagem +=1;
+            funcoes.Avisos("aviso.png", "Atenção: Para imagens, você deve fornecer URLs válidos de imagens da internet.\nExemplo: https://www.exemplo.com/imagem.jpg");
+        }
+    }//GEN-LAST:event_imagem2FocusGained
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

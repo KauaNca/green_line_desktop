@@ -17,6 +17,10 @@ import javax.swing.border.EmptyBorder;
 import java.util.logging.Logger;
 import org.mindrot.jbcrypt.BCrypt;
 import com.mycompany.green.line.TelaComImagem;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.net.URL;
+import javax.imageio.ImageIO;
 
 /**
  * JFrame para a tela de login do sistema. Configura a interface gráfica para
@@ -61,13 +65,11 @@ public class Login extends javax.swing.JFrame {
         inicio();
         testHashCompatibilidade();
         ImageIcon originalIcon = new ImageIcon(TelaComImagem.class.getResource("/imagens/logo.png"));
-Image img = originalIcon.getImage();
-Image resizedImg = img.getScaledInstance(64, 64, Image.SCALE_SMOOTH);
+        Image img = originalIcon.getImage();
+        Image resizedImg = img.getScaledInstance(64, 64, Image.SCALE_SMOOTH);
 
-setIconImage(resizedImg);
+        setIconImage(resizedImg);
 
-        
-     
     }
 
     /*MÉTODOS*/
@@ -107,23 +109,22 @@ setIconImage(resizedImg);
         }
     }
 
-public static void testHashCompatibilidade() {
-    String hashExemplo = "$2b$10$Gqjn9q..AQC09Gzm94je8umnE2cB4dLWRtVtHGsXhrcDUKbIXJVbK";
-    String senhaTeste = "senhaTeste123"; // Substitua pela senha real
-    
-    System.out.println("Teste de compatibilidade:");
-    System.out.println("Hash original: " + hashExemplo);
-    System.out.println("Hash normalizado: " + hashExemplo.replaceFirst("^\\$2b\\$", "\\$2a\\$"));
-    System.out.println("Resultado: " + BCryptUtil.checkPassword(senhaTeste, hashExemplo));
-}
+    public static void testHashCompatibilidade() {
+        String hashExemplo = "$2b$10$Gqjn9q..AQC09Gzm94je8umnE2cB4dLWRtVtHGsXhrcDUKbIXJVbK";
+        String senhaTeste = "senhaTeste123"; // Substitua pela senha real
+
+        System.out.println("Teste de compatibilidade:");
+        System.out.println("Hash original: " + hashExemplo);
+        System.out.println("Hash normalizado: " + hashExemplo.replaceFirst("^\\$2b\\$", "\\$2a\\$"));
+        System.out.println("Resultado: " + BCryptUtil.checkPassword(senhaTeste, hashExemplo));
+    }
 
     /**
      * Realiza o processo de login, validando o código, usuário e senha. Abre a
      * tela inicial se o login for bem-sucedido e registra o acesso.
      */
     private void Login() {
-  
-                        
+
         // Validação de campos vazios (OR em vez de AND)
         if (codigoCampo.getText().trim().isEmpty() || usuario.getText().trim().isEmpty() || senha.getText().trim().isEmpty()) {
             LOGGER.warning("Campos de login estão vazios.");
@@ -204,16 +205,23 @@ public static void testHashCompatibilidade() {
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     String nomeUsuario = rs.getString("nome");
-                    String usuarioImagem = rs.getString("imagem_perfil");
-                    ImageIcon imagemUsuario = new ImageIcon("imagens/usuarios/" + usuarioImagem);
-
-                    if (imagemUsuario.getIconWidth() == -1) {
-                        LOGGER.warning("Imagem não encontrada: " + usuarioImagem);
-                        imagemUsuario = new ImageIcon("imagens/usuarios/sem_imagem.jpg");
+                    String imageUrl = rs.getString("imagem_perfil");
+                    if (!imageUrl.contains("http")) {
+                        imagem.setIcon(redimensionamentoDeImagem(new ImageIcon("imagens/usuarios/usuario.png"), 200, 132));
+                    } else {
+                        try {
+                            URL url = new URL(imageUrl);
+                            BufferedImage image = ImageIO.read(url);
+                            if (image != null) {
+                                imagem.setIcon(redimensionamentoDeImagem(new ImageIcon(image), 200, 132));
+                            }
+                        } catch (IOException e) {
+                            funcoes.Avisos("erro.png", "Falha ao carregar URL. Tente novamente.");
+                        }
                     }
+
                     usuario.setText(nomeUsuario);
                     codigoCampo.setFocusTraversalKeysEnabled(true);
-                    imagem.setIcon(redimensionamentoDeImagem(imagemUsuario, 200, 132));
                     painelPrincipal.add(imagem2); // Adiciona novamente ao painel
                     painelPrincipal.revalidate();
                     painelPrincipal.repaint();
@@ -565,7 +573,7 @@ public static void testHashCompatibilidade() {
         public static String hashPassword(String password) {
             return BCrypt.hashpw(password, BCrypt.gensalt());
         }
-        
+
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

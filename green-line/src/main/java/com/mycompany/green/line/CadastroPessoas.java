@@ -329,7 +329,7 @@ setVisible(true);
             }
 
             // Prosseguir com o cadastro se não houver duplicatas
-            String sql = "INSERT INTO pessoa (nome, email, telefone, cpf, id_tipo_usuario, senha, situacao,imagem_perfil) VALUES (?, ?, ?, ?, ?, ?, ?, 'perfil.png')";
+            String sql = "INSERT INTO pessoa (nome, email, telefone, cpf, id_tipo_usuario, senha, situacao,imagem_perfil) VALUES (?, ?, ?, ?, ?, ?, ?, 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_640.png')";
             PreparedStatement stmt = con.prepareStatement(sql);
             stmt.setString(1, nome.getText());
             stmt.setString(2, email.getText());

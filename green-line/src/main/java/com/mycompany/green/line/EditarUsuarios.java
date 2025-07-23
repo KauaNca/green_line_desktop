@@ -4,6 +4,9 @@ import java.awt.Component;
 import java.awt.Font;
 import java.awt.Image;
 import java.awt.event.KeyEvent;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.net.URL;
 import javax.swing.ImageIcon;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -16,6 +19,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JTextField;
 import java.util.logging.Logger;
+import javax.imageio.ImageIO;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
@@ -122,13 +126,13 @@ public class EditarUsuarios extends javax.swing.JInternalFrame {
         funcoes.aplicarMascaraTelefone(telefone);
         funcoes.aplicarMascaraCPF(cpf);
         funcoes.aplicarMascaraCEP(cep);
-       ImageIcon originalIcon = new ImageIcon(TelaComImagem.class.getResource("/imagens/logo.png"));
-Image img = originalIcon.getImage();
-Image resizedImg = img.getScaledInstance(32, 32, Image.SCALE_SMOOTH);
-ImageIcon resizedIcon = new ImageIcon(resizedImg);
-setFrameIcon(resizedIcon);
+        ImageIcon originalIcon = new ImageIcon(TelaComImagem.class.getResource("/imagens/logo.png"));
+        Image img = originalIcon.getImage();
+        Image resizedImg = img.getScaledInstance(32, 32, Image.SCALE_SMOOTH);
+        ImageIcon resizedIcon = new ImageIcon(resizedImg);
+        setFrameIcon(resizedIcon);
 
-setVisible(true);
+        setVisible(true);
 
     }
 
@@ -162,6 +166,12 @@ setVisible(true);
         }
     }
 
+    public ImageIcon redimensionamentoDeImagem(ImageIcon imagem, int largura, int altura) {
+        Image pegarImagem = imagem.getImage();
+        Image redimensionando = pegarImagem.getScaledInstance(largura, altura, Image.SCALE_SMOOTH);
+        return new ImageIcon(redimensionando);
+    }
+
     private void loadUserData(int idPessoa) {
         try (Connection con = Conexao.conexaoBanco()) {
             // Load person data
@@ -176,11 +186,19 @@ setVisible(true);
                         tipo.setSelectedItem(rsPessoa.getInt("id_tipo_usuario") == 1 ? "ADM" : "Funcionario");
                         situacao.setSelectedItem(getStatusDisplayName(rsPessoa.getString("situacao")));
 
-                        String imagem = rsPessoa.getString("imagem_perfil");
-                        if (imagem != null && !imagem.isEmpty()) {
-                            perfil.setIcon(resizeImage(new ImageIcon(PATH_IMAGES + imagem), 205, 227));
+                        String imageUrl = rsPessoa.getString("imagem_perfil");
+                        if (!imageUrl.contains("http")) {
+                            perfil.setIcon(redimensionamentoDeImagem(new ImageIcon("imagens/usuarios/usuario.png"), 200, 132));
                         } else {
-                            perfil.setIcon(new ImageIcon(DEFAULT_PROFILE_IMAGE));
+                            try {
+                                URL url = new URL(imageUrl);
+                                BufferedImage image = ImageIO.read(url);
+                                if (image != null) {
+                                    perfil.setIcon(redimensionamentoDeImagem(new ImageIcon(image), 200, 132));
+                                }
+                            } catch (IOException e) {
+                                funcoes.Avisos("erro.png", "Falha ao carregar URL. Tente novamente.");
+                            }
                         }
                     }
                 }
@@ -757,12 +775,12 @@ setVisible(true);
                 LOGGER.warning("Invalid ID entered: " + campoId.getText());
             }
         }
-   
-            
+
+
     }//GEN-LAST:event_campoIdKeyPressed
- 
+
     private void btCancelar1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btCancelar1MouseClicked
-       clearFields();
+        clearFields();
     }//GEN-LAST:event_btCancelar1MouseClicked
 
 
@@ -802,7 +820,7 @@ setVisible(true);
     }//GEN-LAST:event_tabelaMouseClicked
 
     private void btAtualizarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btAtualizarActionPerformed
-         if (!validateFields()) {
+        if (!validateFields()) {
             return;
         }
 
@@ -865,7 +883,7 @@ setVisible(true);
     }//GEN-LAST:event_btAtualizarActionPerformed
 
     private void btCancelar1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btCancelar1ActionPerformed
-       
+
     }//GEN-LAST:event_btCancelar1ActionPerformed
 
     private void campoIdActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_campoIdActionPerformed

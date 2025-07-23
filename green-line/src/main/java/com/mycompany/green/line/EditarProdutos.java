@@ -1,6 +1,5 @@
 package com.mycompany.green.line;
 
-
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -67,6 +66,7 @@ public class EditarProdutos extends javax.swing.JInternalFrame {
     private final Font fonteItem = new Font("Arial", Font.PLAIN, 15);
     Funcoes funcoes = new Funcoes();
     Connection conexao = null;
+    int contadorMensagem = 0;
 
     //Campos
     private String id_produto;
@@ -91,34 +91,14 @@ public class EditarProdutos extends javax.swing.JInternalFrame {
 
     public EditarProdutos() {
         initComponents();
-        // Desabilitando campos
-        preco.setEnabled(false);
-        descricaoGeral.setEnabled(false);
-        descricaoCurta.setEnabled(false);
-        preco.setEnabled(false);
-        precoPromocional.setEnabled(false);
-        estoque.setEnabled(false);
-        marca.setEnabled(false);
-        avaliacao.setEnabled(true);
-        totalAvaliacao.setEnabled(true);
-        estoque.setEnabled(true);
-        parcelas.setEnabled(true);
-        peso.setEnabled(true);
-        dimensoes.setEnabled(true);
-        categorias.setEnabled(true);
-        imagem1.setEnabled(true);
-        imagem2.setEnabled(true);
-        promoSim.setEnabled(true);
-        promoNao.setEnabled(true);
-        ativoSim.setEnabled(true);
-        ativoNao.setEnabled(true);
-
+        ativarDesativarCampos(false);
         buscarCategorias();
         buscarTodosProdutos();
         imagemProduto.setIcon(semImagem());
         excluirImagem1.setIcon(redimensionamentoDeImagem(new ImageIcon("imagens/erro.png"), 42, 40));
         excluirImagem2.setIcon(redimensionamentoDeImagem(new ImageIcon("imagens/erro.png"), 42, 40));
-        funcoes.aplicarMascaraNomeNumero(nomeProduto);
+        funcoes.aplicarMascaraNomeNumero(produtoPesquisar);
+        funcoes.aplicarMascaraNome(nomeProduto);
         funcoes.aplicarMascaraNome(marca);
         funcoes.aplicarMascaraPreco(preco);
         funcoes.aplicarMascaraPreco(precoPromocional);
@@ -127,14 +107,38 @@ public class EditarProdutos extends javax.swing.JInternalFrame {
         funcoes.aplicarMascaraPeso(peso);
         funcoes.aplicarMascaraTextoNumerico(descricaoGeral);
         funcoes.aplicarMascaraTextoNumerico(descricaoCurta);
-      ImageIcon originalIcon = new ImageIcon(TelaComImagem.class.getResource("/imagens/logo.png"));
-Image img = originalIcon.getImage();
-Image resizedImg = img.getScaledInstance(32, 32, Image.SCALE_SMOOTH);
-ImageIcon resizedIcon = new ImageIcon(resizedImg);
-setFrameIcon(resizedIcon);
+        ImageIcon originalIcon = new ImageIcon(TelaComImagem.class.getResource("/imagens/logo.png"));
+        Image img = originalIcon.getImage();
+        Image resizedImg = img.getScaledInstance(32, 32, Image.SCALE_SMOOTH);
+        ImageIcon resizedIcon = new ImageIcon(resizedImg);
+        setFrameIcon(resizedIcon);
 
-setVisible(true);
+        setVisible(true);
 
+    }
+
+    private void ativarDesativarCampos(Boolean opcao) {
+        nomeProduto.setEnabled(opcao);
+        preco.setEnabled(opcao);
+        descricaoGeral.setEnabled(opcao);
+        descricaoCurta.setEnabled(opcao);
+        preco.setEnabled(opcao);
+        precoPromocional.setEnabled(opcao);
+        estoque.setEnabled(opcao);
+        marca.setEnabled(opcao);
+        avaliacao.setEnabled(opcao);
+        totalAvaliacao.setEnabled(opcao);
+        estoque.setEnabled(opcao);
+        parcelas.setEnabled(opcao);
+        peso.setEnabled(opcao);
+        dimensoes.setEnabled(opcao);
+        categorias.setEnabled(opcao);
+        imagem1.setEnabled(opcao);
+        imagem2.setEnabled(opcao);
+        promoSim.setEnabled(opcao);
+        promoNao.setEnabled(opcao);
+        ativoSim.setEnabled(opcao);
+        ativoNao.setEnabled(opcao);
     }
 
     public void nomeProdutoCaixaDeNomes(JTextField campo) {
@@ -243,7 +247,7 @@ setVisible(true);
 
     private void buscarTodosProdutos() {
         try (Connection con = Conexao.conexaoBanco(); PreparedStatement stmt = con.prepareStatement(buscarTodosProdutos)) {
-            stmt.setString(1, "%" + nomeProduto.getText().toLowerCase() + "%");
+            stmt.setString(1, "%" + produtoPesquisar.getText().toLowerCase() + "%");
             try (ResultSet rs = stmt.executeQuery()) {
                 produtos = new ArrayList<>();
                 while (rs.next()) {
@@ -376,19 +380,7 @@ setVisible(true);
 
                     carregarImagemURL(imagem1);
 
-                    // Habilita campos para edição
-                    nomeProduto.setEnabled(true);
-                    preco.setEnabled(true);
-                    descricaoGeral.setEnabled(true);
-                    descricaoCurta.setEnabled(true);
-                    marca.setEnabled(true);
-                    avaliacao.setEnabled(true);
-                    totalAvaliacao.setEnabled(true);
-                    estoque.setEnabled(true);
-                    parcelas.setEnabled(true);
-                    peso.setEnabled(true);
-                    dimensoes.setEnabled(true);
-                    categorias.setEnabled(true);
+                    ativarDesativarCampos(true);
                 }
             }
         } catch (SQLException e) {
@@ -403,7 +395,7 @@ setVisible(true);
         descricao = descricaoGeral.getText();
         descricao_curta = descricaoCurta.getText();
         campoPreco = preco.getText();
-        campoAvaliacao = avaliacao.getSelectedItem()==null ? "0" : String.valueOf(avaliacao.getSelectedItem());
+        campoAvaliacao = avaliacao.getSelectedItem() == null ? "0" : String.valueOf(avaliacao.getSelectedItem());
         preco_promocional = precoPromocional.getText().trim().isEmpty() ? "0.00" : precoPromocional.getText();
         campoMarca = marca.getText();
         campoQuantidadeAvaliacoes = totalAvaliacao.getText().trim().isEmpty() ? "0" : totalAvaliacao.getText();
@@ -517,6 +509,7 @@ setVisible(true);
 
     private void limpar() {
         // Limpa TextFields
+        produtoPesquisar.setText("");
         nomeProduto.setText("");
         marca.setText("");
         preco.setText("");
@@ -541,13 +534,10 @@ setVisible(true);
         promoNao.setSelected(true);  // Desativa promoção por padrão
         ativoSim.setSelected(true);  // Ativa produto por padrão
 
-        // Limpa imagens exibidas (se houver)
-        imagemProduto.setIcon(null);
-        excluirImagem1.setVisible(false);
-        excluirImagem2.setVisible(false);
-
+        imagemProduto.setIcon(semImagem());
+        ativarDesativarCampos(false);
         // Foca no primeiro campo
-        nomeProduto.requestFocus();
+        produtoPesquisar.requestFocus();
     }
 
     @SuppressWarnings("unchecked")
@@ -557,7 +547,7 @@ setVisible(true);
         gpPromocao = new javax.swing.ButtonGroup();
         gpAtivo = new javax.swing.ButtonGroup();
         imagemProduto = new javax.swing.JLabel();
-        nomeProduto = new javax.swing.JTextField();
+        produtoPesquisar = new javax.swing.JTextField();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
@@ -600,29 +590,31 @@ setVisible(true);
         excluirImagem1 = new javax.swing.JLabel();
         codigo = new javax.swing.JTextField();
         jLabel17 = new javax.swing.JLabel();
+        nomeProduto = new javax.swing.JTextField();
 
         setClosable(true);
         setIconifiable(true);
         setTitle("Cadastrar Produtos");
 
-        nomeProduto.setFont(new java.awt.Font("Inter Light", 0, 18)); // NOI18N
-        nomeProduto.addKeyListener(new java.awt.event.KeyAdapter() {
+        produtoPesquisar.setFont(new java.awt.Font("Inter Light", 0, 18)); // NOI18N
+        produtoPesquisar.setMaximumSize(new java.awt.Dimension(64, 29));
+        produtoPesquisar.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyReleased(java.awt.event.KeyEvent evt) {
-                nomeProdutoKeyReleased(evt);
+                produtoPesquisarKeyReleased(evt);
             }
         });
 
         jLabel1.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
-        jLabel1.setText("Produto");
+        jLabel1.setText("Produto*");
 
         jLabel2.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
-        jLabel2.setText("Descrição");
+        jLabel2.setText("Descrição*");
 
         jLabel3.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
-        jLabel3.setText("Descrição curta");
+        jLabel3.setText("Descrição curta*");
 
         jLabel4.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
-        jLabel4.setText("Preço");
+        jLabel4.setText("Preço*");
 
         preco.setFont(new java.awt.Font("Inter Light", 0, 18)); // NOI18N
 
@@ -632,7 +624,7 @@ setVisible(true);
         precoPromocional.setFont(new java.awt.Font("Inter Light", 0, 18)); // NOI18N
 
         jLabel6.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
-        jLabel6.setText("Promoção");
+        jLabel6.setText("Promoção*");
 
         gpPromocao.add(promoSim);
         promoSim.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
@@ -653,7 +645,7 @@ setVisible(true);
         });
 
         jLabel7.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
-        jLabel7.setText("Marca");
+        jLabel7.setText("Marca*");
 
         totalAvaliacao.setFont(new java.awt.Font("Inter Light", 0, 16)); // NOI18N
 
@@ -674,7 +666,7 @@ setVisible(true);
         marca.setFont(new java.awt.Font("Inter Light", 0, 18)); // NOI18N
 
         jLabel11.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
-        jLabel11.setText("Estoque");
+        jLabel11.setText("Estoque*");
 
         estoque.setFont(new java.awt.Font("Inter Light", 0, 18)); // NOI18N
 
@@ -689,7 +681,7 @@ setVisible(true);
         dimensoes.setFont(new java.awt.Font("Inter Light", 0, 18)); // NOI18N
 
         jLabel14.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
-        jLabel14.setText("Ativo");
+        jLabel14.setText("Ativo*");
 
         gpAtivo.add(ativoSim);
         ativoSim.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
@@ -710,7 +702,7 @@ setVisible(true);
         });
 
         jLabel9.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
-        jLabel9.setText("Parcelas");
+        jLabel9.setText("Parcelas*");
 
         parcelas.setFont(new java.awt.Font("Inter Light", 0, 18)); // NOI18N
         parcelas.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", " " }));
@@ -721,7 +713,7 @@ setVisible(true);
         });
 
         jLabel15.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
-        jLabel15.setText("Categorias");
+        jLabel15.setText("Categorias*");
 
         categorias.setFont(new java.awt.Font("Inter Light", 0, 18)); // NOI18N
         categorias.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { " " }));
@@ -730,14 +722,22 @@ setVisible(true);
         jLabel16.setText("Imagens (URL)");
 
         imagem2.setFont(new java.awt.Font("Inter Light", 0, 18)); // NOI18N
+        imagem2.setMaximumSize(new java.awt.Dimension(64, 29));
         imagem2.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusGained(java.awt.event.FocusEvent evt) {
+                imagem2FocusGained(evt);
+            }
             public void focusLost(java.awt.event.FocusEvent evt) {
                 imagem2FocusLost(evt);
             }
         });
 
         imagem1.setFont(new java.awt.Font("Inter Light", 0, 18)); // NOI18N
+        imagem1.setMaximumSize(new java.awt.Dimension(64, 29));
         imagem1.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusGained(java.awt.event.FocusEvent evt) {
+                imagem1FocusGained(evt);
+            }
             public void focusLost(java.awt.event.FocusEvent evt) {
                 imagem1FocusLost(evt);
             }
@@ -795,6 +795,13 @@ setVisible(true);
         jLabel17.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         jLabel17.setText("Cod");
 
+        nomeProduto.setFont(new java.awt.Font("Inter Light", 0, 18)); // NOI18N
+        nomeProduto.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                nomeProdutoKeyReleased(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -803,100 +810,98 @@ setVisible(true);
                 .addGap(24, 24, 24)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                        .addComponent(imagem1, javax.swing.GroupLayout.Alignment.LEADING)
-                                        .addComponent(imagem2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 1234, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addComponent(jLabel11)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(estoque, javax.swing.GroupLayout.PREFERRED_SIZE, 102, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                        .addComponent(jLabel14, javax.swing.GroupLayout.PREFERRED_SIZE, 61, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(ativoSim)
-                                        .addGap(18, 18, 18)
-                                        .addComponent(ativoNao)
-                                        .addGap(18, 18, 18)
-                                        .addComponent(jLabel12)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(peso, javax.swing.GroupLayout.PREFERRED_SIZE, 162, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                            .addGroup(layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                        .addComponent(jLabel4)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(preco, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addGap(18, 18, 18)
-                                        .addComponent(jLabel6)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(promoSim)
-                                        .addGap(18, 18, 18)
-                                        .addComponent(promoNao)
-                                        .addGap(28, 28, 28)
-                                        .addComponent(jLabel5)
-                                        .addGap(18, 18, 18)
-                                        .addComponent(precoPromocional)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(jLabel15)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(categorias, javax.swing.GroupLayout.PREFERRED_SIZE, 317, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                            .addGroup(layout.createSequentialGroup()
-                                                .addGap(758, 758, 758)
-                                                .addComponent(jLabel13))
-                                            .addGroup(layout.createSequentialGroup()
-                                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                                    .addGroup(layout.createSequentialGroup()
-                                                        .addComponent(jLabel7)
-                                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                        .addComponent(marca, javax.swing.GroupLayout.PREFERRED_SIZE, 361, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                                    .addComponent(jLabel16))
-                                                .addGap(35, 35, 35)
-                                                .addComponent(jLabel9)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                                .addComponent(parcelas, javax.swing.GroupLayout.PREFERRED_SIZE, 189, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                                .addComponent(jLabel8)))
-                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                                .addComponent(avaliacao, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                                .addComponent(jLabel10)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                                .addComponent(totalAvaliacao, javax.swing.GroupLayout.PREFERRED_SIZE, 86, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                            .addGroup(layout.createSequentialGroup()
-                                                .addGap(36, 36, 36)
-                                                .addComponent(dimensoes, javax.swing.GroupLayout.PREFERRED_SIZE, 382, javax.swing.GroupLayout.PREFERRED_SIZE)))))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)))
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(excluirImagem2, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(excluirImagem1, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addGroup(layout.createSequentialGroup()
                         .addComponent(imagemProduto, javax.swing.GroupLayout.PREFERRED_SIZE, 346, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(39, 39, 39)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jScrollPane4)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(jLabel1)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(nomeProduto, javax.swing.GroupLayout.PREFERRED_SIZE, 672, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(jLabel17)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(codigo, javax.swing.GroupLayout.PREFERRED_SIZE, 86, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addGroup(layout.createSequentialGroup()
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jLabel2)
-                                    .addComponent(jLabel3)
-                                    .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 915, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGap(0, 0, Short.MAX_VALUE)))
-                        .addGap(58, 58, 58))))
+                                    .addComponent(jScrollPane4)
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(produtoPesquisar, javax.swing.GroupLayout.PREFERRED_SIZE, 741, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .addComponent(jLabel17)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(codigo, javax.swing.GroupLayout.PREFERRED_SIZE, 86, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addComponent(jLabel2)
+                                            .addComponent(jLabel3))
+                                        .addGap(0, 789, Short.MAX_VALUE))
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(jLabel1)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(nomeProduto)))
+                                .addGap(4, 4, 4))
+                            .addComponent(jScrollPane3)))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jLabel7)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(marca, javax.swing.GroupLayout.PREFERRED_SIZE, 361, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(35, 35, 35)
+                                .addComponent(jLabel9)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(parcelas, javax.swing.GroupLayout.PREFERRED_SIZE, 189, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(jLabel16))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jLabel8)
+                        .addGap(61, 61, 61)
+                        .addComponent(avaliacao, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jLabel10)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(totalAvaliacao, javax.swing.GroupLayout.PREFERRED_SIZE, 86, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addComponent(imagem1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(imagem2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 1234, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(excluirImagem2, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(excluirImagem1, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jLabel4)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(preco, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jLabel11)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(estoque, javax.swing.GroupLayout.PREFERRED_SIZE, 102, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(18, 18, 18)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jLabel14, javax.swing.GroupLayout.PREFERRED_SIZE, 61, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(ativoSim)
+                                .addGap(18, 18, 18)
+                                .addComponent(ativoNao)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jLabel12)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(peso, javax.swing.GroupLayout.PREFERRED_SIZE, 162, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jLabel13)
+                                .addGap(36, 36, 36)
+                                .addComponent(dimensoes, javax.swing.GroupLayout.PREFERRED_SIZE, 382, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jLabel6)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(promoSim)
+                                .addGap(18, 18, 18)
+                                .addComponent(promoNao)
+                                .addGap(28, 28, 28)
+                                .addComponent(jLabel5)
+                                .addGap(18, 18, 18)
+                                .addComponent(precoPromocional)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jLabel15)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(categorias, javax.swing.GroupLayout.PREFERRED_SIZE, 317, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                .addGap(54, 54, 54))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(btAtualizar)
@@ -911,10 +916,13 @@ setVisible(true);
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(nomeProduto, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(produtoPesquisar, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(codigo, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel17, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addComponent(jLabel17, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(21, 21, 21)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(nomeProduto, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -922,41 +930,39 @@ setVisible(true);
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 114, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 102, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(imagemProduto, javax.swing.GroupLayout.PREFERRED_SIZE, 349, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(12, 12, 12)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                    .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jLabel15, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(preco, javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jLabel5, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(precoPromocional)
-                            .addComponent(jLabel6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(promoNao, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addGroup(layout.createSequentialGroup()
-                                .addComponent(categorias, javax.swing.GroupLayout.PREFERRED_SIZE, 47, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(0, 20, Short.MAX_VALUE))
-                            .addComponent(promoSim, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                        .addComponent(promoNao, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 43, Short.MAX_VALUE)
+                                        .addComponent(promoSim, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .addComponent(jLabel4, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .addComponent(jLabel6, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                    .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(categorias, javax.swing.GroupLayout.DEFAULT_SIZE, 47, Short.MAX_VALUE)
+                                    .addComponent(preco, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(precoPromocional, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jLabel15, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                    .addComponent(jLabel11, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(estoque, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jLabel14, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(ativoSim, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(ativoNao, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jLabel12, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(peso, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addComponent(dimensoes, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addComponent(jLabel13, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                    .addComponent(jLabel12, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(peso, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                    .addComponent(jLabel11, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(estoque, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                            .addComponent(jLabel14, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addComponent(ativoNao, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(ativoSim, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGap(12, 12, 12)))
+                                .addGap(0, 18, Short.MAX_VALUE)))
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                                 .addComponent(jLabel8, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -964,22 +970,25 @@ setVisible(true);
                             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                                 .addComponent(totalAvaliacao, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addComponent(jLabel10, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(parcelas, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel9, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                    .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(marca, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED, 22, Short.MAX_VALUE)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                        .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(marca, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addComponent(parcelas, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(jLabel9, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addComponent(jLabel16, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(imagem1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(imagem2, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(imagem1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(excluirImagem1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
-                        .addComponent(excluirImagem2, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(excluirImagem1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(imagem2, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(excluirImagem2, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btAtualizar, javax.swing.GroupLayout.PREFERRED_SIZE, 46, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -1056,15 +1065,37 @@ setVisible(true);
         limpar();
     }//GEN-LAST:event_btCancelarMouseClicked
 
-    private void nomeProdutoKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_nomeProdutoKeyReleased
-        nomeProdutoCaixaDeNomes(nomeProduto);
-    }//GEN-LAST:event_nomeProdutoKeyReleased
+    private void produtoPesquisarKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_produtoPesquisarKeyReleased
+
+        nomeProdutoCaixaDeNomes(produtoPesquisar);
+
+    }//GEN-LAST:event_produtoPesquisarKeyReleased
 
     private void codigoKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_codigoKeyPressed
         if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
             carregarProduto(pesquisarPorId, codigo.getText());
         }
     }//GEN-LAST:event_codigoKeyPressed
+
+    private void nomeProdutoKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_nomeProdutoKeyReleased
+        // TODO add your handling code here:
+    }//GEN-LAST:event_nomeProdutoKeyReleased
+
+    private void imagem1FocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_imagem1FocusGained
+        if (contadorMensagem == 0) {
+            contadorMensagem += 1;
+            funcoes.Avisos("aviso.png", "Atenção: Para imagens, você deve fornecer URLs válidos de imagens da internet.\nExemplo: https://www.exemplo.com/imagem.jpg");
+        }
+
+    }//GEN-LAST:event_imagem1FocusGained
+
+    private void imagem2FocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_imagem2FocusGained
+        if (contadorMensagem == 0) {
+            funcoes.Avisos("aviso.png", "Atenção: Para imagens, você deve fornecer URLs válidos de imagens da internet.\nExemplo: https://www.exemplo.com/imagem.jpg");
+            contadorMensagem += 1;
+        }
+
+    }//GEN-LAST:event_imagem2FocusGained
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -1111,6 +1142,7 @@ setVisible(true);
     private javax.swing.JTextField peso;
     private javax.swing.JTextField preco;
     private javax.swing.JTextField precoPromocional;
+    private javax.swing.JTextField produtoPesquisar;
     private javax.swing.JRadioButton promoNao;
     private javax.swing.JRadioButton promoSim;
     private javax.swing.JTextField totalAvaliacao;
