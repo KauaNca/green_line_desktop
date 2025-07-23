@@ -346,7 +346,8 @@ public class Funcoes {
             }
         });
     }
-        public static void aplicarValidacaoEmail(JTextField textField) {
+
+    public static void aplicarValidacaoEmail(JTextField textField) {
         // Máscara para permitir apenas caracteres válidos em e-mails
         PlainDocument doc = (PlainDocument) textField.getDocument();
         doc.setDocumentFilter(new DocumentFilter() {
@@ -396,7 +397,7 @@ public class Funcoes {
             }
         });
     }
-    
+
     public static void aplicarMascaraSenha(JPasswordField passwordField) {
         PlainDocument doc = (PlainDocument) passwordField.getDocument();
         doc.setDocumentFilter(new DocumentFilter() {
@@ -453,6 +454,13 @@ public class Funcoes {
                 return senha.matches("^(?=.*[A-Za-z])(?=.*\\d).{5}$");
             }
         });
+    }
+
+    public static String removePontuacaoEEspacos(String text) {
+        if (text == null) {
+            return null;
+        }
+        return text.replaceAll("[.\\-\\s()]", "");
     }
 
     public void Avisos(String icone, String mensagem) {
