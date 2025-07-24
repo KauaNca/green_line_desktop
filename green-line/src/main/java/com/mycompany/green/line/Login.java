@@ -689,7 +689,7 @@ public class Login extends javax.swing.JFrame {
     }//GEN-LAST:event_btRedefinirSenhaActionPerformed
 
     private void senhaKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_senhaKeyPressed
-         if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
+        if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
             if (codigoCampo.getText().trim().isEmpty() || usuario.getText().trim().isEmpty() || senha.getText().trim().isEmpty()) {
                 LOGGER.warning("Campos de código ou senha estão vazios.");
                 funcoes.Avisos("erro.png", "Preencha os campos");
@@ -737,25 +737,6 @@ public class Login extends javax.swing.JFrame {
 
         btSair.getAccessibleContext().setAccessibleName("Botão sair");
         btSair.getAccessibleContext().setAccessibleDescription("Clique para fechar a aplicação");
-    }
-
-    public class BCryptUtil {
-
-        public static boolean checkPassword(String plaintext, String storedHash) {
-            try {
-                // Normaliza o prefixo para $2a$ se for $2b$
-                String normalizedHash = storedHash.replaceFirst("^\\$2b\\$", "\\$2a\\$");
-                return BCrypt.checkpw(plaintext, normalizedHash);
-            } catch (Exception e) {
-                System.err.println("Erro na verificação: " + e.getMessage());
-                return false;
-            }
-        }
-
-        public static String hashPassword(String password) {
-            return BCrypt.hashpw(password, BCrypt.gensalt());
-        }
-
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
