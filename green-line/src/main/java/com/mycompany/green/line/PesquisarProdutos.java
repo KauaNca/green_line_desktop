@@ -128,7 +128,7 @@ setVisible(true);
             URL url = new URL(imageUrl);
             BufferedImage image = ImageIO.read(url);
             if (image != null) {
-                sem_imagem.setIcon(redimensionamentoDeImagem(new ImageIcon(image), 346, 349));
+                sem_imagem.setIcon(redimensionamentoDeImagem(new ImageIcon(image), 343, 343));
             } else {
                 funcoes.Avisos("aviso.jpg", "Imagem inválida. Tente outra URL.");
             }
@@ -186,7 +186,7 @@ setVisible(true);
     public ImageIcon sem_imagem() {
         LOGGER.info("Carregando imagem padrão: " + DEFAULT_IMAGE_PATH);
         ImageIcon imagem = new ImageIcon(DEFAULT_IMAGE_PATH);
-        return redimensionamentoDeImagem(imagem, 250, 216);
+        return redimensionamentoDeImagem(imagem, 343, 343);
     }
 
     /**
@@ -729,7 +729,7 @@ setVisible(true);
     private void prom_simActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_prom_simActionPerformed
         LOGGER.info("Promoção marcada como 'Sim'.");
         Promocao = true;
-        preco_promocional.setEnabled(true);
+        //preco_promocional.setEnabled(true);
 
     }//GEN-LAST:event_prom_simActionPerformed
 

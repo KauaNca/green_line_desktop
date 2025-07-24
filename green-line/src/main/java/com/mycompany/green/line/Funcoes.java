@@ -446,7 +446,7 @@ public class Funcoes {
                             "A senha deve ter exatamente 5 caracteres, com pelo menos 1 letra e 1 número.",
                             "Senha inválida",
                             JOptionPane.WARNING_MESSAGE);
-                    passwordField.requestFocus();
+                   
                 }
             }
 

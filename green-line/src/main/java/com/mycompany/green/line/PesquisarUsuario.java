@@ -1,12 +1,14 @@
 package com.mycompany.green.line;
 
-
 import java.awt.CardLayout;
 import java.awt.Component;
 import java.awt.Font;
 import java.awt.Image;
 import java.awt.event.KeyEvent;
+import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
+import java.net.URL;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -15,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
@@ -54,12 +57,12 @@ public class PesquisarUsuario extends javax.swing.JInternalFrame {
         desativarTextField(painelPessoa);
         nomesUsuarios();
         ImageIcon originalIcon = new ImageIcon(TelaComImagem.class.getResource("/imagens/logo.png"));
-Image img = originalIcon.getImage();
-Image resizedImg = img.getScaledInstance(32, 32, Image.SCALE_SMOOTH);
-ImageIcon resizedIcon = new ImageIcon(resizedImg);
-setFrameIcon(resizedIcon);
+        Image img = originalIcon.getImage();
+        Image resizedImg = img.getScaledInstance(32, 32, Image.SCALE_SMOOTH);
+        ImageIcon resizedIcon = new ImageIcon(resizedImg);
+        setFrameIcon(resizedIcon);
 
-setVisible(true);
+        setVisible(true);
 
     }
 
@@ -73,6 +76,7 @@ setVisible(true);
         codigoUsuario.setEnabled(true);
         cpf.setEnabled(true);
     }
+
     private void setupFieldMasks() {
         funcoes.aplicarMascaraNome(nome);
         funcoes.aplicarMascaraInteiro(codigoUsuario);
@@ -80,6 +84,7 @@ setVisible(true);
         funcoes.aplicarMascaraCPF(cpf);
         funcoes.aplicarMascaraCEP(cep);
     }
+
     public ImageIcon redimensionamentoDeImagem(ImageIcon imagem, int largura, int altura) {
         LOGGER.info("Redimensionando imagem para " + largura + "x" + altura);
         try {
@@ -157,18 +162,7 @@ setVisible(true);
             complemento.setText(rs.getString("complemento") != null ? rs.getString("complemento") : "");
 
             String imagemPath = rs.getString("imagem_perfil");
-            if (imagemPath != null && !imagemPath.isEmpty()) {
-                File imageFile = new File("imagens/usuarios/" + imagemPath);
-                if (imageFile.exists()) {
-                    ImageIcon foto = new ImageIcon(imageFile.getPath());
-                    perfil.setIcon(redimensionamentoDeImagem(foto, 205, 233));
-                } else {
-                    LOGGER.warning("Imagem não encontrada: " + imageFile.getPath());
-                    perfil.setIcon(new ImageIcon("imagens/perfil.png"));
-                }
-            } else {
-                perfil.setIcon(new ImageIcon("imagens/perfil.png"));
-            }
+            carregarImagemURL(imagemPath);
 
             LOGGER.info("Dados da pessoa carregados com sucesso.");
         }
@@ -193,6 +187,27 @@ setVisible(true);
         } catch (Exception e) {
             LOGGER.severe(ERROR_GENERIC + e.getMessage());
             JOptionPane.showMessageDialog(null, "<html><h3>" + ERROR_GENERIC + e.getMessage() + "</h3></html>");
+        }
+    }
+
+    public void carregarImagemURL(String campo) {
+        String imageUrl = campo.trim();
+        if (imageUrl.isEmpty() || !imageUrl.startsWith("http")) {
+            perfil.setIcon(new ImageIcon("imagens/perfil.png"));
+            return;
+        }
+        try {
+            URL url = new URL(imageUrl);
+            BufferedImage image = ImageIO.read(url);
+            if (image != null) {
+                perfil.setIcon(redimensionamentoDeImagem(new ImageIcon(image), 205, 233));
+            } else {
+                funcoes.Avisos("aviso.jpg", "Imagem inválida. Tente outra URL.");
+                perfil.setIcon(new ImageIcon("imagens/perfil.png"));
+            }
+        } catch (IOException e) {
+            funcoes.Avisos("erro.png", "Falha ao carregar URL. Tente novamente.");
+            perfil.setIcon(new ImageIcon("imagens/perfil.png"));
         }
     }
 
@@ -227,9 +242,9 @@ setVisible(true);
         jLabel14 = new javax.swing.JLabel();
         complemento = new javax.swing.JTextField();
         btComprasUsuario = new javax.swing.JButton();
-        cpf = new javax.swing.JFormattedTextField();
         cep = new javax.swing.JFormattedTextField();
         btCancelar1 = new javax.swing.JButton();
+        cpf = new javax.swing.JTextField();
 
         setClosable(true);
         setIconifiable(true);
@@ -336,15 +351,6 @@ setVisible(true);
             }
         });
 
-        cpf.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter()));
-        cpf.setEnabled(false);
-        cpf.setFont(new java.awt.Font("Arial", 0, 20)); // NOI18N
-        cpf.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyReleased(java.awt.event.KeyEvent evt) {
-                cpfKeyReleased(evt);
-            }
-        });
-
         try {
             cep.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.MaskFormatter("#####-###")));
         } catch (java.text.ParseException ex) {
@@ -359,6 +365,15 @@ setVisible(true);
         btCancelar1.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 btCancelar1MouseClicked(evt);
+            }
+        });
+
+        cpf.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
+        cpf.setEnabled(false);
+        cpf.setSelectedTextColor(new java.awt.Color(51, 51, 51));
+        cpf.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                cpfKeyReleased(evt);
             }
         });
 
@@ -435,11 +450,8 @@ setVisible(true);
             .addGroup(painelPessoaLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(painelPessoaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, painelPessoaLayout.createSequentialGroup()
-                        .addComponent(jLabel8)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(estado, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, painelPessoaLayout.createSequentialGroup()
+                    .addComponent(perfil, javax.swing.GroupLayout.PREFERRED_SIZE, 233, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(painelPessoaLayout.createSequentialGroup()
                         .addGroup(painelPessoaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addGroup(painelPessoaLayout.createSequentialGroup()
                                 .addGroup(painelPessoaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -462,22 +474,28 @@ setVisible(true);
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jLabel3)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(cpf, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(cpf, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGroup(painelPessoaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(painelPessoaLayout.createSequentialGroup()
-                                .addGroup(painelPessoaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addComponent(jLabel9)
-                                    .addComponent(jLabel10))
-                                .addGap(35, 35, 35))
-                            .addGroup(painelPessoaLayout.createSequentialGroup()
-                                .addComponent(jLabel11)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jLabel8)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addGroup(painelPessoaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                    .addComponent(bairro, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(cidade, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(cep)))))
-                    .addComponent(perfil, javax.swing.GroupLayout.PREFERRED_SIZE, 233, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addComponent(estado, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(painelPessoaLayout.createSequentialGroup()
+                                .addGap(13, 13, 13)
+                                .addGroup(painelPessoaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(painelPessoaLayout.createSequentialGroup()
+                                        .addGroup(painelPessoaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                            .addComponent(jLabel9)
+                                            .addComponent(jLabel10))
+                                        .addGap(35, 35, 35))
+                                    .addGroup(painelPessoaLayout.createSequentialGroup()
+                                        .addComponent(jLabel11)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addGroup(painelPessoaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                            .addComponent(bairro, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addComponent(cidade, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addComponent(cep))))))))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(painelPessoaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(painelPessoaLayout.createSequentialGroup()
@@ -594,18 +612,22 @@ setVisible(true);
         usuarios.clear();
         nomesUsuarios();
     }//GEN-LAST:event_btCancelar1MouseClicked
-    /**
-     * Ação executada ao pressionar a tecla Enter no campo de CPF. Pesquisa os
-     * dados da pessoa física pelo CPF e preenche os campos.
-     *
-     * @param evt Evento de tecla liberada.
-     */
+
+    private void codigoUsuarioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_codigoUsuarioActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_codigoUsuarioActionPerformed
+
+    private void btComprasUsuarioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btComprasUsuarioActionPerformed
+        LOGGER.info("Botão 'Compras' clicado. Aguardando implementação.");
+        funcoes.Avisos("sinal-de-aviso.png", "Lógica não implementada ainda");
+    }//GEN-LAST:event_btComprasUsuarioActionPerformed
 
     private void cpfKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_cpfKeyReleased
-        if (evt.getKeyChar() == KeyEvent.VK_ENTER) {
+         if (evt.getKeyChar() == KeyEvent.VK_ENTER) {
             LOGGER.info("Pesquisando pessoa com CPF: " + cpf.getText());
             try (Connection con = Conexao.conexaoBanco(); PreparedStatement stmt = con.prepareStatement(SELECT_PERSON_BY_CPF)) {
-                stmt.setString(1, cpf.getText());
+                String cpfFormatado = funcoes.removePontuacaoEEspacos(cpf.getText().trim());
+                stmt.setString(1, cpfFormatado);
                 try (ResultSet rs = stmt.executeQuery()) {
                     preencherCampos(rs);
                 }
@@ -619,15 +641,6 @@ setVisible(true);
         }
     }//GEN-LAST:event_cpfKeyReleased
 
-    private void codigoUsuarioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_codigoUsuarioActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_codigoUsuarioActionPerformed
-
-    private void btComprasUsuarioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btComprasUsuarioActionPerformed
-        LOGGER.info("Botão 'Compras' clicado. Aguardando implementação.");
-        funcoes.Avisos("sinal-de-aviso.png", "Lógica não implementada ainda");
-    }//GEN-LAST:event_btComprasUsuarioActionPerformed
-
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel JCard;
@@ -639,7 +652,7 @@ setVisible(true);
     private javax.swing.JTextField cidade;
     private javax.swing.JTextField codigoUsuario;
     private javax.swing.JTextField complemento;
-    private javax.swing.JFormattedTextField cpf;
+    private javax.swing.JTextField cpf;
     private javax.swing.JTextField email;
     private javax.swing.JTextField endereco;
     private javax.swing.JTextField estado;

@@ -20,7 +20,9 @@ import com.mycompany.green.line.TelaComImagem;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.URL;
+import java.util.logging.Level;
 import javax.imageio.ImageIO;
+import javax.swing.JDialog;
 
 /**
  * JFrame para a tela de login do sistema. Configura a interface gráfica para
@@ -40,6 +42,7 @@ public class Login extends javax.swing.JFrame {
     private static final EmptyBorder FIELD_BORDER = new EmptyBorder(5, 5, 0, 0);
     private static final String INSERT_ACCESS = "INSERT INTO acessos(id_pessoa,usuario,local) VALUES (?,?,?)";
     private static final String SELECT_USER_LOGIN = "SELECT id_pessoa, nome, id_tipo_usuario, senha, situacao, imagem_perfil FROM pessoa WHERE nome = ?";
+    private static final String UPDATE_PASSWORD = "UPDATE pessoa SET senha = ? WHERE id_pessoa = ? AND cpf = ?";
 // Remova completamente a condição "AND senha = ?"
     private static final String SELECT_USER_BY_ID = "SELECT * FROM pessoa WHERE id_pessoa = ?";
     private static final String ERROR_GENERIC = "Erro: ";
@@ -63,7 +66,6 @@ public class Login extends javax.swing.JFrame {
         LOGGER.info("Inicializando tela de login.");
         frame();
         inicio();
-        testHashCompatibilidade();
         ImageIcon originalIcon = new ImageIcon(TelaComImagem.class.getResource("/imagens/logo.png"));
         Image img = originalIcon.getImage();
         Image resizedImg = img.getScaledInstance(64, 64, Image.SCALE_SMOOTH);
@@ -89,6 +91,10 @@ public class Login extends javax.swing.JFrame {
         usuario.setEditable(false);
         imagem.setIcon(new ImageIcon(USER_IMAGE_PATH));// Define o ícone padrão para o campo de imagem  
         codigoCampo.setFocusTraversalKeysEnabled(false);// Desativa a navegação por tabulação no campo de código
+        funcoes.aplicarMascaraInteiro(codigoUsuario);
+        funcoes.aplicarMascaraSenha(senha);
+        funcoes.aplicarMascaraInteiro(codigoCampo);
+        funcoes.aplicarMascaraCPF(cpfSenhaEsquecida);
     }
 
     /**
@@ -107,16 +113,6 @@ public class Login extends javax.swing.JFrame {
             LOGGER.severe("Erro ao registrar acesso: " + ex.getMessage());
             JOptionPane.showMessageDialog(null, ERROR_GENERIC + ex.getMessage());
         }
-    }
-
-    public static void testHashCompatibilidade() {
-        String hashExemplo = "$2b$10$Gqjn9q..AQC09Gzm94je8umnE2cB4dLWRtVtHGsXhrcDUKbIXJVbK";
-        String senhaTeste = "senhaTeste123"; // Substitua pela senha real
-
-        System.out.println("Teste de compatibilidade:");
-        System.out.println("Hash original: " + hashExemplo);
-        System.out.println("Hash normalizado: " + hashExemplo.replaceFirst("^\\$2b\\$", "\\$2a\\$"));
-        System.out.println("Resultado: " + BCryptUtil.checkPassword(senhaTeste, hashExemplo));
     }
 
     /**
@@ -243,6 +239,15 @@ public class Login extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        janelaEsqueceuSenha = new javax.swing.JDialog();
+        jLabel2 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
+        jLabel4 = new javax.swing.JLabel();
+        jLabel5 = new javax.swing.JLabel();
+        jLabel6 = new javax.swing.JLabel();
+        btRedefinirSenha = new javax.swing.JButton();
+        cpfSenhaEsquecida = new javax.swing.JTextField();
+        codigoUsuario = new javax.swing.JTextField();
         painelPrincipal = new javax.swing.JPanel();
         textoSenha = new javax.swing.JLabel();
         jLabel1 = new javax.swing.JLabel();
@@ -254,7 +259,101 @@ public class Login extends javax.swing.JFrame {
         apagarSenha = new javax.swing.JLabel();
         imagem = new javax.swing.JLabel();
         usuario = new javax.swing.JTextField();
-        senha = new javax.swing.JTextField();
+        esqueceuSenha = new javax.swing.JLabel();
+        senha = new javax.swing.JPasswordField();
+
+        janelaEsqueceuSenha.setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        janelaEsqueceuSenha.setResizable(false);
+
+        jLabel2.setFont(new java.awt.Font("Inter", 1, 15)); // NOI18N
+        jLabel2.setText("Digite seu código de usuário e CPF,");
+
+        jLabel3.setFont(new java.awt.Font("Inter", 1, 15)); // NOI18N
+        jLabel3.setText("respectivamente,nos campo abaixos");
+
+        jLabel4.setFont(new java.awt.Font("Inter", 1, 15)); // NOI18N
+        jLabel4.setText("Recomenda-se que após o processo, ");
+
+        jLabel5.setFont(new java.awt.Font("Inter", 1, 15)); // NOI18N
+        jLabel5.setText("o usuário altere para sua própria segurança. ");
+
+        jLabel6.setFont(new java.awt.Font("Inter", 1, 15)); // NOI18N
+        jLabel6.setText("A sua senha será redefinida para: 123GL.");
+
+        btRedefinirSenha.setBackground(new java.awt.Color(50, 205, 50));
+        btRedefinirSenha.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
+        btRedefinirSenha.setForeground(new java.awt.Color(255, 255, 255));
+        btRedefinirSenha.setText("Redefinir senha");
+        btRedefinirSenha.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                btRedefinirSenhaMouseClicked(evt);
+            }
+        });
+        btRedefinirSenha.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btRedefinirSenhaActionPerformed(evt);
+            }
+        });
+
+        cpfSenhaEsquecida.setFont(new java.awt.Font("Inter SemiBold", 0, 15)); // NOI18N
+        cpfSenhaEsquecida.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+
+        codigoUsuario.setFont(new java.awt.Font("Inter SemiBold", 0, 15)); // NOI18N
+        codigoUsuario.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+
+        javax.swing.GroupLayout janelaEsqueceuSenhaLayout = new javax.swing.GroupLayout(janelaEsqueceuSenha.getContentPane());
+        janelaEsqueceuSenha.getContentPane().setLayout(janelaEsqueceuSenhaLayout);
+        janelaEsqueceuSenhaLayout.setHorizontalGroup(
+            janelaEsqueceuSenhaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(janelaEsqueceuSenhaLayout.createSequentialGroup()
+                .addContainerGap(45, Short.MAX_VALUE)
+                .addGroup(janelaEsqueceuSenhaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, janelaEsqueceuSenhaLayout.createSequentialGroup()
+                        .addComponent(btRedefinirSenha, javax.swing.GroupLayout.PREFERRED_SIZE, 164, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(122, 122, 122))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, janelaEsqueceuSenhaLayout.createSequentialGroup()
+                        .addComponent(jLabel2)
+                        .addGap(67, 67, 67))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, janelaEsqueceuSenhaLayout.createSequentialGroup()
+                        .addComponent(jLabel3)
+                        .addGap(59, 59, 59))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, janelaEsqueceuSenhaLayout.createSequentialGroup()
+                        .addComponent(jLabel5)
+                        .addGap(28, 28, 28))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, janelaEsqueceuSenhaLayout.createSequentialGroup()
+                        .addGroup(janelaEsqueceuSenhaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addComponent(cpfSenhaEsquecida)
+                            .addComponent(codigoUsuario, javax.swing.GroupLayout.DEFAULT_SIZE, 210, Short.MAX_VALUE))
+                        .addGap(100, 100, 100))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, janelaEsqueceuSenhaLayout.createSequentialGroup()
+                        .addGroup(janelaEsqueceuSenhaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(janelaEsqueceuSenhaLayout.createSequentialGroup()
+                                .addGap(6, 6, 6)
+                                .addComponent(jLabel4))
+                            .addComponent(jLabel6))
+                        .addGap(46, 46, 46))))
+        );
+        janelaEsqueceuSenhaLayout.setVerticalGroup(
+            janelaEsqueceuSenhaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(janelaEsqueceuSenhaLayout.createSequentialGroup()
+                .addGap(39, 39, 39)
+                .addComponent(jLabel6)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabel4)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabel5)
+                .addGap(18, 18, 18)
+                .addComponent(jLabel2)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabel3)
+                .addGap(2, 2, 2)
+                .addComponent(codigoUsuario, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(cpfSenhaEsquecida, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(btRedefinirSenha)
+                .addContainerGap(70, Short.MAX_VALUE))
+        );
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setBackground(new java.awt.Color(255, 242, 207));
@@ -332,13 +431,16 @@ public class Login extends javax.swing.JFrame {
         usuario.setBorder(javax.swing.BorderFactory.createEtchedBorder());
         usuario.setDisabledTextColor(new java.awt.Color(0, 0, 0));
 
-        senha.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
-        senha.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-        senha.addFocusListener(new java.awt.event.FocusAdapter() {
-            public void focusGained(java.awt.event.FocusEvent evt) {
-                senhaFocusGained(evt);
+        esqueceuSenha.setFont(new java.awt.Font("Inter SemiBold", 0, 14)); // NOI18N
+        esqueceuSenha.setForeground(new java.awt.Color(255, 255, 255));
+        esqueceuSenha.setText("Esqueceu sua senha?");
+        esqueceuSenha.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                esqueceuSenhaMouseClicked(evt);
             }
         });
+
+        senha.setFont(new java.awt.Font("Inter", 0, 18)); // NOI18N
         senha.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt) {
                 senhaKeyPressed(evt);
@@ -358,21 +460,20 @@ public class Login extends javax.swing.JFrame {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, painelPrincipalLayout.createSequentialGroup()
                 .addContainerGap(92, Short.MAX_VALUE)
                 .addGroup(painelPrincipalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(painelPrincipalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addGroup(painelPrincipalLayout.createSequentialGroup()
-                            .addGap(6, 6, 6)
-                            .addComponent(textoSenha)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(senha, javax.swing.GroupLayout.PREFERRED_SIZE, 233, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGroup(painelPrincipalLayout.createSequentialGroup()
-                            .addComponent(textoCodigo)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(codigoCampo, javax.swing.GroupLayout.PREFERRED_SIZE, 233, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(painelPrincipalLayout.createSequentialGroup()
+                        .addComponent(textoCodigo)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(codigoCampo, javax.swing.GroupLayout.PREFERRED_SIZE, 233, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(1, 1, 1))
                     .addGroup(painelPrincipalLayout.createSequentialGroup()
                         .addComponent(jLabel1)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(usuario, javax.swing.GroupLayout.PREFERRED_SIZE, 233, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(apagarSenha, javax.swing.GroupLayout.PREFERRED_SIZE, 17, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(apagarSenha, javax.swing.GroupLayout.PREFERRED_SIZE, 17, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(painelPrincipalLayout.createSequentialGroup()
+                        .addComponent(textoSenha)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(senha, javax.swing.GroupLayout.PREFERRED_SIZE, 233, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addGap(103, 103, 103))
             .addGroup(painelPrincipalLayout.createSequentialGroup()
                 .addGap(199, 199, 199)
@@ -380,6 +481,10 @@ public class Login extends javax.swing.JFrame {
                     .addComponent(btLogin, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(btSair, javax.swing.GroupLayout.PREFERRED_SIZE, 117, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, painelPrincipalLayout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(esqueceuSenha)
+                .addGap(164, 164, 164))
         );
         painelPrincipalLayout.setVerticalGroup(
             painelPrincipalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -396,17 +501,22 @@ public class Login extends javax.swing.JFrame {
                 .addGroup(painelPrincipalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(usuario, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
-                .addGroup(painelPrincipalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(textoSenha)
-                    .addComponent(senha, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(painelPrincipalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(painelPrincipalLayout.createSequentialGroup()
+                        .addGap(20, 20, 20)
+                        .addComponent(textoSenha))
+                    .addGroup(painelPrincipalLayout.createSequentialGroup()
+                        .addGap(17, 17, 17)
+                        .addComponent(senha, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(apagarSenha)
-                .addGap(18, 18, 18)
+                .addGap(35, 35, 35)
                 .addComponent(btLogin)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btSair)
-                .addContainerGap(53, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(esqueceuSenha)
+                .addContainerGap(41, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -497,8 +607,89 @@ public class Login extends javax.swing.JFrame {
 
     }//GEN-LAST:event_formKeyPressed
 
+    private void esqueceuSenhaMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_esqueceuSenhaMouseClicked
+        janelaEsqueceuSenha.pack();
+        janelaEsqueceuSenha.setLocationRelativeTo(painelPrincipal);
+        janelaEsqueceuSenha.setVisible(true);
+    }//GEN-LAST:event_esqueceuSenhaMouseClicked
+
+    private void btRedefinirSenhaMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btRedefinirSenhaMouseClicked
+        // Verificação dos campos obrigatórios
+        if (codigoUsuario.getText().trim().isEmpty() || cpfSenhaEsquecida.getText().trim().isEmpty()) {
+            funcoes.Avisos("sinal-de-aviso.png", "Preencha todos os campos para redefinir a senha");
+            return;
+        }
+
+        // Verificação do formato do CPF
+        if (cpfSenhaEsquecida.getText().length() < 14) {
+            funcoes.Avisos("sinal-de-aviso.png", "CPF incompleto. Formato esperado: 000.000.000-00");
+            return;
+        }
+        String cpfFormatado = funcoes.removePontuacaoEEspacos(cpfSenhaEsquecida.getText().trim());
+
+        // Verificação do código de usuário
+        if (!codigoUsuario.getText().matches("[A-Za-z0-9]+")) {
+            funcoes.Avisos("sinal-de-aviso.png", "Código de usuário contém caracteres inválidos");
+            return;
+        }
+
+        try {
+            Connection con = Conexao.conexaoBanco();
+
+            // Primeiro verifica se o usuário existe
+            String CHECK_USER = "SELECT COUNT(*) FROM pessoa WHERE id_pessoa = ? AND cpf = ?";
+            PreparedStatement checkStmt = con.prepareStatement(CHECK_USER);
+            checkStmt.setString(1, codigoUsuario.getText());
+            checkStmt.setString(2, cpfFormatado);
+
+            ResultSet rs = checkStmt.executeQuery();
+            if (rs.next() && rs.getInt(1) == 0) {
+                funcoes.Avisos("sinal-de-aviso.png", "Combinação de código de usuário e CPF não encontrada");
+                con.close();
+                return;
+            }
+
+            // Se o usuário existe, prossegue com a atualização
+            String senhaHash = "";
+            try {
+                senhaHash = BCrypt.hashpw("123GL", BCrypt.gensalt());
+            } catch (Exception e) {
+                System.err.println("Erro na criptografia: " + e.getMessage());
+                funcoes.Avisos("sinal-de-aviso.png", "Erro ao processar a senha");
+                con.close();
+                dispose();
+                return;
+            }
+
+            PreparedStatement stmt = con.prepareStatement(UPDATE_PASSWORD);
+            stmt.setString(1, senhaHash);
+            stmt.setString(2, codigoUsuario.getText());
+            stmt.setString(3, cpfFormatado);
+
+            int rowsAffected = stmt.executeUpdate();
+            if (rowsAffected > 0) {
+                funcoes.Avisos("sucesso.png", "Senha redefinida com sucesso para 123GL");
+            } else {
+                funcoes.Avisos("sinal-de-aviso.png", "Nenhum registro foi atualizado");
+            }
+
+            con.close();
+            codigoUsuario.setText("");
+            cpfSenhaEsquecida.setText("");
+            janelaEsqueceuSenha.dispose();
+        } catch (SQLException ex) {
+            Logger.getLogger(CadastroPessoas.class.getName()).log(Level.SEVERE, null, ex);
+            funcoes.Avisos("erro.png", "Erro ao atualizar: " + ex.getMessage());
+            janelaEsqueceuSenha.dispose();
+        }
+    }//GEN-LAST:event_btRedefinirSenhaMouseClicked
+
+    private void btRedefinirSenhaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btRedefinirSenhaActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_btRedefinirSenhaActionPerformed
+
     private void senhaKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_senhaKeyPressed
-        if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
+         if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
             if (codigoCampo.getText().trim().isEmpty() || usuario.getText().trim().isEmpty() || senha.getText().trim().isEmpty()) {
                 LOGGER.warning("Campos de código ou senha estão vazios.");
                 funcoes.Avisos("erro.png", "Preencha os campos");
@@ -508,15 +699,6 @@ public class Login extends javax.swing.JFrame {
             Login();
         }
     }//GEN-LAST:event_senhaKeyPressed
-
-    private void senhaFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_senhaFocusGained
-        if (codigoCampo.getText().trim().isEmpty() && usuario.getText().trim().isEmpty()) {
-            funcoes.Avisos("sinal-de-aviso.png", "Preencha primeiro o código e usuário!");
-            if (codigoCampo.isEnabled() && codigoCampo.isFocusable()) {
-                codigoCampo.requestFocusInWindow();
-            }
-        }
-    }//GEN-LAST:event_senhaFocusGained
     /**
      * Método principal para inicializar a aplicação com o Look and Feel
      * personalizado e exibir a tela de login.
@@ -579,12 +761,22 @@ public class Login extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel apagarSenha;
     private javax.swing.JButton btLogin;
+    private javax.swing.JButton btRedefinirSenha;
     private javax.swing.JButton btSair;
     private javax.swing.JTextField codigoCampo;
+    private javax.swing.JTextField codigoUsuario;
+    private javax.swing.JTextField cpfSenhaEsquecida;
+    private javax.swing.JLabel esqueceuSenha;
     private javax.swing.JLabel imagem;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
+    private javax.swing.JDialog janelaEsqueceuSenha;
     private javax.swing.JPanel painelPrincipal;
-    private javax.swing.JTextField senha;
+    private javax.swing.JPasswordField senha;
     private javax.swing.JLabel textoCodigo;
     private javax.swing.JLabel textoSenha;
     private javax.swing.JLabel titulo;

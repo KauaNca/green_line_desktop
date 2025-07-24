@@ -104,6 +104,7 @@ public class EditarProdutos extends javax.swing.JInternalFrame {
         funcoes.aplicarMascaraPreco(precoPromocional);
         funcoes.aplicarMascaraInteiro(estoque);
         funcoes.aplicarMascaraInteiro(totalAvaliacao);
+        funcoes.aplicarMascaraInteiro(codigo);
         funcoes.aplicarMascaraPeso(peso);
         funcoes.aplicarMascaraTextoNumerico(descricaoGeral);
         funcoes.aplicarMascaraTextoNumerico(descricaoCurta);

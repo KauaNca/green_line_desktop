@@ -3,7 +3,6 @@ package com.mycompany.green.line;
 import java.awt.Component;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.Connection;
@@ -14,10 +13,9 @@ import java.util.Objects;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
-import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
-import javax.swing.filechooser.FileNameExtensionFilter;
+import org.mindrot.jbcrypt.BCrypt;
 
 /**
  * JInternalFrame para gerenciar dados pessoais do usuário, incluindo
@@ -35,17 +33,14 @@ public class SeusDados extends javax.swing.JInternalFrame {
     private static final String SELECT_PERSON_ID = "SELECT id_pessoa FROM pessoa WHERE cpf = ?";
     private static final String UPDATE_PERSON = "UPDATE pessoa SET nome = ?, email = ?, telefone = ?, cpf = ?, imagem_perfil = ? WHERE id_pessoa = ?";
     private static final String UPDATE_ADDRESS = "UPDATE enderecos SET uf = ?, cep = ?, cidade = ?, bairro = ?, endereco = ?, complemento = ? WHERE id_pessoa = ?";
-    private static final String UPDATE_IMAGE = "UPDATE pessoa SET imagem_perfil = ? WHERE id_pessoa = ?";
+    private static final String UPDATE_PASSWORD = "UPDATE pessoa SET senha = ? WHERE id_pessoa = ? AND cpf = ?";
 
-    private final TelaInicial tela;
     private final String codigoUsuario;
-    private int imageSelectionCount = 0;
     private String caminhoImagem;
     private String[] dadosBanco;
     private String[] novosDados;
-    private String arquivoEscolhido;
-    Funcoes funcoes = new Funcoes();
-    int contadorMensagem = 0;
+    private int contadorMensagem = 0;
+    private final Funcoes funcoes;
 
     /**
      * Construtor da classe SeusDados.
@@ -53,24 +48,35 @@ public class SeusDados extends javax.swing.JInternalFrame {
      * @param codigo ID do usuário para buscar e exibir os dados.
      */
     public SeusDados(String codigo) {
-        this.tela = null; // Considere inicializar adequadamente se for usado
         this.codigoUsuario = codigo;
+        this.funcoes = new Funcoes();
         initComponents();
-        Funcoes.aplicarMascaraNome(usuario);
-        Funcoes.aplicarMascaraTelefone(telefone);
-        Funcoes.aplicarMascaraCPF(cpf);
-        Funcoes.aplicarMascaraCEP(cep);
+        configurarMascaras();
         inicializarInterface();
         carregarDadosUsuario(codigoUsuario);
+        configurarIcone();
+        setVisible(true);
+    }
 
-        ImageIcon originalIcon = new ImageIcon(TelaComImagem.class.getResource("/imagens/logo.png"));
+    /**
+     * Configura as máscaras de entrada nos campos de texto.
+     */
+    private void configurarMascaras() {
+        funcoes.aplicarMascaraNome(usuario);
+        funcoes.aplicarMascaraTelefone(telefone);
+        funcoes.aplicarMascaraCPF(cpf);
+        funcoes.aplicarMascaraCEP(cep);
+        funcoes.aplicarMascaraSenha(senha);
+    }
+
+    /**
+     * Configura o ícone da janela.
+     */
+    private void configurarIcone() {
+        ImageIcon originalIcon = new ImageIcon(Objects.requireNonNull(TelaComImagem.class.getResource("/imagens/logo.png")));
         Image img = originalIcon.getImage();
         Image resizedImg = img.getScaledInstance(32, 32, Image.SCALE_SMOOTH);
-        ImageIcon resizedIcon = new ImageIcon(resizedImg);
-        setFrameIcon(resizedIcon);
-
-        setVisible(true);
-
+        setFrameIcon(new ImageIcon(resizedImg));
     }
 
     /**
@@ -85,6 +91,7 @@ public class SeusDados extends javax.swing.JInternalFrame {
         }
         btSalvar.setVisible(false);
         btCancelar.setVisible(false);
+        btModificar.setVisible(true);
     }
 
     /**
@@ -94,7 +101,7 @@ public class SeusDados extends javax.swing.JInternalFrame {
      * @param codigo ID do usuário.
      */
     private void carregarDadosUsuario(String codigo) {
-        LOGGER.info("Iniciando recuperação de dados do usuário.");
+        LOGGER.info("Iniciando recuperação de dados do usuário: " + codigo);
         try (Connection con = Conexao.conexaoBanco(); PreparedStatement stmt = con.prepareStatement(SELECT_USER_DATA)) {
             stmt.setString(1, codigo);
             try (ResultSet rs = stmt.executeQuery()) {
@@ -114,37 +121,45 @@ public class SeusDados extends javax.swing.JInternalFrame {
                         rs.getString("imagem_perfil")
                     };
 
-                    imagemUsuario.setText(rs.getString("imagem_perfil"));
-
-                    // Preenche os campos da interface
-                    usuario.setText(Objects.toString(rs.getString("nome"), ""));
-                    codigoPessoa.setText(Objects.toString(rs.getString("id_pessoa"), ""));
-                    email.setText(Objects.toString(rs.getString("email"), ""));
-                    telefone.setText(Objects.toString(rs.getString("telefone"), ""));
-                    cpf.setText(Objects.toString(rs.getString("cpf"), ""));
-                    cep.setText(Objects.toString(rs.getString("cep"), ""));
-
-                    // Seleciona a UF correspondente
-                    for (int i = 0; i < uf.getItemCount(); i++) {
-                        if (uf.getItemAt(i).equals(rs.getString("uf"))) {
-                            uf.setSelectedIndex(i);
-                            break;
-                        }
-                    }
-
-                    cidade.setText(Objects.toString(rs.getString("cidade"), ""));
-                    bairro.setText(Objects.toString(rs.getString("bairro"), ""));
-                    endereco.setText(Objects.toString(rs.getString("endereco"), ""));
-                    complemento.setText(Objects.toString(rs.getString("complemento"), ""));
+                    preencherCamposInterface(rs);
                     carregarImagemURL(imagemUsuario);
-
                 } else {
                     LOGGER.warning("Nenhum dado encontrado para o código: " + codigo);
+                    JOptionPane.showMessageDialog(this, "Nenhum dado encontrado para o usuário.",
+                            "Aviso", JOptionPane.WARNING_MESSAGE);
                 }
             }
         } catch (SQLException ex) {
             LOGGER.severe("Erro ao carregar dados do usuário: " + ex.getMessage());
-            JOptionPane.showMessageDialog(this, "Erro ao carregar dados do usuário.", "Erro", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Erro ao carregar dados do usuário.",
+                    "Erro", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    /**
+     * Preenche os campos da interface com os dados do ResultSet.
+     *
+     * @param rs ResultSet com os dados do usuário.
+     * @throws SQLException Se ocorrer erro ao acessar os dados.
+     */
+    private void preencherCamposInterface(ResultSet rs) throws SQLException {
+        usuario.setText(Objects.toString(rs.getString("nome"), ""));
+        codigoPessoa.setText(Objects.toString(rs.getString("id_pessoa"), ""));
+        email.setText(Objects.toString(rs.getString("email"), ""));
+        telefone.setText(Objects.toString(rs.getString("telefone"), ""));
+        cpf.setText(Objects.toString(rs.getString("cpf"), ""));
+        cep.setText(Objects.toString(rs.getString("cep"), ""));
+        cidade.setText(Objects.toString(rs.getString("cidade"), ""));
+        bairro.setText(Objects.toString(rs.getString("bairro"), ""));
+        endereco.setText(Objects.toString(rs.getString("endereco"), ""));
+        complemento.setText(Objects.toString(rs.getString("complemento"), ""));
+        imagemUsuario.setText(Objects.toString(rs.getString("imagem_perfil"), ""));
+
+        for (int i = 0; i < uf.getItemCount(); i++) {
+            if (uf.getItemAt(i).equals(rs.getString("uf"))) {
+                uf.setSelectedIndex(i);
+                break;
+            }
         }
     }
 
@@ -162,10 +177,15 @@ public class SeusDados extends javax.swing.JInternalFrame {
         return new ImageIcon(imagemRedimensionada);
     }
 
+    /**
+     * Carrega uma imagem a partir de uma URL e exibe no componente de imagem.
+     *
+     * @param campo Campo de texto com a URL da imagem.
+     */
     public void carregarImagemURL(JTextField campo) {
-
         String imageUrl = campo.getText().trim();
-        if (imageUrl.isEmpty() || !imageUrl.contains("http")) {
+        if (imageUrl.isEmpty() || !imageUrl.startsWith("http")) {
+            imagem.setIcon(null);
             return;
         }
         try {
@@ -176,10 +196,12 @@ public class SeusDados extends javax.swing.JInternalFrame {
             } else {
                 funcoes.Avisos("aviso.jpg", "Imagem inválida. Tente outra URL.");
                 campo.setText("");
+                imagem.setIcon(null);
             }
         } catch (IOException e) {
             funcoes.Avisos("erro.png", "Falha ao carregar URL. Tente novamente.");
             campo.setText("");
+            imagem.setIcon(null);
         }
     }
 
@@ -224,25 +246,43 @@ public class SeusDados extends javax.swing.JInternalFrame {
             LOGGER.info("Iniciando transação para atualização de dados.");
 
             // Busca o ID da pessoa
-            String idPessoa;
-            try (PreparedStatement stmt = con.prepareStatement(SELECT_PERSON_ID)) {
-                stmt.setString(1, cpf.getText());
-                try (ResultSet rs = stmt.executeQuery()) {
-                    if (rs.next()) {
-                        idPessoa = rs.getString("id_pessoa");
-                        LOGGER.info("ID da pessoa encontrado: " + idPessoa);
-                    } else {
-                        LOGGER.warning("Pessoa não encontrada para o CPF: " + cpf.getText());
-                        con.rollback();
-                        JOptionPane.showMessageDialog(this, "Pessoa não encontrada.", "Erro", JOptionPane.ERROR_MESSAGE);
-                        return;
-                    }
-                }
+            String idPessoa = obterIdPessoa(con);
+            if (idPessoa == null) {
+                con.rollback();
+                JOptionPane.showMessageDialog(this, "Pessoa não encontrada.",
+                        "Erro", JOptionPane.ERROR_MESSAGE);
+                return;
             }
+
             String cpfFormatado = funcoes.removePontuacaoEEspacos(cpf.getText().trim());
             String telefoneFormatado = funcoes.removePontuacaoEEspacos(telefone.getText().trim());
             String cepFormatado = funcoes.removePontuacaoEEspacos(cep.getText().trim());
 
+            if (senha.getText().length() == 5) {
+                if (codigoPessoa.getText().trim().isEmpty() || cpfFormatado.isEmpty()) {
+                    funcoes.Avisos("sinal-de-aviso.png", "Código de pessoa e CPF são obrigatórios");
+                    return;
+                }
+
+                try (PreparedStatement stmt = con.prepareStatement(UPDATE_PASSWORD)) {
+
+                    // Criptografa a senha antes de armazenar
+                    String senhaHash = BCrypt.hashpw(senha.getText().trim(), BCrypt.gensalt());
+
+                    stmt.setString(1, senhaHash);
+                    stmt.setString(2, codigoPessoa.getText().trim());
+                    stmt.setString(3, cpfFormatado);
+
+                    stmt.executeUpdate();
+                }
+            } else if (senha.getText().length() < 5) {
+                JOptionPane.showMessageDialog(this, "Senha inválida.",
+                        "Sucesso", JOptionPane.INFORMATION_MESSAGE);
+                senha.setText("");
+            }
+            else if(senha.getText().trim().isEmpty()){
+                
+            }
             // Atualiza tabela "pessoa"
             try (PreparedStatement stmt = con.prepareStatement(UPDATE_PERSON)) {
                 stmt.setString(1, usuario.getText());
@@ -270,10 +310,34 @@ public class SeusDados extends javax.swing.JInternalFrame {
 
             con.commit();
             LOGGER.info("Transação concluída com sucesso.");
-            JOptionPane.showMessageDialog(this, "Dados atualizados com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Dados atualizados com sucesso!",
+                    "Sucesso", JOptionPane.INFORMATION_MESSAGE);
         } catch (SQLException ex) {
             LOGGER.severe("Erro ao atualizar dados: " + ex.getMessage());
-            throw ex; // Propaga a exceção para tratamento externo, se necessário
+            throw ex;
+        }
+    }
+
+    /**
+     * Obtém o ID da pessoa com base no CPF.
+     *
+     * @param con Conexão com o banco de dados.
+     * @return ID da pessoa ou null se não encontrada.
+     * @throws SQLException Se ocorrer erro na consulta.
+     */
+    private String obterIdPessoa(Connection con) throws SQLException {
+        try (PreparedStatement stmt = con.prepareStatement(SELECT_PERSON_ID)) {
+            stmt.setString(1, funcoes.removePontuacaoEEspacos(cpf.getText().trim()));
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    String idPessoa = rs.getString("id_pessoa");
+                    LOGGER.info("ID da pessoa encontrado: " + idPessoa);
+                    return idPessoa;
+                } else {
+                    LOGGER.warning("Pessoa não encontrada para o CPF: " + cpf.getText());
+                    return null;
+                }
+            }
         }
     }
 
@@ -302,8 +366,6 @@ public class SeusDados extends javax.swing.JInternalFrame {
         endereco = new javax.swing.JTextField();
         jLabel12 = new javax.swing.JLabel();
         complemento = new javax.swing.JTextField();
-        jLabel13 = new javax.swing.JLabel();
-        senha = new javax.swing.JTextField();
         btModificar = new javax.swing.JButton();
         btSalvar = new javax.swing.JButton();
         jLabel14 = new javax.swing.JLabel();
@@ -311,6 +373,8 @@ public class SeusDados extends javax.swing.JInternalFrame {
         btCancelar = new javax.swing.JButton();
         imagemURL = new javax.swing.JLabel();
         imagemUsuario = new javax.swing.JTextField();
+        imagemURL1 = new javax.swing.JLabel();
+        senha = new javax.swing.JPasswordField();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setClosable(true);
@@ -384,12 +448,6 @@ public class SeusDados extends javax.swing.JInternalFrame {
         complemento.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         complemento.setDisabledTextColor(new java.awt.Color(0, 0, 0));
 
-        jLabel13.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
-        jLabel13.setText("Senha");
-
-        senha.setFont(new java.awt.Font("Arial", 0, 20)); // NOI18N
-        senha.setDisabledTextColor(new java.awt.Color(0, 0, 0));
-
         btModificar.setBackground(new java.awt.Color(255, 102, 0));
         btModificar.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
         btModificar.setForeground(new java.awt.Color(255, 255, 255));
@@ -447,6 +505,14 @@ public class SeusDados extends javax.swing.JInternalFrame {
             }
         });
 
+        imagemURL1.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
+        imagemURL1.setText("Senha");
+
+        senha.setFont(new java.awt.Font("Inter SemiBold", 0, 15)); // NOI18N
+        senha.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        senha.setEnabled(false);
+        senha.setMaximumSize(new java.awt.Dimension(64, 25));
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -458,55 +524,50 @@ public class SeusDados extends javax.swing.JInternalFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jLabel1)
-                                    .addComponent(usuario, javax.swing.GroupLayout.PREFERRED_SIZE, 509, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(codigoPessoa, javax.swing.GroupLayout.PREFERRED_SIZE, 117, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(jLabel2)))
-                            .addComponent(email, javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(endereco)
-                            .addComponent(senha)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jLabel8)
-                                    .addComponent(uf, javax.swing.GroupLayout.PREFERRED_SIZE, 82, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                    .addComponent(jLabel14)
-                                    .addComponent(cep, javax.swing.GroupLayout.PREFERRED_SIZE, 242, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGap(29, 29, 29)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jLabel9)
-                                    .addComponent(cidade)))
-                            .addComponent(imagemUsuario, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jLabel6)
-                                    .addComponent(jLabel4)
-                                    .addComponent(jLabel11)
-                                    .addComponent(jLabel13)
-                                    .addComponent(imagemURL))
-                                .addGap(0, 0, Short.MAX_VALUE)))
-                        .addGap(30, 30, 30)
+                            .addComponent(jLabel1)
+                            .addComponent(usuario, javax.swing.GroupLayout.PREFERRED_SIZE, 509, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 53, Short.MAX_VALUE)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel5)
-                            .addComponent(telefone, javax.swing.GroupLayout.PREFERRED_SIZE, 221, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel10)
-                            .addComponent(bairro, javax.swing.GroupLayout.PREFERRED_SIZE, 221, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel12)
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                .addComponent(complemento, javax.swing.GroupLayout.PREFERRED_SIZE, 221, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addComponent(btModificar)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                    .addComponent(btSalvar, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(btCancelar, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
-                        .addGap(53, 53, 53))
+                            .addComponent(codigoPessoa, javax.swing.GroupLayout.PREFERRED_SIZE, 117, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel2)))
+                    .addComponent(email, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(endereco)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(cpf, javax.swing.GroupLayout.PREFERRED_SIZE, 932, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap(51, Short.MAX_VALUE))))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel8)
+                            .addComponent(uf, javax.swing.GroupLayout.PREFERRED_SIZE, 82, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(jLabel14)
+                            .addComponent(cep, javax.swing.GroupLayout.PREFERRED_SIZE, 242, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(29, 29, 29)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel9)
+                            .addComponent(cidade)))
+                    .addComponent(imagemUsuario, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel6)
+                            .addComponent(jLabel4)
+                            .addComponent(jLabel11)
+                            .addComponent(imagemURL))
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addComponent(cpf))
+                .addGap(30, 30, 30)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jLabel5)
+                    .addComponent(telefone, javax.swing.GroupLayout.DEFAULT_SIZE, 221, Short.MAX_VALUE)
+                    .addComponent(jLabel10)
+                    .addComponent(bairro, javax.swing.GroupLayout.DEFAULT_SIZE, 221, Short.MAX_VALUE)
+                    .addComponent(jLabel12)
+                    .addComponent(complemento, javax.swing.GroupLayout.DEFAULT_SIZE, 221, Short.MAX_VALUE)
+                    .addComponent(btModificar, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addComponent(btSalvar, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(btCancelar, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(imagemURL1)
+                    .addComponent(senha, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(53, 53, 53))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -533,13 +594,19 @@ public class SeusDados extends javax.swing.JInternalFrame {
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(telefone, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(imagemURL1, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(44, 44, 44))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(41, 41, 41)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(cpf, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(imagem, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                            .addComponent(imagem, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(0, 0, Short.MAX_VALUE)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(cpf, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 45, Short.MAX_VALUE)
+                                    .addComponent(senha, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
@@ -561,9 +628,7 @@ public class SeusDados extends javax.swing.JInternalFrame {
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(jLabel12, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(complemento, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jLabel13, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addComponent(complemento, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE))))
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel8, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -572,20 +637,20 @@ public class SeusDados extends javax.swing.JInternalFrame {
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(uf, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(cidade, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(senha, javax.swing.GroupLayout.DEFAULT_SIZE, 38, Short.MAX_VALUE)
-                    .addComponent(btCancelar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
+                        .addGap(6, 6, 6)
+                        .addComponent(btCancelar, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(btSalvar, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
-                        .addComponent(btModificar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btModificar, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(imagemURL, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(imagemUsuario, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(35, 35, 35))
+                .addContainerGap(51, Short.MAX_VALUE))
         );
 
         pack();
@@ -612,17 +677,15 @@ public class SeusDados extends javax.swing.JInternalFrame {
                     ((JTextField) component).setEnabled(true);
                 }
             }
-            // Desabilita o campo de código, que não deve ser editado
             codigoPessoa.setEnabled(false);
-            // Controla visibilidade dos botões
+            imagemUsuario.setEnabled(true);
             btCancelar.setVisible(true);
             btSalvar.setVisible(true);
             btModificar.setVisible(false);
-            imagemUsuario.setEnabled(true);
+            senha.setEnabled(true);
         } else {
             LOGGER.info("Alteração de dados cancelada pelo usuário.");
         }
-
 
     }//GEN-LAST:event_btModificarActionPerformed
     /**
@@ -636,13 +699,7 @@ public class SeusDados extends javax.swing.JInternalFrame {
     private void btCancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btCancelarActionPerformed
         LOGGER.info("Cancelando alterações e restaurando interface.");
         inicializarInterface();
-        btModificar.setVisible(true);
-        // Restaura a imagem original, se disponível
-        if (caminhoImagem != null && !caminhoImagem.isEmpty()) {
-            imagem.setIcon(new ImageIcon("imagens/usuarios/" + caminhoImagem));
-        } else {
-            imagem.setIcon(null); // Remove a imagem se não houver uma original
-        }
+        carregarDadosUsuario(codigoUsuario);
 
     }//GEN-LAST:event_btCancelarActionPerformed
 
@@ -660,15 +717,13 @@ public class SeusDados extends javax.swing.JInternalFrame {
             try {
                 atualizarDados();
                 inicializarInterface();
-                btModificar.setVisible(true);
-                carregarDadosUsuario(codigoUsuario); // Recarrega os dados atualizados
+                carregarDadosUsuario(codigoUsuario);
             } catch (SQLException ex) {
-                LOGGER.severe("Erro ao atualizar dados no banco: " + ex.getMessage());
                 JOptionPane.showMessageDialog(this,
                         "Erro ao atualizar os dados. Tente novamente.",
                         "Erro",
                         JOptionPane.ERROR_MESSAGE);
-                dispose(); // Fecha a janela em caso de erro
+                dispose();
             }
         } else {
             LOGGER.info("Nenhuma alteração detectada. Salvamento não necessário.");
@@ -677,7 +732,6 @@ public class SeusDados extends javax.swing.JInternalFrame {
                     "Informação",
                     JOptionPane.INFORMATION_MESSAGE);
             inicializarInterface();
-            btModificar.setVisible(true);
         }
 
     }//GEN-LAST:event_btSalvarActionPerformed
@@ -688,7 +742,7 @@ public class SeusDados extends javax.swing.JInternalFrame {
 
     private void imagemUsuarioFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_imagemUsuarioFocusGained
         if (contadorMensagem == 0) {
-            contadorMensagem += 1;
+            contadorMensagem++;
             funcoes.Avisos("aviso.png", "Atenção: Para imagens, você deve fornecer URLs válidos de imagens da internet.\nExemplo: https://www.exemplo.com/imagem.jpg");
         }
     }//GEN-LAST:event_imagemUsuarioFocusGained
@@ -708,12 +762,12 @@ public class SeusDados extends javax.swing.JInternalFrame {
     private javax.swing.JTextField endereco;
     private javax.swing.JLabel imagem;
     private javax.swing.JLabel imagemURL;
+    private javax.swing.JLabel imagemURL1;
     private javax.swing.JTextField imagemUsuario;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
-    private javax.swing.JLabel jLabel13;
     private javax.swing.JLabel jLabel14;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel4;
@@ -721,7 +775,7 @@ public class SeusDados extends javax.swing.JInternalFrame {
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
-    private javax.swing.JTextField senha;
+    private javax.swing.JPasswordField senha;
     private javax.swing.JTextField telefone;
     private javax.swing.JComboBox<String> uf;
     private javax.swing.JTextField usuario;
