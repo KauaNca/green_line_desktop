@@ -2,9 +2,9 @@
 
 <Form version="1.3" maxVersion="1.9" type="org.netbeans.modules.form.forminfo.JInternalFrameFormInfo">
   <NonVisualComponents>
-    <Component class="javax.swing.ButtonGroup" name="gpPromocao">
+    <Component class="javax.swing.ButtonGroup" name="grupoPromocao">
     </Component>
-    <Component class="javax.swing.ButtonGroup" name="gpAtivo">
+    <Component class="javax.swing.ButtonGroup" name="grupoAtivo">
     </Component>
   </NonVisualComponents>
   <Properties>
@@ -39,13 +39,13 @@
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Group type="102" attributes="0">
                               <Group type="103" groupAlignment="0" attributes="0">
-                                  <Component id="jScrollPane4" max="32767" attributes="0"/>
+                                  <Component id="scrollDescricaoCurta" max="32767" attributes="0"/>
                                   <Group type="102" alignment="0" attributes="0">
-                                      <Component id="produtoPesquisar" min="-2" pref="741" max="-2" attributes="0"/>
+                                      <Component id="campoPesquisa" min="-2" pref="741" max="-2" attributes="0"/>
                                       <EmptySpace max="32767" attributes="0"/>
                                       <Component id="jLabel17" min="-2" max="-2" attributes="0"/>
                                       <EmptySpace max="-2" attributes="0"/>
-                                      <Component id="codigo" min="-2" pref="86" max="-2" attributes="0"/>
+                                      <Component id="campoCodigo" min="-2" pref="86" max="-2" attributes="0"/>
                                   </Group>
                                   <Group type="102" attributes="0">
                                       <Group type="103" groupAlignment="0" attributes="0">
@@ -57,12 +57,12 @@
                                   <Group type="102" attributes="0">
                                       <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
                                       <EmptySpace max="-2" attributes="0"/>
-                                      <Component id="nomeProduto" max="32767" attributes="0"/>
+                                      <Component id="campoNomeProduto" max="32767" attributes="0"/>
                                   </Group>
                               </Group>
                               <EmptySpace min="-2" pref="4" max="-2" attributes="0"/>
                           </Group>
-                          <Component id="jScrollPane3" max="32767" attributes="0"/>
+                          <Component id="scrollDescricao" max="32767" attributes="0"/>
                       </Group>
                   </Group>
                   <Group type="102" alignment="1" attributes="0">
@@ -70,32 +70,32 @@
                           <Group type="102" attributes="0">
                               <Component id="jLabel7" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
-                              <Component id="marca" min="-2" pref="361" max="-2" attributes="0"/>
+                              <Component id="campoMarca" min="-2" pref="361" max="-2" attributes="0"/>
                               <EmptySpace min="-2" pref="35" max="-2" attributes="0"/>
                               <Component id="jLabel9" min="-2" max="-2" attributes="0"/>
                               <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                              <Component id="parcelas" min="-2" pref="189" max="-2" attributes="0"/>
+                              <Component id="comboParcelas" min="-2" pref="189" max="-2" attributes="0"/>
                           </Group>
                           <Component id="jLabel16" alignment="0" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="32767" attributes="0"/>
                       <Component id="jLabel8" min="-2" max="-2" attributes="0"/>
                       <EmptySpace min="-2" pref="61" max="-2" attributes="0"/>
-                      <Component id="avaliacao" min="-2" pref="92" max="-2" attributes="0"/>
+                      <Component id="comboAvaliacao" min="-2" pref="92" max="-2" attributes="0"/>
                       <EmptySpace type="unrelated" max="-2" attributes="0"/>
                       <Component id="jLabel10" min="-2" max="-2" attributes="0"/>
                       <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                      <Component id="totalAvaliacao" min="-2" pref="86" max="-2" attributes="0"/>
+                      <Component id="campoTotalAvaliacoes" min="-2" pref="86" max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
                       <Group type="103" groupAlignment="1" max="-2" attributes="0">
-                          <Component id="imagem1" alignment="0" max="32767" attributes="0"/>
-                          <Component id="imagem2" alignment="0" min="-2" pref="1234" max="-2" attributes="0"/>
+                          <Component id="campoImagem1" alignment="0" max="32767" attributes="0"/>
+                          <Component id="campoImagem2" alignment="0" min="-2" pref="1234" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="1" attributes="0">
-                          <Component id="excluirImagem2" min="-2" pref="42" max="-2" attributes="0"/>
-                          <Component id="excluirImagem1" min="-2" pref="42" max="-2" attributes="0"/>
+                          <Component id="botaoExcluirImagem2" min="-2" pref="42" max="-2" attributes="0"/>
+                          <Component id="botaoExcluirImagem1" min="-2" pref="42" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                   </Group>
@@ -104,12 +104,12 @@
                           <Group type="102" alignment="0" attributes="0">
                               <Component id="jLabel4" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
-                              <Component id="preco" min="-2" pref="180" max="-2" attributes="0"/>
+                              <Component id="campoPreco" min="-2" pref="180" max="-2" attributes="0"/>
                           </Group>
                           <Group type="102" alignment="0" attributes="0">
                               <Component id="jLabel11" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
-                              <Component id="estoque" min="-2" pref="102" max="-2" attributes="0"/>
+                              <Component id="campoEstoque" min="-2" pref="102" max="-2" attributes="0"/>
                           </Group>
                       </Group>
                       <EmptySpace type="separate" max="-2" attributes="0"/>
@@ -117,32 +117,32 @@
                           <Group type="102" attributes="0">
                               <Component id="jLabel14" min="-2" pref="61" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
-                              <Component id="ativoSim" min="-2" max="-2" attributes="0"/>
+                              <Component id="radioAtivoSim" min="-2" max="-2" attributes="0"/>
                               <EmptySpace type="separate" max="-2" attributes="0"/>
-                              <Component id="ativoNao" min="-2" max="-2" attributes="0"/>
+                              <Component id="radioAtivoNao" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="32767" attributes="0"/>
                               <Component id="jLabel12" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
-                              <Component id="peso" min="-2" pref="162" max="-2" attributes="0"/>
+                              <Component id="campoPeso" min="-2" pref="162" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="jLabel13" min="-2" max="-2" attributes="0"/>
                               <EmptySpace min="-2" pref="36" max="-2" attributes="0"/>
-                              <Component id="dimensoes" min="-2" pref="382" max="-2" attributes="0"/>
+                              <Component id="campoDimensoes" min="-2" pref="382" max="-2" attributes="0"/>
                           </Group>
                           <Group type="102" attributes="0">
                               <Component id="jLabel6" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
-                              <Component id="promoSim" min="-2" max="-2" attributes="0"/>
+                              <Component id="radioPromocaoSim" min="-2" max="-2" attributes="0"/>
                               <EmptySpace type="separate" max="-2" attributes="0"/>
-                              <Component id="promoNao" min="-2" max="-2" attributes="0"/>
+                              <Component id="radioPromocaoNao" min="-2" max="-2" attributes="0"/>
                               <EmptySpace min="-2" pref="28" max="-2" attributes="0"/>
                               <Component id="jLabel5" min="-2" max="-2" attributes="0"/>
                               <EmptySpace type="separate" max="-2" attributes="0"/>
-                              <Component id="precoPromocional" max="32767" attributes="0"/>
+                              <Component id="campoPrecoPromocional" max="32767" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="jLabel15" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
-                              <Component id="categorias" min="-2" pref="317" max="-2" attributes="0"/>
+                              <Component id="comboCategorias" min="-2" pref="317" max="-2" attributes="0"/>
                           </Group>
                       </Group>
                   </Group>
@@ -151,9 +151,9 @@
           </Group>
           <Group type="102" alignment="1" attributes="0">
               <EmptySpace max="32767" attributes="0"/>
-              <Component id="btAtualizar" min="-2" max="-2" attributes="0"/>
+              <Component id="botaoAtualizar" min="-2" max="-2" attributes="0"/>
               <EmptySpace type="separate" max="-2" attributes="0"/>
-              <Component id="btCancelar" min="-2" max="-2" attributes="0"/>
+              <Component id="botaoCancelar" min="-2" max="-2" attributes="0"/>
               <EmptySpace min="-2" pref="37" max="-2" attributes="0"/>
           </Group>
       </Group>
@@ -165,23 +165,23 @@
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" attributes="0">
                       <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="produtoPesquisar" alignment="3" min="-2" pref="40" max="-2" attributes="0"/>
-                          <Component id="codigo" alignment="3" min="-2" pref="49" max="-2" attributes="0"/>
+                          <Component id="campoPesquisa" alignment="3" min="-2" pref="40" max="-2" attributes="0"/>
+                          <Component id="campoCodigo" alignment="3" min="-2" pref="49" max="-2" attributes="0"/>
                           <Component id="jLabel17" alignment="3" min="-2" pref="40" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace min="-2" pref="21" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
                           <Component id="jLabel1" alignment="3" max="32767" attributes="0"/>
-                          <Component id="nomeProduto" alignment="3" min="-2" pref="40" max="-2" attributes="0"/>
+                          <Component id="campoNomeProduto" alignment="3" min="-2" pref="40" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="jLabel3" min="-2" pref="40" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jScrollPane4" min="-2" pref="54" max="-2" attributes="0"/>
+                      <Component id="scrollDescricaoCurta" min="-2" pref="54" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="jLabel2" min="-2" pref="40" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jScrollPane3" min="-2" pref="102" max="-2" attributes="0"/>
+                      <Component id="scrollDescricao" min="-2" pref="102" max="-2" attributes="0"/>
                   </Group>
                   <Component id="imagemProduto" min="-2" pref="349" max="-2" attributes="0"/>
               </Group>
@@ -192,8 +192,8 @@
                           <Group type="102" alignment="0" attributes="0">
                               <Group type="103" groupAlignment="0" attributes="0">
                                   <Group type="103" alignment="0" groupAlignment="1" max="-2" attributes="0">
-                                      <Component id="promoNao" alignment="0" pref="43" max="32767" attributes="0"/>
-                                      <Component id="promoSim" alignment="0" max="32767" attributes="0"/>
+                                      <Component id="radioPromocaoNao" alignment="0" pref="43" max="32767" attributes="0"/>
+                                      <Component id="radioPromocaoSim" alignment="0" max="32767" attributes="0"/>
                                       <Component id="jLabel4" alignment="0" max="32767" attributes="0"/>
                                       <Component id="jLabel6" alignment="0" max="32767" attributes="0"/>
                                   </Group>
@@ -203,21 +203,21 @@
                           </Group>
                           <Group type="102" alignment="0" attributes="0">
                               <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                                  <Component id="categorias" pref="47" max="32767" attributes="0"/>
-                                  <Component id="preco" min="-2" pref="43" max="-2" attributes="0"/>
-                                  <Component id="precoPromocional" alignment="0" min="-2" pref="43" max="-2" attributes="0"/>
+                                  <Component id="comboCategorias" pref="47" max="32767" attributes="0"/>
+                                  <Component id="campoPreco" min="-2" pref="43" max="-2" attributes="0"/>
+                                  <Component id="campoPrecoPromocional" alignment="0" min="-2" pref="43" max="-2" attributes="0"/>
                                   <Component id="jLabel15" max="32767" attributes="0"/>
                               </Group>
                               <EmptySpace type="unrelated" max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="3" attributes="0">
                                   <Component id="jLabel11" alignment="3" min="-2" pref="49" max="-2" attributes="0"/>
-                                  <Component id="estoque" alignment="3" min="-2" pref="49" max="-2" attributes="0"/>
+                                  <Component id="campoEstoque" alignment="3" min="-2" pref="49" max="-2" attributes="0"/>
                                   <Component id="jLabel14" alignment="3" min="-2" pref="49" max="-2" attributes="0"/>
-                                  <Component id="ativoSim" alignment="3" min="-2" pref="22" max="-2" attributes="0"/>
-                                  <Component id="ativoNao" alignment="3" min="-2" pref="22" max="-2" attributes="0"/>
+                                  <Component id="radioAtivoSim" alignment="3" min="-2" pref="22" max="-2" attributes="0"/>
+                                  <Component id="radioAtivoNao" alignment="3" min="-2" pref="22" max="-2" attributes="0"/>
                                   <Component id="jLabel12" alignment="3" max="32767" attributes="0"/>
-                                  <Component id="peso" alignment="3" min="-2" pref="49" max="-2" attributes="0"/>
-                                  <Component id="dimensoes" alignment="3" min="-2" pref="49" max="-2" attributes="0"/>
+                                  <Component id="campoPeso" alignment="3" min="-2" pref="49" max="-2" attributes="0"/>
+                                  <Component id="campoDimensoes" alignment="3" min="-2" pref="49" max="-2" attributes="0"/>
                                   <Component id="jLabel13" alignment="3" min="-2" pref="49" max="-2" attributes="0"/>
                               </Group>
                               <EmptySpace min="0" pref="18" max="32767" attributes="0"/>
@@ -226,20 +226,20 @@
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Group type="103" alignment="0" groupAlignment="3" attributes="0">
                               <Component id="jLabel8" alignment="3" max="32767" attributes="0"/>
-                              <Component id="avaliacao" alignment="3" min="-2" pref="49" max="-2" attributes="0"/>
+                              <Component id="comboAvaliacao" alignment="3" min="-2" pref="49" max="-2" attributes="0"/>
                           </Group>
                           <Group type="103" groupAlignment="3" attributes="0">
-                              <Component id="totalAvaliacao" alignment="3" min="-2" pref="49" max="-2" attributes="0"/>
+                              <Component id="campoTotalAvaliacoes" alignment="3" min="-2" pref="49" max="-2" attributes="0"/>
                               <Component id="jLabel10" alignment="3" min="-2" pref="49" max="-2" attributes="0"/>
                           </Group>
                           <Group type="102" alignment="0" attributes="0">
                               <Group type="103" groupAlignment="0" attributes="0">
                                   <Group type="103" groupAlignment="3" attributes="0">
                                       <Component id="jLabel7" alignment="3" min="-2" pref="44" max="-2" attributes="0"/>
-                                      <Component id="marca" alignment="3" min="-2" pref="44" max="-2" attributes="0"/>
+                                      <Component id="campoMarca" alignment="3" min="-2" pref="44" max="-2" attributes="0"/>
                                   </Group>
                                   <Group type="103" groupAlignment="0" attributes="0">
-                                      <Component id="parcelas" alignment="1" min="-2" pref="49" max="-2" attributes="0"/>
+                                      <Component id="comboParcelas" alignment="1" min="-2" pref="49" max="-2" attributes="0"/>
                                       <Component id="jLabel9" alignment="1" min="-2" pref="49" max="-2" attributes="0"/>
                                   </Group>
                               </Group>
@@ -248,22 +248,22 @@
                           </Group>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="imagem1" min="-2" pref="40" max="-2" attributes="0"/>
+                      <Component id="campoImagem1" min="-2" pref="40" max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" attributes="0">
                       <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
-                      <Component id="excluirImagem1" min="-2" pref="40" max="-2" attributes="0"/>
+                      <Component id="botaoExcluirImagem1" min="-2" pref="40" max="-2" attributes="0"/>
                   </Group>
               </Group>
               <EmptySpace type="unrelated" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="1" attributes="0">
-                  <Component id="imagem2" min="-2" pref="40" max="-2" attributes="0"/>
-                  <Component id="excluirImagem2" min="-2" pref="40" max="-2" attributes="0"/>
+                  <Component id="campoImagem2" min="-2" pref="40" max="-2" attributes="0"/>
+                  <Component id="botaoExcluirImagem2" min="-2" pref="40" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="btAtualizar" alignment="3" min="-2" pref="46" max="-2" attributes="0"/>
-                  <Component id="btCancelar" alignment="3" min="-2" pref="46" max="-2" attributes="0"/>
+                  <Component id="botaoAtualizar" alignment="3" min="-2" pref="46" max="-2" attributes="0"/>
+                  <Component id="botaoCancelar" alignment="3" min="-2" pref="46" max="-2" attributes="0"/>
               </Group>
               <EmptySpace min="-2" pref="12" max="-2" attributes="0"/>
           </Group>
@@ -273,7 +273,7 @@
   <SubComponents>
     <Component class="javax.swing.JLabel" name="imagemProduto">
     </Component>
-    <Component class="javax.swing.JTextField" name="produtoPesquisar">
+    <Component class="javax.swing.JTextField" name="campoPesquisa">
       <Properties>
         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
           <Font name="Inter Light" size="18" style="0"/>
@@ -283,7 +283,7 @@
         </Property>
       </Properties>
       <Events>
-        <EventHandler event="keyReleased" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="produtoPesquisarKeyReleased"/>
+        <EventHandler event="keyReleased" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="campoPesquisaKeyReleased"/>
       </Events>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel1">
@@ -318,7 +318,7 @@
         <Property name="text" type="java.lang.String" value="Pre&#xe7;o*"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JTextField" name="preco">
+    <Component class="javax.swing.JTextField" name="campoPreco">
       <Properties>
         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
           <Font name="Inter Light" size="18" style="0"/>
@@ -333,7 +333,7 @@
         <Property name="text" type="java.lang.String" value="Pre&#xe7;o promocional"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JTextField" name="precoPromocional">
+    <Component class="javax.swing.JTextField" name="campoPrecoPromocional">
       <Properties>
         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
           <Font name="Inter Light" size="18" style="0"/>
@@ -348,10 +348,10 @@
         <Property name="text" type="java.lang.String" value="Promo&#xe7;&#xe3;o*"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JRadioButton" name="promoSim">
+    <Component class="javax.swing.JRadioButton" name="radioPromocaoSim">
       <Properties>
         <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
-          <ComponentRef name="gpPromocao"/>
+          <ComponentRef name="grupoPromocao"/>
         </Property>
         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
           <Font name="Arial" size="18" style="0"/>
@@ -359,13 +359,13 @@
         <Property name="text" type="java.lang.String" value="Sim"/>
       </Properties>
       <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="promoSimActionPerformed"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="radioPromocaoSimActionPerformed"/>
       </Events>
     </Component>
-    <Component class="javax.swing.JRadioButton" name="promoNao">
+    <Component class="javax.swing.JRadioButton" name="radioPromocaoNao">
       <Properties>
         <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
-          <ComponentRef name="gpPromocao"/>
+          <ComponentRef name="grupoPromocao"/>
         </Property>
         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
           <Font name="Arial" size="18" style="0"/>
@@ -373,7 +373,7 @@
         <Property name="text" type="java.lang.String" value="N&#xe3;o"/>
       </Properties>
       <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="promoNaoActionPerformed"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="radioPromocaoNaoActionPerformed"/>
       </Events>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel7">
@@ -384,7 +384,7 @@
         <Property name="text" type="java.lang.String" value="Marca*"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JTextField" name="totalAvaliacao">
+    <Component class="javax.swing.JTextField" name="campoTotalAvaliacoes">
       <Properties>
         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
           <Font name="Inter Light" size="16" style="0"/>
@@ -399,7 +399,7 @@
         <Property name="text" type="java.lang.String" value="Avalia&#xe7;&#xe3;o"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JComboBox" name="avaliacao">
+    <Component class="javax.swing.JComboBox" name="comboAvaliacao">
       <Properties>
         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
           <Font name="Inter Light" size="18" style="0"/>
@@ -421,7 +421,7 @@
         </Property>
       </Properties>
       <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="avaliacaoActionPerformed"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="comboAvaliacaoActionPerformed"/>
       </Events>
       <AuxValues>
         <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;String&gt;"/>
@@ -435,7 +435,7 @@
         <Property name="text" type="java.lang.String" value="Total de avalia&#xe7;&#xf5;es"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JTextField" name="marca">
+    <Component class="javax.swing.JTextField" name="campoMarca">
       <Properties>
         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
           <Font name="Inter Light" size="18" style="0"/>
@@ -450,7 +450,7 @@
         <Property name="text" type="java.lang.String" value="Estoque*"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JTextField" name="estoque">
+    <Component class="javax.swing.JTextField" name="campoEstoque">
       <Properties>
         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
           <Font name="Inter Light" size="18" style="0"/>
@@ -465,7 +465,7 @@
         <Property name="text" type="java.lang.String" value="Peso (kg)"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JTextField" name="peso">
+    <Component class="javax.swing.JTextField" name="campoPeso">
       <Properties>
         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
           <Font name="Inter Light" size="18" style="0"/>
@@ -480,7 +480,7 @@
         <Property name="text" type="java.lang.String" value="Dimens&#xf5;es"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JTextField" name="dimensoes">
+    <Component class="javax.swing.JTextField" name="campoDimensoes">
       <Properties>
         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
           <Font name="Inter Light" size="18" style="0"/>
@@ -495,10 +495,10 @@
         <Property name="text" type="java.lang.String" value="Ativo*"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JRadioButton" name="ativoSim">
+    <Component class="javax.swing.JRadioButton" name="radioAtivoSim">
       <Properties>
         <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
-          <ComponentRef name="gpAtivo"/>
+          <ComponentRef name="grupoAtivo"/>
         </Property>
         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
           <Font name="Arial" size="18" style="0"/>
@@ -506,13 +506,13 @@
         <Property name="text" type="java.lang.String" value="Sim"/>
       </Properties>
       <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="ativoSimActionPerformed"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="radioAtivoSimActionPerformed"/>
       </Events>
     </Component>
-    <Component class="javax.swing.JRadioButton" name="ativoNao">
+    <Component class="javax.swing.JRadioButton" name="radioAtivoNao">
       <Properties>
         <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
-          <ComponentRef name="gpAtivo"/>
+          <ComponentRef name="grupoAtivo"/>
         </Property>
         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
           <Font name="Arial" size="18" style="0"/>
@@ -520,7 +520,7 @@
         <Property name="text" type="java.lang.String" value="N&#xe3;o"/>
       </Properties>
       <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="ativoNaoActionPerformed"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="radioAtivoNaoActionPerformed"/>
       </Events>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel9">
@@ -531,7 +531,7 @@
         <Property name="text" type="java.lang.String" value="Parcelas*"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JComboBox" name="parcelas">
+    <Component class="javax.swing.JComboBox" name="comboParcelas">
       <Properties>
         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
           <Font name="Inter Light" size="18" style="0"/>
@@ -555,7 +555,7 @@
         </Property>
       </Properties>
       <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="parcelasActionPerformed"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="comboParcelasActionPerformed"/>
       </Events>
       <AuxValues>
         <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;String&gt;"/>
@@ -569,7 +569,7 @@
         <Property name="text" type="java.lang.String" value="Categorias*"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JComboBox" name="categorias">
+    <Component class="javax.swing.JComboBox" name="comboCategorias">
       <Properties>
         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
           <Font name="Inter Light" size="18" style="0"/>
@@ -592,7 +592,7 @@
         <Property name="text" type="java.lang.String" value="Imagens (URL)"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JTextField" name="imagem2">
+    <Component class="javax.swing.JTextField" name="campoImagem2">
       <Properties>
         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
           <Font name="Inter Light" size="18" style="0"/>
@@ -602,11 +602,11 @@
         </Property>
       </Properties>
       <Events>
-        <EventHandler event="focusGained" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="imagem2FocusGained"/>
-        <EventHandler event="focusLost" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="imagem2FocusLost"/>
+        <EventHandler event="focusGained" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="campoImagem2FocusGained"/>
+        <EventHandler event="focusLost" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="campoImagem2FocusLost"/>
       </Events>
     </Component>
-    <Component class="javax.swing.JTextField" name="imagem1">
+    <Component class="javax.swing.JTextField" name="campoImagem1">
       <Properties>
         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
           <Font name="Inter Light" size="18" style="0"/>
@@ -616,11 +616,11 @@
         </Property>
       </Properties>
       <Events>
-        <EventHandler event="focusGained" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="imagem1FocusGained"/>
-        <EventHandler event="focusLost" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="imagem1FocusLost"/>
+        <EventHandler event="focusGained" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="campoImagem1FocusGained"/>
+        <EventHandler event="focusLost" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="campoImagem1FocusLost"/>
       </Events>
     </Component>
-    <Component class="javax.swing.JButton" name="btAtualizar">
+    <Component class="javax.swing.JButton" name="botaoAtualizar">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="33" green="ff" red="66" type="rgb"/>
@@ -634,10 +634,10 @@
         <Property name="text" type="java.lang.String" value="Atualizar"/>
       </Properties>
       <Events>
-        <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="btAtualizarMouseClicked"/>
+        <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="botaoAtualizarMouseClicked"/>
       </Events>
     </Component>
-    <Component class="javax.swing.JButton" name="btCancelar">
+    <Component class="javax.swing.JButton" name="botaoCancelar">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="99" green="99" red="99" type="rgb"/>
@@ -651,17 +651,17 @@
         <Property name="text" type="java.lang.String" value="Cancelar"/>
       </Properties>
       <Events>
-        <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="btCancelarMouseClicked"/>
+        <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="botaoCancelarMouseClicked"/>
       </Events>
     </Component>
-    <Container class="javax.swing.JScrollPane" name="jScrollPane3">
+    <Container class="javax.swing.JScrollPane" name="scrollDescricao">
       <AuxValues>
         <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
       </AuxValues>
 
       <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
       <SubComponents>
-        <Component class="javax.swing.JTextArea" name="descricaoGeral">
+        <Component class="javax.swing.JTextArea" name="campoDescricaoGeral">
           <Properties>
             <Property name="columns" type="int" value="20"/>
             <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
@@ -672,14 +672,14 @@
         </Component>
       </SubComponents>
     </Container>
-    <Container class="javax.swing.JScrollPane" name="jScrollPane4">
+    <Container class="javax.swing.JScrollPane" name="scrollDescricaoCurta">
       <AuxValues>
         <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
       </AuxValues>
 
       <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
       <SubComponents>
-        <Component class="javax.swing.JTextArea" name="descricaoCurta">
+        <Component class="javax.swing.JTextArea" name="campoDescricaoCurta">
           <Properties>
             <Property name="columns" type="int" value="20"/>
             <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
@@ -690,24 +690,24 @@
         </Component>
       </SubComponents>
     </Container>
-    <Component class="javax.swing.JLabel" name="excluirImagem2">
+    <Component class="javax.swing.JLabel" name="botaoExcluirImagem2">
       <Events>
-        <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="excluirImagem2MouseClicked"/>
+        <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="botaoExcluirImagem2MouseClicked"/>
       </Events>
     </Component>
-    <Component class="javax.swing.JLabel" name="excluirImagem1">
+    <Component class="javax.swing.JLabel" name="botaoExcluirImagem1">
       <Events>
-        <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="excluirImagem1MouseClicked"/>
+        <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="botaoExcluirImagem1MouseClicked"/>
       </Events>
     </Component>
-    <Component class="javax.swing.JTextField" name="codigo">
+    <Component class="javax.swing.JTextField" name="campoCodigo">
       <Properties>
         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
           <Font name="Inter Light" size="18" style="0"/>
         </Property>
       </Properties>
       <Events>
-        <EventHandler event="keyPressed" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="codigoKeyPressed"/>
+        <EventHandler event="keyPressed" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="campoCodigoKeyPressed"/>
       </Events>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel17">
@@ -718,14 +718,14 @@
         <Property name="text" type="java.lang.String" value="Cod"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JTextField" name="nomeProduto">
+    <Component class="javax.swing.JTextField" name="campoNomeProduto">
       <Properties>
         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
           <Font name="Inter Light" size="18" style="0"/>
         </Property>
       </Properties>
       <Events>
-        <EventHandler event="keyReleased" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="nomeProdutoKeyReleased"/>
+        <EventHandler event="keyReleased" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="campoNomeProdutoKeyReleased"/>
       </Events>
     </Component>
   </SubComponents>
