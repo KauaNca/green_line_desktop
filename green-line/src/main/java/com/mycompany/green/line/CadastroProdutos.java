@@ -1,6 +1,6 @@
 package com.mycompany.green.line;
 
-
+import java.awt.Component;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -64,6 +64,8 @@ public class CadastroProdutos extends javax.swing.JInternalFrame {
         excluirImagem2.setIcon(redimensionamentoDeImagem(new ImageIcon("imagens/erro.png"), 42, 40));
         promoNao.setSelected(true);
         precoPromocional.setEnabled(false);
+        produtoAtivo = true;
+        ativoSim.setSelected(true);
         funcoes.aplicarMascaraNomeNumero(nomeProduto);
         funcoes.aplicarMascaraNome(marca);
         funcoes.aplicarMascaraPreco(preco);
@@ -74,26 +76,21 @@ public class CadastroProdutos extends javax.swing.JInternalFrame {
         funcoes.aplicarMascaraTextoNumerico(descricaoGeral);
         funcoes.aplicarMascaraTextoNumerico(descricaoCurta);
         buscarCategorias();
-       ImageIcon originalIcon = new ImageIcon(TelaComImagem.class.getResource("/imagens/logo.png"));
-Image img = originalIcon.getImage();
-Image resizedImg = img.getScaledInstance(32, 32, Image.SCALE_SMOOTH);
-ImageIcon resizedIcon = new ImageIcon(resizedImg);
-setFrameIcon(resizedIcon);
+        ImageIcon originalIcon = new ImageIcon(TelaComImagem.class.getResource("/imagens/logo.png"));
+        Image img = originalIcon.getImage();
+        Image resizedImg = img.getScaledInstance(32, 32, Image.SCALE_SMOOTH);
+        ImageIcon resizedIcon = new ImageIcon(resizedImg);
+        setFrameIcon(resizedIcon);
 
-setVisible(true);
-
+        setVisible(true);
 
         setVisible(true);
     }
 
-    private void cadastrarProduto() {
-        // 1. Validar campos obrigatórios
-        if (!camposObrigatorios()) {
-            funcoes.Avisos("aviso.jpg", "Preencha todos os campos obrigatórios!");
+    public void cadastrarProduto() {
+        if (camposObrigatorios()) {
             return;
         }
-
-        // 2. Verificar imagens (opcional)
         if (verificacaoDeImagens()) {
             return;
         }
@@ -105,46 +102,31 @@ setVisible(true);
 
         try {
             System.out.println("Iniciando cadastro...");
-            pegarRespostas(); // Obter valores dos campos
+            pegarRespostas();
 
-            // 3. Validar valores numéricos
-            try {
-                new BigDecimal(campoPreco);
-                new BigDecimal(preco_promocional);
-                Integer.parseInt(campoEstoque);
-                Integer.parseInt(campoParcelas);
-                Double.parseDouble(campoPeso);
-                Double.parseDouble(campoAvaliacao);
-                Integer.parseInt(campoQuantidadeAvaliacoes);
-            } catch (NumberFormatException e) {
-                funcoes.Avisos("erro.png", "Valores numéricos inválidos! Verifique os campos numéricos.");
+            if (!validarCamposNumericos()) {
+                funcoes.Avisos("erro.png", "Valores numéricos inválidos! Verifique os campos.");
                 return;
             }
 
-            // 4. Estabelecer conexão
             conexao = Conexao.conexaoBanco();
             if (conexao == null) {
                 funcoes.Avisos("aviso.jpg", "Erro na conexão com o banco de dados!");
                 return;
             }
 
-            // 5. Verificar duplicidade de produto e categoria
-            String sqlCheckProduto = "SELECT COUNT(*) FROM produtos WHERE produto = ?";
-            stmtCheck = conexao.prepareStatement(sqlCheckProduto);
+            // Verificar duplicidade de produto
+            String sqlCheck = "SELECT COUNT(*) FROM produto WHERE produto = ?";
+            stmtCheck = conexao.prepareStatement(sqlCheck);
             stmtCheck.setString(1, produto.trim());
             rs = stmtCheck.executeQuery();
             rs.next();
-            int countProduto = rs.getInt(1);
-            rs.close();
-            stmtCheck.close();
-
-            if (countProduto > 0) {
-                funcoes.Avisos("sinal-de-aviso.png", "Produto ja existente. Por gentileza, insira outra");
+            if (rs.getInt(1) > 0) {
+                funcoes.Avisos("sinal-de-aviso.png", "Produto já existente. Insira outro nome.");
                 return;
-
             }
 
-            // 6. Inserir produto
+            // Inserção no banco
             stmt = conexao.prepareStatement(cadastrarProduto);
             stmt.setString(1, produto.trim());
             stmt.setString(2, descricao);
@@ -165,7 +147,6 @@ setVisible(true);
             stmt.setString(17, categoria.trim());
 
             int linhasAfetadas = stmt.executeUpdate();
-
             if (linhasAfetadas > 0) {
                 funcoes.Avisos("confirmacao.png", "Produto cadastrado com sucesso!");
                 limpar();
@@ -180,102 +161,61 @@ setVisible(true);
             funcoes.Avisos("erro.png", "Erro inesperado: " + e.getMessage());
             e.printStackTrace();
         } finally {
-            // 7. Fechar recursos
-            try {
-                if (rs != null) {
-                    rs.close();
-                }
-                if (stmtCheck != null) {
-                    stmtCheck.close();
-                }
-                if (stmt != null) {
-                    stmt.close();
-                }
-                if (conexao != null) {
-                    conexao.close();
-                }
-            } catch (SQLException e) {
-                funcoes.Avisos("erro.png", "Erro ao fechar recursos: " + e.getMessage());
-                e.printStackTrace();
-            }
+            fecharRecursos(rs, stmtCheck, stmt, conexao);
         }
     }
 
-    private void pegarRespostas() {
-        produto = nomeProduto.getText();
-        descricao = descricaoGeral.getText();
-        descricao_curta = descricaoCurta.getText();
-        campoPreco = preco.getText();
-        preco_promocional = precoPromocional.getText().trim().isEmpty() ? "0.00" : precoPromocional.getText();
-        campoMarca = marca.getText();
+    public void pegarRespostas() {
+        produto = nomeProduto.getText().trim();
+        descricao = descricaoGeral.getText().trim();
+        descricao_curta = descricaoCurta.getText().trim();
+        campoPreco = preco.getText().trim();
+        preco_promocional = precoPromocional.getText().trim().isEmpty() ? "0.00" : precoPromocional.getText().trim();
+        campoMarca = marca.getText().trim();
         campoAvaliacao = avaliacao.getSelectedItem() == null ? "0" : String.valueOf(avaliacao.getSelectedItem());
-        campoQuantidadeAvaliacoes = totalAvaliacao.getText().trim().isEmpty() ? "0" : totalAvaliacao.getText();
-        campoEstoque = estoque.getText().trim().isEmpty() ? "1" : estoque.getText();
+        campoQuantidadeAvaliacoes = totalAvaliacao.getText().trim().isEmpty() ? "0" : totalAvaliacao.getText().trim();
+        campoEstoque = estoque.getText().trim().isEmpty() ? "1" : estoque.getText().trim();
         campoParcelas = parcelas.getSelectedItem() == null ? "1" : String.valueOf(parcelas.getSelectedItem());
-        campoPeso = peso.getText().trim().isEmpty() ? "0" : peso.getText();
-        campoDimensoes = dimensoes.getText().trim().isEmpty() ? "0x0x0" : dimensoes.getText();
-        categoria = categorias.getSelectedItem().toString();
-        campoImagem1 = imagem1.getText();
-        campoImagem2 = imagem2.getText().trim().isEmpty() ? "" : imagem2.getText();
-
+        campoPeso = peso.getText().trim().isEmpty() ? "0" : peso.getText().trim();
+        campoDimensoes = dimensoes.getText().trim().isEmpty() ? "0x0x0" : dimensoes.getText().trim();
+        categoria = categorias.getSelectedItem().toString().trim();
+        campoImagem1 = imagem1.getText().trim();
+        campoImagem2 = imagem2.getText().trim().isEmpty() ? "" : imagem2.getText().trim();
     }
 
-    private boolean camposObrigatorios() {
-        // Validação 1: Nome do Produto
+    public boolean camposObrigatorios() {
         if (nomeProduto.getText().trim().isEmpty()) {
-            funcoes.Avisos("incorreto.jpg", "O campo 'Nome do Produto' é obrigatório!");
-            nomeProduto.requestFocus();
-            return true; // Sai no primeiro erro
+            avisoCampo("Nome do Produto", nomeProduto);
+            return true;
         }
         if (descricaoCurta.getText().trim().isEmpty()) {
-            funcoes.Avisos("incorreto.jpg", "O campo 'Nome do Produto' é obrigatório!");
-            descricaoCurta.requestFocus();
-            return true; // Sai no primeiro erro
+            avisoCampo("Descrição Curta", descricaoCurta);
+            return true;
         }
-
-        // Validação 2: Descrição Geral
         if (descricaoGeral.getText().trim().isEmpty()) {
-            funcoes.Avisos("incorreto.jpg", "O campo 'Descrição Geral' é obrigatório!");
-            descricaoGeral.requestFocus();
+            avisoCampo("Descrição Geral", descricaoGeral);
             return true;
         }
-
-        // Validação 3: Preço
         if (preco.getText().trim().isEmpty()) {
-            funcoes.Avisos("incorreto.jpg", "O campo 'Preço' é obrigatório!");
-            preco.requestFocus();
+            avisoCampo("Preço", preco);
             return true;
         }
-
-        // Validação 4: Estoque
         if (estoque.getText().trim().isEmpty()) {
-            funcoes.Avisos("incorreto.jpg", "O campo 'Estoque' é obrigatório!");
-            estoque.requestFocus();
+            avisoCampo("Estoque", estoque);
             return true;
         }
-
-        // Validação 5: Imagem Principal
         if (imagem1.getText().trim().isEmpty()) {
-            funcoes.Avisos("incorreto.jpg", "O campo 'Imagem Principal' é obrigatório!");
-            imagem1.requestFocus();
+            avisoCampo("Imagem Principal", imagem1);
             return true;
         }
-
-        // Validação 6: Categoria
         if (categorias.getSelectedItem() == null || categorias.getSelectedItem().toString().trim().isEmpty()) {
-            funcoes.Avisos("incorreto.jpg", "Selecione uma 'Categoria'!");
-            categorias.requestFocus();
+            avisoCampo("Categoria", categorias);
             return true;
         }
-
-        // Validação 7: Preço Promocional (se promoção ativa)
         if (promoSim.isSelected() && precoPromocional.getText().trim().isEmpty()) {
-            funcoes.Avisos("incorreto.jpg", "Com promoção ativa, o 'Preço Promocional' é obrigatório!");
-            precoPromocional.requestFocus();
+            avisoCampo("Preço Promocional", precoPromocional);
             return true;
         }
-
-        // Validação 8: Status Ativo/Inativo
         if (!ativoSim.isSelected() && !ativoNao.isSelected()) {
             funcoes.Avisos("incorreto.jpg", "Selecione o status 'Ativo' do produto!");
             return true;
@@ -284,13 +224,18 @@ setVisible(true);
         return false;
     }
 
+    private void avisoCampo(String nomeCampo, Component campo) {
+        funcoes.Avisos("incorreto.jpg", "O campo '" + nomeCampo + "' é obrigatório!");
+        campo.requestFocus();
+    }
+
     public void carregarImagemURL(JTextField campo) {
-        
+
         String imageUrl = campo.getText().trim();
         if (imageUrl.isEmpty() || !imageUrl.contains("http")) {
             return;
         }
-        funcoes.mostrarMensagemCarregando();
+        
         System.out.println("Carregando imagem de URL para o campo: " + campo + " " + imageUrl);
         try {
             URL url = new URL(imageUrl);
@@ -325,14 +270,12 @@ setVisible(true);
         String img1 = imagem1.getText().trim();
         String img2 = imagem2.getText().trim();
 
-        // Se imagem1 estiver vazia, é erro direto (caso necessário)
         if (img1.isEmpty()) {
             JOptionPane.showMessageDialog(null, "Adicione ao menos uma imagem.");
             imagem1.requestFocus();
             return true;
         }
 
-        // Se imagem2 estiver vazia, perguntar ao usuário se quer continuar com uma só
         if (img2.isEmpty()) {
             int resposta = JOptionPane.showConfirmDialog(
                     null,
@@ -343,19 +286,49 @@ setVisible(true);
             );
 
             if (resposta == JOptionPane.YES_OPTION) {
-                return false; // OK com uma imagem só
-            } else if (resposta == JOptionPane.NO_OPTION) {
-                imagem2.requestFocus();
-                System.out.println("Usuário quer múltiplas imagens");
-                return true;
+                return false;
             } else {
-                System.out.println("Usuário fechou a janela");
+                imagem2.requestFocus();
                 return true;
             }
         }
 
-        // Se ambas as imagens estiverem preenchidas
         return false;
+    }
+
+    private boolean validarCamposNumericos() {
+        try {
+            new BigDecimal(campoPreco);
+            new BigDecimal(preco_promocional);
+            Integer.parseInt(campoEstoque);
+            Integer.parseInt(campoParcelas);
+            Double.parseDouble(campoPeso);
+            Double.parseDouble(campoAvaliacao);
+            Integer.parseInt(campoQuantidadeAvaliacoes);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
+
+    private void fecharRecursos(ResultSet rs, PreparedStatement stmt1, PreparedStatement stmt2, Connection conn) {
+        try {
+            if (rs != null) {
+                rs.close();
+            }
+            if (stmt1 != null) {
+                stmt1.close();
+            }
+            if (stmt2 != null) {
+                stmt2.close();
+            }
+            if (conn != null) {
+                conn.close();
+            }
+        } catch (SQLException e) {
+            funcoes.Avisos("erro.png", "Erro ao fechar recursos: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     private ImageIcon semImagem() {
@@ -595,8 +568,10 @@ setVisible(true);
             public void focusGained(java.awt.event.FocusEvent evt) {
                 imagem2FocusGained(evt);
             }
-            public void focusLost(java.awt.event.FocusEvent evt) {
-                imagem2FocusLost(evt);
+        });
+        imagem2.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                imagem2KeyReleased(evt);
             }
         });
 
@@ -605,8 +580,10 @@ setVisible(true);
             public void focusGained(java.awt.event.FocusEvent evt) {
                 imagem1FocusGained(evt);
             }
-            public void focusLost(java.awt.event.FocusEvent evt) {
-                imagem1FocusLost(evt);
+        });
+        imagem1.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                imagem1KeyReleased(evt);
             }
         });
 
@@ -867,14 +844,6 @@ setVisible(true);
         System.out.println("campoParcelas = " + campoParcelas);
     }//GEN-LAST:event_parcelasActionPerformed
 
-    private void imagem1FocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_imagem1FocusLost
-        carregarImagemURL(imagem1);
-    }//GEN-LAST:event_imagem1FocusLost
-
-    private void imagem2FocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_imagem2FocusLost
-        carregarImagemURL(imagem2);
-    }//GEN-LAST:event_imagem2FocusLost
-
     private void excluirImagem1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_excluirImagem1MouseClicked
         imagem1.setText("");
         if (!imagem2.getText().trim().isEmpty()) {
@@ -902,17 +871,25 @@ setVisible(true);
 
     private void imagem1FocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_imagem1FocusGained
         if (contadorMensagem == 0) {
-            contadorMensagem +=1;
+            contadorMensagem += 1;
             funcoes.Avisos("aviso.png", "Atenção: Para imagens, você deve fornecer URLs válidos de imagens da internet.\nExemplo: https://www.exemplo.com/imagem.jpg");
         }
     }//GEN-LAST:event_imagem1FocusGained
 
     private void imagem2FocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_imagem2FocusGained
         if (contadorMensagem == 0) {
-            contadorMensagem +=1;
+            contadorMensagem += 1;
             funcoes.Avisos("aviso.png", "Atenção: Para imagens, você deve fornecer URLs válidos de imagens da internet.\nExemplo: https://www.exemplo.com/imagem.jpg");
         }
     }//GEN-LAST:event_imagem2FocusGained
+
+    private void imagem1KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_imagem1KeyReleased
+        carregarImagemURL(imagem1);
+    }//GEN-LAST:event_imagem1KeyReleased
+
+    private void imagem2KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_imagem2KeyReleased
+        carregarImagemURL(imagem2);
+    }//GEN-LAST:event_imagem2KeyReleased
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

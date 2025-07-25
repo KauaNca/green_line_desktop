@@ -118,7 +118,7 @@ public class EditarProdutos extends javax.swing.JInternalFrame {
 
     }
 
-    private void ativarDesativarCampos(Boolean opcao) {
+    public void ativarDesativarCampos(Boolean opcao) {
         nomeProduto.setEnabled(opcao);
         preco.setEnabled(opcao);
         descricaoGeral.setEnabled(opcao);
@@ -192,7 +192,7 @@ public class EditarProdutos extends javax.swing.JInternalFrame {
         }
     }
 
-    private void atualizarProduto() {
+    public void atualizarProduto() {
         //1. Verificar campos obrigatórios primeiro
         if (camposObrigatorios()) {
             funcoes.Avisos("aviso.jpg", "Preencha todos os campos obrigatórios!");
@@ -246,7 +246,7 @@ public class EditarProdutos extends javax.swing.JInternalFrame {
         }
     }
 
-    private void buscarTodosProdutos() {
+    public void buscarTodosProdutos() {
         try (Connection con = Conexao.conexaoBanco(); PreparedStatement stmt = con.prepareStatement(buscarTodosProdutos)) {
             stmt.setString(1, "%" + produtoPesquisar.getText().toLowerCase() + "%");
             try (ResultSet rs = stmt.executeQuery()) {
@@ -260,7 +260,7 @@ public class EditarProdutos extends javax.swing.JInternalFrame {
         }
     }
 
-    private boolean camposObrigatorios() {
+    public boolean camposObrigatorios() {
         // Validação 1: Nome do Produto
         if (nomeProduto.getText().trim().isEmpty()) {
             funcoes.Avisos("incorreto.jpg", "O campo 'Nome do Produto' é obrigatório!");
@@ -324,7 +324,7 @@ public class EditarProdutos extends javax.swing.JInternalFrame {
         return false;
     }
 
-    private void carregarProduto(String query, String parametro) {
+    public void carregarProduto(String query, String parametro) {
         try (Connection con = Conexao.conexaoBanco(); PreparedStatement stmt = con.prepareStatement(query)) {
             stmt.setString(1, parametro);
             try (ResultSet rs = stmt.executeQuery()) {
@@ -391,7 +391,7 @@ public class EditarProdutos extends javax.swing.JInternalFrame {
         }
     }
 
-    private void pegarRespostas() {
+    public void pegarRespostas() {
         produto = nomeProduto.getText();
         descricao = descricaoGeral.getText();
         descricao_curta = descricaoCurta.getText();
@@ -483,12 +483,12 @@ public class EditarProdutos extends javax.swing.JInternalFrame {
         return false;
     }
 
-    private ImageIcon semImagem() {
+    public ImageIcon semImagem() {
         ImageIcon imagem = new ImageIcon(semImagemEndereco);
         return redimensionamentoDeImagem(imagem, 346, 349);
     }
 
-    private void buscarCategorias() {
+    public void buscarCategorias() {
         try {
             conexao = Conexao.conexaoBanco();
             if (conexao == null) {
@@ -508,7 +508,7 @@ public class EditarProdutos extends javax.swing.JInternalFrame {
         }
     }
 
-    private void limpar() {
+    public void limpar() {
         // Limpa TextFields
         produtoPesquisar.setText("");
         nomeProduto.setText("");
