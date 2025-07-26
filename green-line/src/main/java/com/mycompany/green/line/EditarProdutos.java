@@ -93,7 +93,7 @@ public class EditarProdutos extends javax.swing.JInternalFrame {
 
     private void aplicarMascarasCampos() {
         funcoes.aplicarMascaraNomeNumero(campoPesquisa);
-        //funcoes.aplicarMascaraNome(campoNomeProduto);
+        funcoes.aplicarMascaraNomeNumero(campoNomeProduto);
         funcoes.aplicarMascaraNome(campoMarca);
         funcoes.aplicarMascaraPreco(campoPreco);
         funcoes.aplicarMascaraPreco(campoPrecoPromocional);
