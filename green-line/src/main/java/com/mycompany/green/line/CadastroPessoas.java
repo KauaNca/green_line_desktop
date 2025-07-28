@@ -325,11 +325,11 @@ setVisible(true);
                 senhaHash = BCrypt.hashpw(Senha.getText(), BCrypt.gensalt());
             } catch (Exception e) {
                 System.out.println("Erro: " + e.getMessage());
-                senhaHash = "12345";
+                senhaHash = "123GL";
             }
 
             // Prosseguir com o cadastro se não houver duplicatas
-            String sql = "INSERT INTO pessoa (nome, email, telefone, cpf, id_tipo_usuario, senha, situacao,imagem_perfil) VALUES (?, ?, ?, ?, ?, ?, ?, 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_640.png')";
+            String sql = "INSERT INTO pessoa (nome, email, telefone, cpf, id_tipo_usuario, senha, situacao,imagem_perfil) VALUES (?, ?, ?, ?, ?, ?, ?, 'https://cdn-icons-png.flaticon.com/512/6460/6460121.png')";
             PreparedStatement stmt = con.prepareStatement(sql);
             stmt.setString(1, nome.getText());
             stmt.setString(2, email.getText());

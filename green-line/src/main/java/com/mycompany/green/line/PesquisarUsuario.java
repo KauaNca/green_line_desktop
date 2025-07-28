@@ -193,7 +193,7 @@ public class PesquisarUsuario extends javax.swing.JInternalFrame {
     public void carregarImagemURL(String campo) {
         String imageUrl = campo.trim();
         if (imageUrl.isEmpty() || !imageUrl.startsWith("http")) {
-            perfil.setIcon(new ImageIcon("imagens/perfil.png"));
+            perfil.setIcon(redimensionamentoDeImagem(new ImageIcon("imagens/usuarios/perfil.png"),205,233));
             return;
         }
         try {
@@ -203,11 +203,11 @@ public class PesquisarUsuario extends javax.swing.JInternalFrame {
                 perfil.setIcon(redimensionamentoDeImagem(new ImageIcon(image), 205, 233));
             } else {
                 funcoes.Avisos("aviso.jpg", "Imagem inválida. Tente outra URL.");
-                perfil.setIcon(new ImageIcon("imagens/perfil.png"));
+                perfil.setIcon(redimensionamentoDeImagem(new ImageIcon("imagens/usuarios/perfil.png"),205,233));
             }
         } catch (IOException e) {
             funcoes.Avisos("erro.png", "Falha ao carregar URL. Tente novamente.");
-            perfil.setIcon(new ImageIcon("imagens/perfil.png"));
+            perfil.setIcon(redimensionamentoDeImagem(new ImageIcon("imagens/usuarios/perfil.png"),205,233));
         }
     }
 
