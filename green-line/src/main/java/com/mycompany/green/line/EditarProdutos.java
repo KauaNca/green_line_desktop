@@ -652,7 +652,7 @@ public class EditarProdutos extends javax.swing.JInternalFrame {
 
         setClosable(true);
         setIconifiable(true);
-        setTitle("Cadastrar Produtos");
+        setTitle("Editar Produtos");
 
         campoPesquisa.setFont(new java.awt.Font("Inter Light", 0, 18)); // NOI18N
         campoPesquisa.setMaximumSize(new java.awt.Dimension(64, 29));
