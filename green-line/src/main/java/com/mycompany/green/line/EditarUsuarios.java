@@ -31,7 +31,8 @@ public class EditarUsuarios extends javax.swing.JInternalFrame {
     private static final String DEFAULT_PROFILE_IMAGE = "imagens/perfil.png";
 
     // SQL Queries
-    private static final String SELECT_ALL_PERSONS = "SELECT * FROM pessoa ORDER BY id_pessoa DESC";
+    private static final String SELECT_ALL_PERSONS = "SELECT * FROM pessoa WHERE id_tipo_usuario = '2' ORDER BY id_pessoa DESC";
+    private static final String SELECT_ALL_PERSONS_ADM = "SELECT * FROM pessoa ORDER BY id_pessoa DESC";
     private static final String SELECT_PERSON_BY_NAME = "SELECT * FROM view_pessoa_endereco WHERE nome LIKE ? LIMIT 100";
     private static final String SELECT_PERSON_BY_ID = "SELECT * FROM pessoa WHERE id_pessoa = ?";
     private static final String SELECT_ADDRESS_BY_PERSON_ID = "SELECT * FROM enderecos WHERE id_pessoa = ?";
@@ -115,6 +116,7 @@ public class EditarUsuarios extends javax.swing.JInternalFrame {
         setupFieldMasks();
         initTable();
         disableNonEditableFields();
+        
     }
 
     /**
@@ -147,7 +149,10 @@ public class EditarUsuarios extends javax.swing.JInternalFrame {
 
     private void initTable() {
         tableModel.setRowCount(0);
-        try (Connection con = Conexao.conexaoBanco(); PreparedStatement stmt = con.prepareStatement(SELECT_ALL_PERSONS); ResultSet rs = stmt.executeQuery()) {
+        try (Connection con = Conexao.conexaoBanco()) {
+            PreparedStatement stmt = null;
+            stmt = con.prepareStatement(SELECT_ALL_PERSONS);
+            ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 tableModel.addRow(new Object[]{
                     rs.getInt("id_pessoa"),
@@ -173,6 +178,11 @@ public class EditarUsuarios extends javax.swing.JInternalFrame {
     }
 
     private void loadUserData(int idPessoa) {
+        if(idPessoa <= 5){
+            funcoes.Avisos("sinal-de-aviso.png", "Não pode alterar");
+            return;
+        }
+        
         try (Connection con = Conexao.conexaoBanco()) {
             // Load person data
             try (PreparedStatement psPessoa = con.prepareStatement(SELECT_PERSON_BY_ID)) {
@@ -188,16 +198,18 @@ public class EditarUsuarios extends javax.swing.JInternalFrame {
 
                         String imageUrl = rsPessoa.getString("imagem_perfil");
                         if (!imageUrl.contains("http")) {
-                            perfil.setIcon(redimensionamentoDeImagem(new ImageIcon("imagens/usuarios/usuario.png"), 200, 132));
+                            perfil.setIcon(redimensionamentoDeImagem(new ImageIcon("imagens/usuarios/usuario.png"), 205, 233));
                         } else {
                             try {
                                 URL url = new URL(imageUrl);
                                 BufferedImage image = ImageIO.read(url);
                                 if (image != null) {
-                                    perfil.setIcon(redimensionamentoDeImagem(new ImageIcon(image), 200, 132));
+                                    perfil.setIcon(redimensionamentoDeImagem(new ImageIcon(image), 205, 233));
                                 }
                             } catch (IOException e) {
                                 funcoes.Avisos("erro.png", "Falha ao carregar URL. Tente novamente.");
+                                perfil.setIcon(redimensionamentoDeImagem(new ImageIcon("imagens/usuarios/usuario.png"), 205, 233));
+
                             }
                         }
                     }

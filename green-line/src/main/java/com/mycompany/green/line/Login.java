@@ -213,6 +213,7 @@ public class Login extends javax.swing.JFrame {
                             }
                         } catch (IOException e) {
                             funcoes.Avisos("erro.png", "Falha ao carregar URL. Tente novamente.");
+                            imagem.setIcon(redimensionamentoDeImagem(new ImageIcon("imagens/usuarios/usuario.png"), 200, 132));
                         }
                     }
 
