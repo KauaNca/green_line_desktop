@@ -31,8 +31,7 @@ public class EditarUsuarios extends javax.swing.JInternalFrame {
     private static final String DEFAULT_PROFILE_IMAGE = "imagens/perfil.png";
 
     // SQL Queries
-    private static final String SELECT_ALL_PERSONS = "SELECT * FROM pessoa WHERE id_tipo_usuario = '2' ORDER BY id_pessoa DESC";
-    private static final String SELECT_ALL_PERSONS_ADM = "SELECT * FROM pessoa ORDER BY id_pessoa DESC";
+    private static final String SELECT_ALL_PERSONS = "SELECT * FROM pessoa ORDER BY id_pessoa DESC";
     private static final String SELECT_PERSON_BY_NAME = "SELECT * FROM view_pessoa_endereco WHERE nome LIKE ? LIMIT 100";
     private static final String SELECT_PERSON_BY_ID = "SELECT * FROM pessoa WHERE id_pessoa = ?";
     private static final String SELECT_ADDRESS_BY_PERSON_ID = "SELECT * FROM enderecos WHERE id_pessoa = ?";
