@@ -50,6 +50,10 @@ public class Login extends javax.swing.JFrame {
 
     // Variáveis de estado
     private String codigo;
+
+    public String getCodigo() {
+        return codigo;
+    }
     private String nome;
     private String situacao;
     private String tipo_usuario;
@@ -203,17 +207,17 @@ public class Login extends javax.swing.JFrame {
                     String nomeUsuario = rs.getString("nome");
                     String imageUrl = rs.getString("imagem_perfil");
                     if (!imageUrl.contains("http")) {
-                        imagem.setIcon(redimensionamentoDeImagem(new ImageIcon("imagens/usuarios/usuario.png"), 200, 132));
+                        imagem.setIcon(redimensionamentoDeImagem(new ImageIcon("imagens/usuarios/usuario.png"), 200, 152));
                     } else {
                         try {
                             URL url = new URL(imageUrl);
                             BufferedImage image = ImageIO.read(url);
                             if (image != null) {
-                                imagem.setIcon(redimensionamentoDeImagem(new ImageIcon(image), 200, 132));
+                                imagem.setIcon(redimensionamentoDeImagem(new ImageIcon(image), 200, 152));
                             }
                         } catch (IOException e) {
                             funcoes.Avisos("erro.png", "Falha ao carregar URL. Tente novamente.");
-                            imagem.setIcon(redimensionamentoDeImagem(new ImageIcon("imagens/usuarios/usuario.png"), 200, 132));
+                            imagem.setIcon(redimensionamentoDeImagem(new ImageIcon("imagens/usuarios/usuario.png"), 200, 152));
                         }
                     }
 
@@ -453,39 +457,39 @@ public class Login extends javax.swing.JFrame {
         painelPrincipalLayout.setHorizontalGroup(
             painelPrincipalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(painelPrincipalLayout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap(148, Short.MAX_VALUE)
                 .addGroup(painelPrincipalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(imagem, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(titulo, javax.swing.GroupLayout.Alignment.TRAILING))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, painelPrincipalLayout.createSequentialGroup()
-                .addContainerGap(92, Short.MAX_VALUE)
-                .addGroup(painelPrincipalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(painelPrincipalLayout.createSequentialGroup()
+                .addContainerGap(148, Short.MAX_VALUE))
+            .addGroup(painelPrincipalLayout.createSequentialGroup()
+                .addGap(87, 87, 87)
+                .addGroup(painelPrincipalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, painelPrincipalLayout.createSequentialGroup()
                         .addComponent(textoCodigo)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(codigoCampo, javax.swing.GroupLayout.PREFERRED_SIZE, 233, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(1, 1, 1))
-                    .addGroup(painelPrincipalLayout.createSequentialGroup()
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, painelPrincipalLayout.createSequentialGroup()
                         .addComponent(jLabel1)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(usuario, javax.swing.GroupLayout.PREFERRED_SIZE, 233, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(apagarSenha, javax.swing.GroupLayout.PREFERRED_SIZE, 17, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(painelPrincipalLayout.createSequentialGroup()
+                    .addComponent(apagarSenha, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 17, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, painelPrincipalLayout.createSequentialGroup()
                         .addComponent(textoSenha)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(senha, javax.swing.GroupLayout.PREFERRED_SIZE, 233, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(103, 103, 103))
-            .addGroup(painelPrincipalLayout.createSequentialGroup()
-                .addGap(199, 199, 199)
-                .addGroup(painelPrincipalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(btLogin, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(btSair, javax.swing.GroupLayout.PREFERRED_SIZE, 117, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(senha, javax.swing.GroupLayout.PREFERRED_SIZE, 233, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(painelPrincipalLayout.createSequentialGroup()
+                        .addGap(107, 107, 107)
+                        .addGroup(painelPrincipalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(btLogin, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(btSair, javax.swing.GroupLayout.PREFERRED_SIZE, 117, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 77, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, painelPrincipalLayout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 90, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(esqueceuSenha)
+                        .addGap(61, 61, 61)))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, painelPrincipalLayout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(esqueceuSenha)
-                .addGap(164, 164, 164))
         );
         painelPrincipalLayout.setVerticalGroup(
             painelPrincipalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -493,8 +497,8 @@ public class Login extends javax.swing.JFrame {
                 .addContainerGap()
                 .addComponent(titulo)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(imagem, javax.swing.GroupLayout.PREFERRED_SIZE, 132, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(imagem, javax.swing.GroupLayout.PREFERRED_SIZE, 152, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(painelPrincipalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(textoCodigo)
                     .addComponent(codigoCampo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -517,7 +521,7 @@ public class Login extends javax.swing.JFrame {
                 .addComponent(btSair)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(esqueceuSenha)
-                .addContainerGap(41, Short.MAX_VALUE))
+                .addContainerGap(52, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -626,6 +630,24 @@ public class Login extends javax.swing.JFrame {
             funcoes.Avisos("sinal-de-aviso.png", "CPF incompleto. Formato esperado: 000.000.000-00");
             return;
         }
+        // Verificação do código de usuário
+        if (!codigoUsuario.getText().matches("[A-Za-z0-9]+")) {
+            funcoes.Avisos("sinal-de-aviso.png", "Código de usuário contém caracteres inválidos");
+            return;
+        }
+
+// Verificação se é um administrador primário (id <= 5)
+        try {
+            int id = Integer.parseInt(codigoUsuario.getText());
+            if (id <= 5) {
+                funcoes.Avisos("sinal-de-aviso.png", "Não é permitido redefinir a senha de administradores primários por este meio");
+                return;
+            }
+        } catch (NumberFormatException e) {
+            funcoes.Avisos("sinal-de-aviso.png", "Código de usuário inválido");
+            return;
+        }
+
         String cpfFormatado = funcoes.removePontuacaoEEspacos(cpfSenhaEsquecida.getText().trim());
 
         // Verificação do código de usuário
@@ -638,7 +660,7 @@ public class Login extends javax.swing.JFrame {
             Connection con = Conexao.conexaoBanco();
 
             // Primeiro verifica se o usuário existe
-            String CHECK_USER = "SELECT COUNT(*) FROM pessoa WHERE id_pessoa = ? AND cpf = ?";
+            String CHECK_USER = "SELECT COUNT(*) FROM pessoa WHERE id_pessoa = ? AND cpf = ? ";
             PreparedStatement checkStmt = con.prepareStatement(CHECK_USER);
             checkStmt.setString(1, codigoUsuario.getText());
             checkStmt.setString(2, cpfFormatado);

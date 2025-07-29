@@ -58,7 +58,7 @@
       <configuration>
         <archive>
           <manifest>
-            <mainClass>seu.pacote.SuaClassePrincipal</mainClass>
+            <mainClass>com.mycompany.green.line.Login</mainClass>
           </manifest>
         </archive>
       </configuration>
@@ -75,7 +75,7 @@
         </descriptorRefs>
         <archive>
           <manifest>
-            <mainClass>seu.pacote.SuaClassePrincipal</mainClass>
+            <mainClass>com.mycompany.green.line.Login</mainClass>
           </manifest>
         </archive>
       </configuration>

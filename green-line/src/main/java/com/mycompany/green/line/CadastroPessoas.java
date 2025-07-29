@@ -26,13 +26,18 @@ public class CadastroPessoas extends javax.swing.JInternalFrame {
 
     private String situacaoValor;
     private String tipoUsuarioId;
+    private static String SELECT_ALL_PERSONS = "SELECT * FROM pessoa WHERE id_tipo_usuario = '2' ORDER BY id_pessoa DESC";
     Funcoes funcoes = new Funcoes();
+    private int codigoUsuario;
 
-    public CadastroPessoas() {
+    public CadastroPessoas(String codigo) {
         initComponents();
+        codigoUsuario = Integer.parseInt(codigo);
+        if(codigoUsuario <= 5){
+            SELECT_ALL_PERSONS = "SELECT * FROM pessoa ORDER BY id_pessoa DESC";
+        }
         try (Connection con = Conexao.conexaoBanco()) {
-            String sql = "SELECT * FROM pessoa ORDER BY id_pessoa DESC";
-            PreparedStatement stmt = con.prepareStatement(sql);
+            PreparedStatement stmt = con.prepareStatement(SELECT_ALL_PERSONS);
             ResultSet rs = stmt.executeQuery();
             DefaultTableModel modeloTabela = (DefaultTableModel) tabela.getModel();
             modeloTabela.setNumRows(0);
@@ -161,7 +166,7 @@ setVisible(true);
         jLabel6.setText("Tipo:");
 
         tipo.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
-        tipo.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Função?", "ADM", "Funcionario" }));
+        tipo.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Função?", "ADM", "Cliente" }));
         tipo.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         tipo.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -400,7 +405,7 @@ setVisible(true);
     private void tipoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tipoActionPerformed
         if (tipo.getSelectedItem().equals("ADM")) {
             tipoUsuarioId = "1";
-        } else if (tipo.getSelectedItem().equals("Funcionario")) {
+        } else if (tipo.getSelectedItem().equals("Cliente")) {
             tipoUsuarioId = "2";
         }
         System.out.println("Tipo ID: " + tipoUsuarioId);

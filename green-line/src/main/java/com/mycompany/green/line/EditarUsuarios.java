@@ -31,7 +31,7 @@ public class EditarUsuarios extends javax.swing.JInternalFrame {
     private static final String DEFAULT_PROFILE_IMAGE = "imagens/perfil.png";
 
     // SQL Queries
-    private static final String SELECT_ALL_PERSONS = "SELECT * FROM pessoa ORDER BY id_pessoa DESC";
+    private static String SELECT_ALL_PERSONS = "SELECT * FROM pessoa WHERE id_tipo_usuario = '2' ORDER BY id_pessoa DESC";
     private static final String SELECT_PERSON_BY_NAME = "SELECT * FROM view_pessoa_endereco WHERE nome LIKE ? LIMIT 100";
     private static final String SELECT_PERSON_BY_ID = "SELECT * FROM pessoa WHERE id_pessoa = ?";
     private static final String SELECT_ADDRESS_BY_PERSON_ID = "SELECT * FROM enderecos WHERE id_pessoa = ?";
@@ -78,7 +78,7 @@ public class EditarUsuarios extends javax.swing.JInternalFrame {
      */
     private enum UserType {
         ADM(1, "ADM"),
-        FUNCIONARIO(2, "Funcionario");
+        CLIENTE(2, "Cliente");
 
         private final int id;
         private final String displayName;
@@ -98,7 +98,7 @@ public class EditarUsuarios extends javax.swing.JInternalFrame {
                     return type;
                 }
             }
-            return FUNCIONARIO; // Default
+            return CLIENTE; // Default
         }
     }
 
@@ -108,14 +108,20 @@ public class EditarUsuarios extends javax.swing.JInternalFrame {
     String situacaoValor;
     int tipoUsuarioId;
     String tipoUsuario;
+    private int codigoUsuario;
 
-    public EditarUsuarios() {
+    public EditarUsuarios(String codigo) {
         initComponents();
+        codigoUsuario = Integer.parseInt(codigo);
+        
+        if(codigoUsuario < 5){
+            SELECT_ALL_PERSONS = "SELECT * FROM pessoa ORDER BY id_pessoa DESC";
+        }
         tableModel = (DefaultTableModel) tabela.getModel();
         setupFieldMasks();
         initTable();
-        disableNonEditableFields();
-        
+        disableNonEditableFields();   
+
     }
 
     /**
@@ -177,22 +183,18 @@ public class EditarUsuarios extends javax.swing.JInternalFrame {
     }
 
     private void loadUserData(int idPessoa) {
-        if(idPessoa <= 5){
-            funcoes.Avisos("sinal-de-aviso.png", "Não pode alterar");
-            return;
-        }
-        
         try (Connection con = Conexao.conexaoBanco()) {
             // Load person data
             try (PreparedStatement psPessoa = con.prepareStatement(SELECT_PERSON_BY_ID)) {
                 psPessoa.setInt(1, idPessoa);
                 try (ResultSet rsPessoa = psPessoa.executeQuery()) {
                     if (rsPessoa.next()) {
+                        tipo.setSelectedItem(rsPessoa.getInt("id_tipo_usuario") == 1 ? "ADM" : "Cliente");
+
                         nome.setText(rsPessoa.getString("nome"));
                         email.setText(rsPessoa.getString("email"));
                         telefone.setText(rsPessoa.getString("telefone"));
                         cpf.setText(rsPessoa.getString("cpf"));
-                        tipo.setSelectedItem(rsPessoa.getInt("id_tipo_usuario") == 1 ? "ADM" : "Funcionario");
                         situacao.setSelectedItem(getStatusDisplayName(rsPessoa.getString("situacao")));
 
                         String imageUrl = rsPessoa.getString("imagem_perfil");
@@ -536,7 +538,7 @@ public class EditarUsuarios extends javax.swing.JInternalFrame {
         jLabel7.setText("Situação");
 
         tipo.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
-        tipo.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "ADM", "Funcionario" }));
+        tipo.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "ADM", "Cliente" }));
         tipo.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         tipo.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -815,7 +817,7 @@ public class EditarUsuarios extends javax.swing.JInternalFrame {
     private void tipoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tipoActionPerformed
         if (tipo.getSelectedItem().equals("ADM")) {
             tipoUsuario = "1";
-        } else if (tipo.getSelectedItem().equals("Funcionario")) {
+        } else if (tipo.getSelectedItem().equals("Cliente")) {
             tipoUsuario = "2";
         }
     }//GEN-LAST:event_tipoActionPerformed
@@ -876,6 +878,7 @@ public class EditarUsuarios extends javax.swing.JInternalFrame {
                                 JOptionPane.showMessageDialog(this, "Usuário atualizado com sucesso!");
                                 initTable();
                                 clearFields();
+                                clearAddressFields();
                             } else {
                                 con.rollback();
                                 JOptionPane.showMessageDialog(this, "Nenhuma alteração foi salva.");

@@ -251,8 +251,8 @@ public class TelaInicial extends JFrame {
         pesquisarProduto.addActionListener(e -> centralizarTela(new PesquisarProdutos()));
         seusDados.addActionListener(e -> centralizarTela(new SeusDados(codigo)));
         pesquisarUsuario.addActionListener(e -> centralizarTela(new PesquisarUsuario()));
-        cadastroUsuario.addActionListener(e -> centralizarTela(new CadastroPessoas()));
-        editarUsuario.addActionListener(e -> centralizarTela(new EditarUsuarios()));
+        cadastroUsuario.addActionListener(e -> centralizarTela(new CadastroPessoas(codigo)));
+        editarUsuario.addActionListener(e -> centralizarTela(new EditarUsuarios(codigo)));
     }
 
     private void adicionarEventoMouse(JMenu menu) {
