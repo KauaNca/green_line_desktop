@@ -4,97 +4,88 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Image;
 import java.awt.event.KeyEvent;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.net.URL;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
-import java.util.logging.Logger;
 import org.mindrot.jbcrypt.BCrypt;
-import com.mycompany.green.line.TelaComImagem;
-import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.net.URL;
-import java.util.logging.Level;
-import javax.imageio.ImageIO;
-import javax.swing.JDialog;
 
 /**
  * JFrame para a tela de login do sistema. Configura a interface gráfica para
- * autenticação de usuários, incluindo campos para código, usuário e senha, e
- * ícones personalizados.
- *
- * @author [Autor não especificado]
+ * autenticação de usuários, incluindo campos para código, usuário e senha.
  */
 public class Login extends javax.swing.JFrame {
 
-    // Logger para rastreamento de eventos e erros
     private static final Logger LOGGER = Logger.getLogger(Login.class.getName());
-
-    // Constantes para configurações de UI
     private static final String USER_IMAGE_PATH = "imagens/usuarios/usuario.png";
     private static final Color GREEN_COLOR = new Color(29, 68, 53);
     private static final EmptyBorder FIELD_BORDER = new EmptyBorder(5, 5, 0, 0);
-    private static final String INSERT_ACCESS = "INSERT INTO acessos(id_pessoa,usuario,local) VALUES (?,?,?)";
-    private static final String SELECT_USER_LOGIN = "SELECT id_pessoa, nome, id_tipo_usuario, senha, situacao, imagem_perfil FROM pessoa WHERE nome = ?";
+    private static final String INSERT_ACCESS = "INSERT INTO acessos(id_pessoa, usuario, local) VALUES (?, ?, ?)";
+    private static final String SELECT_USER_LOGIN = "SELECT id_pessoa, nome, id_tipo_usuario, senha FROM pessoa WHERE nome = ?";
     private static final String UPDATE_PASSWORD = "UPDATE pessoa SET senha = ? WHERE id_pessoa = ? AND cpf = ?";
-// Remova completamente a condição "AND senha = ?"
-    private static final String SELECT_USER_BY_ID = "SELECT * FROM pessoa WHERE id_pessoa = ?";
+    private static final String SELECT_USER_BY_ID = "SELECT nome, imagem_perfil,id_tipo_usuario FROM pessoa WHERE id_pessoa = ?";
     private static final String ERROR_GENERIC = "Erro: ";
-    Funcoes funcoes = new Funcoes();
 
-    // Variáveis de estado
+    private final Funcoes funcoes = new Funcoes();
     private String codigo;
+    private final Color corVerde = GREEN_COLOR;
+    private final EmptyBorder margensInternas = FIELD_BORDER;
+    private final JLabel imagem2 = new JLabel();
 
     public String getCodigo() {
         return codigo;
     }
-    private String nome;
-    private String situacao;
-    private String tipo_usuario;
-    private final JLabel imagem2 = new JLabel();
-    private final Color corVerde = GREEN_COLOR;
-    private final EmptyBorder margensInternas = FIELD_BORDER;
 
     /**
-     * Construtor da classe Login. Inicializa os componentes da interface,
-     * configura as bordas, cores, ícones e desativa o campo de usuário.
+     * Construtor da classe Login. Inicializa os componentes da interface
+     * gráfica.
      */
     public Login() {
         initComponents();
         LOGGER.info("Inicializando tela de login.");
-        frame();
-        inicio();
-        ImageIcon originalIcon = new ImageIcon(TelaComImagem.class.getResource("/imagens/logo.png"));
-        Image img = originalIcon.getImage();
-        Image resizedImg = img.getScaledInstance(64, 64, Image.SCALE_SMOOTH);
-
-        setIconImage(resizedImg);
-
+        configureFrame();
+        initializeUI();
+        setIconImage(new ImageIcon(TelaComImagem.class.getResource("/imagens/logo.png"))
+                .getImage().getScaledInstance(64, 64, Image.SCALE_SMOOTH));
     }
 
-    /*MÉTODOS*/
-    private void limpar() {
-        codigoCampo.setText("");
-        usuario.setText("");
-        senha.setText("");
-        imagem.setIcon(new ImageIcon(USER_IMAGE_PATH));
+    /**
+     * Configura as propriedades do JFrame.
+     */
+    private void configureFrame() {
+        LOGGER.info("Configurando propriedades do JFrame.");
+        setLayout(new BorderLayout());
+        setLocationRelativeTo(null);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setResizable(false);
+        setVisible(true);
     }
 
-    private void inicio() {
-        usuario.setBorder(margensInternas);// Configura bordas dos campos de entrada
+    /**
+     * Inicializa os componentes da interface gráfica.
+     */
+    private void initializeUI() {
+        usuario.setBorder(margensInternas);
         codigoCampo.setBorder(margensInternas);
         senha.setBorder(margensInternas);
-        painelPrincipal.setBackground(corVerde);// Define a cor de fundo do painel principal
-        usuario.setEnabled(false); // Desativa e torna o campo de usuário não editável
+        painelPrincipal.setBackground(corVerde);
+        usuario.setEnabled(false);
         usuario.setEditable(false);
-        imagem.setIcon(new ImageIcon(USER_IMAGE_PATH));// Define o ícone padrão para o campo de imagem  
-        codigoCampo.setFocusTraversalKeysEnabled(false);// Desativa a navegação por tabulação no campo de código
+        imagem.setIcon(new ImageIcon(USER_IMAGE_PATH));
+        codigoCampo.setFocusTraversalKeysEnabled(false);
         funcoes.aplicarMascaraInteiro(codigoUsuario);
         funcoes.aplicarMascaraSenha(senha);
         funcoes.aplicarMascaraInteiro(codigoCampo);
@@ -102,142 +93,146 @@ public class Login extends javax.swing.JFrame {
     }
 
     /**
-     * Registra o acesso do usuário no banco de dados, inserindo o ID e nome do
-     * usuário na tabela de acessos.
+     * Limpa os campos de entrada e redefine a imagem padrão.
      */
-    public void numeroAcesso() {
+    private void limpar() {
+        codigoCampo.setText("");
+        usuario.setText("");
+        senha.setText("");
+        imagem.setIcon(new ImageIcon(USER_IMAGE_PATH));
+        codigoCampo.setEnabled(true);
+    }
+
+    /**
+     * Registra o acesso do usuário no banco de dados.
+     */
+    private void registrarAcesso() {
         LOGGER.info("Registrando acesso do usuário: " + codigo);
         try (Connection con = Conexao.conexaoBanco(); PreparedStatement stmt = con.prepareStatement(INSERT_ACCESS)) {
             stmt.setString(1, codigo);
             stmt.setString(2, usuario.getText());
             stmt.setString(3, "Desktop");
-            stmt.execute();
+            stmt.executeUpdate();
             LOGGER.info("Acesso registrado com sucesso.");
-        } catch (Exception ex) {
-            LOGGER.severe("Erro ao registrar acesso: " + ex.getMessage());
+        } catch (SQLException ex) {
+            LOGGER.log(Level.SEVERE, "Erro ao registrar acesso: {0}", ex.getMessage());
             JOptionPane.showMessageDialog(null, ERROR_GENERIC + ex.getMessage());
         }
     }
 
     /**
-     * Realiza o processo de login, validando o código, usuário e senha. Abre a
-     * tela inicial se o login for bem-sucedido e registra o acesso.
+     * Realiza o processo de login, validando código, usuário e senha.
      */
-    private void Login() {
-
-        // Validação de campos vazios (OR em vez de AND)
-        if (codigoCampo.getText().trim().isEmpty() || usuario.getText().trim().isEmpty() || senha.getText().trim().isEmpty()) {
+    private void login() {
+        if (codigoCampo.getText().trim().isEmpty()
+                || usuario.getText().trim().isEmpty()
+                || senha.getText().trim().isEmpty()) {
             LOGGER.warning("Campos de login estão vazios.");
             funcoes.Avisos("erro.png", "Preencha todos os campos");
             return;
         }
 
         LOGGER.info("Iniciando processo de login para usuário: " + usuario.getText());
-
         try (Connection con = Conexao.conexaoBanco(); PreparedStatement stmt = con.prepareStatement(SELECT_USER_LOGIN)) {
-
             stmt.setString(1, usuario.getText());
-
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     String senhaHash = rs.getString("senha");
-
-                    // Use o método seguro de verificação
-                    if (!BCryptUtil.checkPassword(senha.getText(), senhaHash)) {
+                    if (!BCrypt.checkpw(senha.getText(), senhaHash)) {
                         LOGGER.warning("Senha incorreta para: " + usuario.getText());
                         JOptionPane.showMessageDialog(null, "Credenciais inválidas");
                         return;
                     }
-                    // Autenticação bem-sucedida
                     codigo = rs.getString("id_pessoa");
-                    tipo_usuario = rs.getString("id_tipo_usuario");
-
+                    String tipo_usuario = rs.getString("id_tipo_usuario");
                     if ("1".equals(tipo_usuario)) {
-                        new TelaInicial(codigo, tipo_usuario);
+                        registrarAcesso();
+                        new TelaInicial(codigo, tipo_usuario).setVisible(true);
                         dispose();
                     } else {
                         JOptionPane.showMessageDialog(null, "Acesso não autorizado");
                     }
+                } else {
+                    JOptionPane.showMessageDialog(null, "Usuário não encontrado");
                 }
             }
         } catch (SQLException ex) {
-            LOGGER.severe("Erro SQL: " + ex.getMessage());
+            LOGGER.log(Level.SEVERE, "Erro SQL: {0}", ex.getMessage());
             JOptionPane.showMessageDialog(null, "Erro no banco de dados");
         }
     }
 
-    private boolean verificarSenha(String senhaDigitada, String hashArmazenado) {
-        try {
-            // Verificação extra do hash antes da comparação
-            if (!hashArmazenado.matches("^\\$2[aby]\\$\\d{2}\\$[./0-9A-Za-z]{53}$")) {
-                throw new IllegalArgumentException("Formato de hash inválido");
-            }
-
-            return BCrypt.checkpw(senhaDigitada, hashArmazenado);
-        } catch (Exception e) {
-            LOGGER.severe("Falha na verificação: " + e.getMessage());
-            return false;
-        }
-    }
-
     /**
-     * Configura as propriedades do JFrame, incluindo layout, posição,
-     * comportamento de fechamento e visibilidade.
+     * Busca usuário pelo código e atualiza a interface com nome e imagem.
      */
-    private void frame() {
-        LOGGER.info("Configurando propriedades do JFrame.");
-        setLayout(new BorderLayout()); // Define o layout como BorderLayout
-        setLocationRelativeTo(null); // Centraliza a janela na tela
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // Fecha a aplicação ao fechar a janela
-        setResizable(false); // Impede redimensionamento da janela
-        setVisible(true); // Torna a janela visível
-    }
-
     private void buscarUsuario() {
-        if (codigoCampo.getText().trim().isEmpty() && usuario.getText().trim().isEmpty() && senha.getText().trim().isEmpty()) {
-            LOGGER.warning("Campos de código ou senha estão vazios.");
-            funcoes.Avisos("erro.png", "Preencha os campos");
+        String codigoInput = codigoCampo.getText().trim();
+        if (codigoInput.isEmpty()) {
+            LOGGER.warning("Campo de código está vazio.");
+            funcoes.Avisos("erro.png", "Preencha o campo de código");
             return;
         }
+        if (!codigoInput.matches("\\d+")) {
+            LOGGER.warning("Código contém caracteres inválidos.");
+            funcoes.Avisos("erro.png", "O código deve conter apenas números");
+            return;
+        }
+
         LOGGER.info("Buscando usuário pelo código: " + codigoCampo.getText());
         try (Connection con = Conexao.conexaoBanco(); PreparedStatement stmt = con.prepareStatement(SELECT_USER_BY_ID)) {
             stmt.setString(1, codigoCampo.getText());
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
-                    String nomeUsuario = rs.getString("nome");
+                    usuario.setText(rs.getString("nome"));
                     String imageUrl = rs.getString("imagem_perfil");
-                    if (!imageUrl.contains("http")) {
-                        imagem.setIcon(redimensionamentoDeImagem(new ImageIcon("imagens/usuarios/usuario.png"), 200, 152));
+                    String tipo_usuario = rs.getString("id_tipo_usuario");
+                    if(tipo_usuario.equals("2")){
+                        funcoes.Avisos("sinal-de-aviso.png","Acesso não permitido. Encerrando...");      
+                        dispose();
+                        return;
+                    }
+                    ImageIcon icon;
+                    if (imageUrl == null || imageUrl.trim().isEmpty() || !imageUrl.contains("http")) {
+                        icon = new ImageIcon(USER_IMAGE_PATH);
                     } else {
                         try {
-                            URL url = new URL(imageUrl);
-                            BufferedImage image = ImageIO.read(url);
-                            if (image != null) {
-                                imagem.setIcon(redimensionamentoDeImagem(new ImageIcon(image), 200, 152));
+                            BufferedImage image = ImageIO.read(new URL(imageUrl));
+                            if (image == null) {
+                                throw new IOException("Imagem retornada é nula");
                             }
+                            icon = new ImageIcon(image);
                         } catch (IOException e) {
-                            funcoes.Avisos("erro.png", "Falha ao carregar URL. Tente novamente.");
-                            imagem.setIcon(redimensionamentoDeImagem(new ImageIcon("imagens/usuarios/usuario.png"), 200, 152));
+                            LOGGER.log(Level.WARNING, "Falha ao carregar imagem: {0}", e.getMessage());
+                            icon = new ImageIcon(USER_IMAGE_PATH);
+                            funcoes.Avisos("erro.png", "Falha ao carregar imagem. Usando padrão.");
                         }
                     }
-
-                    usuario.setText(nomeUsuario);
-                    codigoCampo.setFocusTraversalKeysEnabled(true);
-                    painelPrincipal.add(imagem2); // Adiciona novamente ao painel
+                    imagem.setIcon(redimensionamentoDeImagem(icon, 200, 152));
                     painelPrincipal.revalidate();
                     painelPrincipal.repaint();
-                    LOGGER.info("Usuário encontrado: " + nomeUsuario);
-
+                    LOGGER.info("Usuário encontrado: " + usuario.getText());
+                    codigoCampo.setEnabled(false);
                 } else {
                     LOGGER.warning("Usuário não encontrado para o código: " + codigoCampo.getText());
                     funcoes.Avisos("sinal-de-aviso.png",
                             "Usuário não encontrado. Faça um cadastro ou contate os administradores.");
+                    return;
                 }
+                
             }
-        } catch (Exception e) {
-            LOGGER.severe("Erro ao buscar usuário: " + e.getMessage());
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Erro ao buscar usuário: {0}", e.getMessage());
             funcoes.Avisos("erro.png", "Houve um erro. Tente novamente mais tarde");
         }
+    }
+
+    /**
+     * Redimensiona uma imagem para as dimensões especificadas.
+     */
+    private ImageIcon redimensionamentoDeImagem(ImageIcon imagem, int largura, int altura) {
+        LOGGER.info("Redimensionando imagem para " + largura + "x" + altura);
+        Image redimensionada = imagem.getImage().getScaledInstance(largura, altura, Image.SCALE_DEFAULT);
+        return new ImageIcon(redimensionada);
     }
 
     @SuppressWarnings("unchecked")
@@ -446,6 +441,11 @@ public class Login extends javax.swing.JFrame {
         });
 
         senha.setFont(new java.awt.Font("Inter", 0, 18)); // NOI18N
+        senha.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusGained(java.awt.event.FocusEvent evt) {
+                senhaFocusGained(evt);
+            }
+        });
         senha.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt) {
                 senhaKeyPressed(evt);
@@ -486,7 +486,6 @@ public class Login extends javax.swing.JFrame {
                             .addComponent(btSair, javax.swing.GroupLayout.PREFERRED_SIZE, 117, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 77, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, painelPrincipalLayout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 90, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addComponent(esqueceuSenha)
                         .addGap(61, 61, 61)))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
@@ -547,7 +546,7 @@ public class Login extends javax.swing.JFrame {
 
     private void btLoginMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btLoginMouseClicked
         LOGGER.info("Botão de login clicado.");
-        Login();
+        login();
 
     }//GEN-LAST:event_btLoginMouseClicked
 
@@ -584,7 +583,6 @@ public class Login extends javax.swing.JFrame {
      */
 
     private void codigoCampoKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_codigoCampoKeyPressed
-        codigoCampo.setFocusTraversalKeysEnabled(false);
         if (evt.getKeyCode() == KeyEvent.VK_TAB || evt.getKeyCode() == KeyEvent.VK_ENTER) {
             if (codigoCampo.getText().trim().isEmpty() && usuario.getText().trim().isEmpty() && senha.getText().trim().isEmpty()) {
                 LOGGER.warning("Campos de código ou senha estão vazios.");
@@ -592,14 +590,9 @@ public class Login extends javax.swing.JFrame {
                 return;
             }
             buscarUsuario();
+            senha.requestFocus();
         }
     }//GEN-LAST:event_codigoCampoKeyPressed
-    public ImageIcon redimensionamentoDeImagem(ImageIcon imagem, int largura, int altura) {
-        LOGGER.info("Redimensionando imagem para " + largura + "x" + altura);
-        Image pegarImagem = imagem.getImage();
-        Image redimensionando = pegarImagem.getScaledInstance(largura, altura, Image.SCALE_DEFAULT);
-        return new ImageIcon(redimensionando);
-    }
 
     /**
      * Ação executada ao pressionar a tecla Enter no formulário. Chama o método
@@ -719,9 +712,20 @@ public class Login extends javax.swing.JFrame {
                 return;
             }
             LOGGER.info("Tecla Enter pressionada no formulário. Iniciando login.");
-            Login();
+            login();
         }
     }//GEN-LAST:event_senhaKeyPressed
+
+    private void senhaFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_senhaFocusGained
+        if(codigoCampo.getText().isEmpty()){
+            funcoes.Avisos("sinal-de-aviso.png", "Preencha o campo de código inicialmente");
+            codigoCampo.requestFocus();
+            return;
+        }
+        if(!codigoCampo.getText().isEmpty() && usuario.getText().isEmpty()){
+            buscarUsuario();
+        }
+    }//GEN-LAST:event_senhaFocusGained
     /**
      * Método principal para inicializar a aplicação com o Look and Feel
      * personalizado e exibir a tela de login.
@@ -743,24 +747,6 @@ public class Login extends javax.swing.JFrame {
 
     }
 
-    /*SEÇÃO ACESSIBILIDADE*/
-    private void acessibilidadeInicial() {
-        // Adicionar descrições acessíveis
-        codigoCampo.getAccessibleContext().setAccessibleName("Campo de código do usuário");
-        codigoCampo.getAccessibleContext().setAccessibleDescription("Digite seu código de identificação");
-
-        usuario.getAccessibleContext().setAccessibleName("Nome do usuário");
-        usuario.getAccessibleContext().setAccessibleDescription("Nome do usuário autenticado");
-
-        senha.getAccessibleContext().setAccessibleName("Senha do usuário");
-        senha.getAccessibleContext().setAccessibleDescription("Digite sua senha de acesso");
-
-        btLogin.getAccessibleContext().setAccessibleName("Botão de login");
-        btLogin.getAccessibleContext().setAccessibleDescription("Clique para realizar o login no sistema");
-
-        btSair.getAccessibleContext().setAccessibleName("Botão sair");
-        btSair.getAccessibleContext().setAccessibleDescription("Clique para fechar a aplicação");
-    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel apagarSenha;
