@@ -1,6 +1,7 @@
 package com.mycompany.green.line;
 
 import java.awt.Image;
+import java.awt.Toolkit;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import javax.swing.text.AttributeSet;
@@ -76,33 +77,74 @@ public class Funcoes {
         });
     }
 
-    public static void aplicarMascaraPreco(JTextField textField) {
-        PlainDocument doc = (PlainDocument) textField.getDocument();
+       public static void aplicarMascaraPreco(JTextField campo) {
+        PlainDocument doc = (PlainDocument) campo.getDocument();
         doc.setDocumentFilter(new DocumentFilter() {
+            private boolean isUpdating = false;
+
             @Override
-            public void insertString(FilterBypass fb, int offset, String text, AttributeSet attr)
+            public void insertString(FilterBypass fb, int offset, String string, AttributeSet attr)
                     throws BadLocationException {
-                String newText = fb.getDocument().getText(0, fb.getDocument().getLength()) + text;
-                if (validarPreco(newText)) {
-                    super.insertString(fb, offset, text, attr);
+                if (!isUpdating) {
+                    alterarTexto(fb, offset, 0, string, campo);
                 }
             }
 
             @Override
             public void replace(FilterBypass fb, int offset, int length, String text, AttributeSet attrs)
                     throws BadLocationException {
-                String currentText = fb.getDocument().getText(0, fb.getDocument().getLength());
-                String newText = currentText.substring(0, offset) + text + currentText.substring(offset + length);
-                if (validarPreco(newText)) {
-                    super.replace(fb, offset, length, text, attrs);
+                if (!isUpdating) {
+                    alterarTexto(fb, offset, length, text, campo);
                 }
             }
 
-            private boolean validarPreco(String text) {
-                // Permite: números, um único ponto, e até 2 casas decimais
-                return text.matches("^\\d*\\.?\\d{0,2}$") || text.isEmpty();
+            @Override
+            public void remove(FilterBypass fb, int offset, int length)
+                    throws BadLocationException {
+                if (!isUpdating) {
+                    alterarTexto(fb, offset, length, "", campo);
+                }
+            }
+
+            private void alterarTexto(FilterBypass fb, int offset, int length, String text, JTextField campo)
+                    throws BadLocationException {
+                String textoAtual = fb.getDocument().getText(0, fb.getDocument().getLength());
+                StringBuilder novoTexto = new StringBuilder(textoAtual);
+                novoTexto.replace(offset, offset + length, text);
+
+                // Remove todos os caracteres que não são dígitos
+                String digitos = novoTexto.toString().replaceAll("\\D", "");
+
+                // Limita a 10 dígitos no total (8 inteiros + 2 decimais)
+                if (digitos.length() > 10) {
+                    Toolkit.getDefaultToolkit().beep();
+                    return;
+                }
+
+                // Preenche com zeros à esquerda se necessário
+                while (digitos.length() < 3) {
+                    digitos = "0" + digitos;
+                }
+
+                // Formata: parte inteira e decimal
+                int tamanho = digitos.length();
+                String parteInteira = digitos.substring(0, tamanho - 2);
+                String parteDecimal = digitos.substring(tamanho - 2);
+                String valorFormatado = parteInteira + "." + parteDecimal;
+
+                // Atualiza o campo
+                isUpdating = true;
+                fb.replace(0, fb.getDocument().getLength(), valorFormatado, null);
+                isUpdating = false;
+
+                // Reposiciona o cursor no final
+                SwingUtilities.invokeLater(() -> campo.setCaretPosition(campo.getText().length()));
             }
         });
+
+        // Inicializa com "0.00" e cursor no final
+        campo.setText("0.00");
+        campo.setCaretPosition(campo.getText().length());
     }
 
     public static void aplicarMascaraCPF(JTextField textField) {

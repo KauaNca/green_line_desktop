@@ -196,10 +196,12 @@ public class SeusDados extends javax.swing.JInternalFrame {
             } else {
                 funcoes.Avisos("aviso.jpg", "Imagem inválida. Tente outra URL.");
                 imagem.setIcon(redimensionarImagem(new ImageIcon("imagens/usuarios/perfil.png"),221,271));
+                imagemUsuario.setText("");
             }
         } catch (IOException e) {
             funcoes.Avisos("erro.png", "Falha ao carregar URL. Tente novamente.");
             imagem.setIcon(redimensionarImagem(new ImageIcon("imagens/usuarios/perfil.png"),221,271));
+            imagemUsuario.setText("");
         }
     }
 
@@ -298,7 +300,12 @@ public class SeusDados extends javax.swing.JInternalFrame {
                 }
 
             }
-// Caso o campo de senha esteja vazio, não faz nada (não mostra mensagens)
+            String imagem = "";
+            if(imagemUsuario.getText().isEmpty()){
+                imagem = "https://cdn-icons-png.flaticon.com/512/3985/3985429.png";
+            }else{
+                imagem = imagemUsuario.getText();
+            }
 
             // Atualiza tabela "pessoa"
             try (PreparedStatement stmt = con.prepareStatement(UPDATE_PERSON)) {
@@ -306,7 +313,7 @@ public class SeusDados extends javax.swing.JInternalFrame {
                 stmt.setString(2, email.getText());
                 stmt.setString(3, telefoneFormatado);
                 stmt.setString(4, cpfFormatado);
-                stmt.setString(5, imagemUsuario.getText());
+                stmt.setString(5, imagem);
                 stmt.setString(6, idPessoa);
                 stmt.executeUpdate();
                 LOGGER.info("Tabela 'pessoa' atualizada com sucesso.");

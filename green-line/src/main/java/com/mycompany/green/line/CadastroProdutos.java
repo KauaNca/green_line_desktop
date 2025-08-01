@@ -131,8 +131,8 @@ public class CadastroProdutos extends javax.swing.JInternalFrame {
             stmt.setString(1, produto.trim());
             stmt.setString(2, descricao);
             stmt.setString(3, descricao_curta);
-            stmt.setBigDecimal(4, new BigDecimal(campoPreco));
-            stmt.setBigDecimal(5, new BigDecimal(preco_promocional));
+            stmt.setString(4, campoPreco);
+            stmt.setString(5, preco_promocional);
             stmt.setBoolean(6, promocao);
             stmt.setString(7, campoMarca);
             stmt.setDouble(8, Double.parseDouble(campoAvaliacao));
@@ -165,23 +165,54 @@ public class CadastroProdutos extends javax.swing.JInternalFrame {
         }
     }
 
-    public void pegarRespostas() {
-        produto = nomeProduto.getText().trim();
-        descricao = descricaoGeral.getText().trim();
-        descricao_curta = descricaoCurta.getText().trim();
-        campoPreco = preco.getText().trim();
-        preco_promocional = precoPromocional.getText().trim().isEmpty() ? "0.00" : precoPromocional.getText().trim();
-        campoMarca = marca.getText().trim();
-        campoAvaliacao = avaliacao.getSelectedItem() == null ? "0" : String.valueOf(avaliacao.getSelectedItem());
-        campoQuantidadeAvaliacoes = totalAvaliacao.getText().trim().isEmpty() ? "0" : totalAvaliacao.getText().trim();
-        campoEstoque = estoque.getText().trim().isEmpty() ? "1" : estoque.getText().trim();
-        campoParcelas = parcelas.getSelectedItem() == null ? "1" : String.valueOf(parcelas.getSelectedItem());
-        campoPeso = peso.getText().trim().isEmpty() ? "0" : peso.getText().trim();
-        campoDimensoes = dimensoes.getText().trim().isEmpty() ? "0x0x0" : dimensoes.getText().trim();
-        categoria = categorias.getSelectedItem().toString().trim();
-        campoImagem1 = imagem1.getText().trim();
-        campoImagem2 = imagem2.getText().trim().isEmpty() ? "" : imagem2.getText().trim();
+public void pegarRespostas() {
+    // Coleta básica dos campos
+    produto = nomeProduto.getText().trim();
+    descricao = descricaoGeral.getText().trim();
+    descricao_curta = descricaoCurta.getText().trim();
+    
+    // ============= VALIDAÇÃO DO PREÇO =============
+    campoPreco = preco.getText().trim();
+    if (campoPreco.isEmpty()) {
+        throw new IllegalArgumentException("O preço é obrigatório");
     }
+    
+
+    // Converte para double para validação
+    double valorPreco = Double.parseDouble(campoPreco.replace(".", "").replace(",", "."));
+    if (valorPreco <= 0) {
+        throw new IllegalArgumentException("O preço deve ser maior que zero");
+    }
+
+    // ============= VALIDAÇÃO DO PREÇO PROMOCIONAL =============
+    boolean emPromocao = !precoPromocional.getText().trim().isEmpty();
+    preco_promocional = emPromocao ? precoPromocional.getText().trim() : "0,00";
+    
+    if (emPromocao) {
+        
+        double valorPromocional = Double.parseDouble(preco_promocional.replace(".", "").replace(",", "."));
+        if (valorPromocional >= valorPreco) {
+            throw new IllegalArgumentException("Preço promocional deve ser menor que o preço normal");
+        }
+    }
+
+    // ============= DEMAIS CAMPOS =============
+    campoMarca = marca.getText().trim();
+    campoAvaliacao = avaliacao.getSelectedItem() == null ? "0" : String.valueOf(avaliacao.getSelectedItem());
+    campoQuantidadeAvaliacoes = totalAvaliacao.getText().trim().isEmpty() ? "0" : totalAvaliacao.getText().trim();
+    campoEstoque = estoque.getText().trim().isEmpty() ? "1" : estoque.getText().trim();
+    campoParcelas = parcelas.getSelectedItem() == null ? "1" : String.valueOf(parcelas.getSelectedItem());
+    campoPeso = peso.getText().trim().isEmpty() ? "0" : peso.getText().trim();
+    campoDimensoes = dimensoes.getText().trim().isEmpty() ? "0x0x0" : dimensoes.getText().trim();
+    categoria = categorias.getSelectedItem() == null ? "Outros" : categorias.getSelectedItem().toString().trim();
+    
+    // Validação da imagem principal
+    campoImagem1 = imagem1.getText().trim();
+    if (campoImagem1.isEmpty()) {
+        throw new IllegalArgumentException("A imagem principal é obrigatória");
+    }
+    campoImagem2 = imagem2.getText().trim().isEmpty() ? "" : imagem2.getText().trim();
+}
 
     public boolean camposObrigatorios() {
         if (nomeProduto.getText().trim().isEmpty()) {
@@ -886,11 +917,15 @@ public class CadastroProdutos extends javax.swing.JInternalFrame {
     }//GEN-LAST:event_imagem2FocusGained
 
     private void imagem1KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_imagem1KeyReleased
+        if(!imagem1.getText().isEmpty()){
         carregarImagemURL(imagem1);
+        }
     }//GEN-LAST:event_imagem1KeyReleased
 
     private void imagem2KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_imagem2KeyReleased
+         if(!imagem2.getText().isEmpty()){
         carregarImagemURL(imagem2);
+        }
     }//GEN-LAST:event_imagem2KeyReleased
 
 

@@ -364,20 +364,41 @@ public class EditarProdutos extends javax.swing.JInternalFrame {
             descricaoCurta = descricao.length() > 100 ? descricao.substring(0, 100) + "..." : descricao;
         }
 
-        // Tratamento para preço com valor padrão 0.00 se vazio
+// TRATAMENTO DO PREÇO NORMAL
         preco = campoPreco.getText().trim();
         if (preco.isEmpty()) {
-            preco = "0.00";
+            throw new IllegalArgumentException("O preço do produto é obrigatório");
         }
 
-        // Tratamento para preço promocional
+   
+
+        // Converte para double para validação numérica
+        double precoValor = Double.parseDouble(preco.replace(".", "").replace(",", "."));
+        if (precoValor <= 0) {
+            throw new IllegalArgumentException("O preço deve ser maior que zero");
+        }
+
+        // TRATAMENTO DO PREÇO PROMOCIONAL
         precoPromocional = campoPrecoPromocional.getText().trim();
-        if (precoPromocional.isEmpty()) {
-            precoPromocional = emPromocao ? preco : "0.00"; // Se estiver em promoção mas sem valor, usa o preço normal
+        emPromocao = radioPromocaoSim.isSelected();
+
+        if (emPromocao) {
+            if (precoPromocional.isEmpty()) {
+                throw new IllegalArgumentException("Preço promocional é obrigatório quando em promoção");
+            }
+
+
+            // Converte e valida
+            double precoPromoValor = Double.parseDouble(precoPromocional.replace(".", "").replace(",", "."));
+
+
+            if (precoPromoValor >= precoValor) {
+                throw new IllegalArgumentException("Preço promocional deve ser menor que o preço normal");
+            }
+        } else {
+            precoPromocional = "0.00"; // Padrão quando não está em promoção
         }
 
-        // Status de promoção e ativo
-        emPromocao = radioPromocaoSim.isSelected(); // Já tem valor padrão (false)
         ativo = radioAtivoSim.isSelected(); // Já tem valor padrão (true)
 
         marca = campoMarca.getText().trim();
