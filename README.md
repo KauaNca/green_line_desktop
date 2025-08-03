@@ -39,7 +39,7 @@ Acesse o site do sistema por meio do seguinte link:
 Faça o download das versões abaixo:
 
 - 📱 **Android** → [Download APK](https://www.mediafire.com/file/dj0vkh8z5r89rah/Green_Line.apk/file)  
-- 🖥️ **Desktop** → [Download Executável](https://www.mediafire.com/file/o9ajkpivr4assuc/Green_Line_Web.rar/file)
+- 🖥️ **Desktop** → [Download Executável](https://www.mediafire.com/file/ty6vx48d1vafddi/GreenLineDesktop.rar/file)
 - 🌐 **Versão Web Desktop** → [Download Web Desktop](https://www.mediafire.com/file/o9ajkpivr4assuc/Green_Line_Web.rar/file)
 
 ---
